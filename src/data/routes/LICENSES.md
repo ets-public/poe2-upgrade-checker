@@ -7,7 +7,8 @@ licence. Thank you to their authors.
   (https://github.com/HeartofPhos/exile-leveling), league-start route with all three bandits killed.
   Copyright (c) 2025 HeartofPhos.
 - `poe2.json`: the route, area ids, level targets and permanent rewards come from **Splitstone**
-  (https://github.com/noman-omen/poe2-splitstone), patch 0.5.5 (Forbidden Rites).
+  (https://github.com/noman-omen/poe2-splitstone), patch 0.5.5 (Forbidden Rites). The interludes are put
+  in number order (1, 2, 3) here, with the steps between them reworded; Splitstone uses a speedrun order.
   Copyright (c) 2026 Splitstone contributors.
 
 The "endgame" cards and the reward notes added to the steps are this app's own.

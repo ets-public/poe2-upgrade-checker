@@ -2,7 +2,7 @@
  "game": "poe2",
  "for": "0.5.5 (Forbidden Rites)",
  "checked": "2026-10-28",
- "note": "Path of Exile 2 1.0 (11 December 2026) removes the interludes and adds the final acts: this route will be updated after its patch notes.",
+ "note": "Interludes in number order (1, 2, 3), as most guides play them (Splitstone itself uses a speedrun order). Path of Exile 2 1.0 (11 December 2026) removes the interludes and adds the final acts: this route will be updated after its patch notes.",
  "sources": [
   {
    "name": "Splitstone",
@@ -507,12 +507,49 @@
    ]
   },
   {
-   "name": "Interlude 2 · part 1",
-   "levels": "~50",
+   "name": "Interlude 1",
+   "levels": "mid 50s",
    "steps": [
     {
-     "t": "Interlude 2 (part 1): talk to Asala and Zarka, take the NE exit",
-     "l": "~50",
+     "t": "Kill Isolde & Heldra → Stones of Serle",
+     "in": "p1_1"
+    },
+    {
+     "t": "Activate the 6 megaliths, kill Siora, talk to Una",
+     "in": "p1_2"
+    },
+    {
+     "t": "Checkpoint to the darkness, through The Blackwood to Holten",
+     "in": "p1_3"
+    },
+    {
+     "t": "Optional: buy Greater Runes from the Soul of the Ferryman (~2000 gold each)",
+     "o": 1,
+     "in": "p1_4"
+    },
+    {
+     "t": "Kill Oswin, the Dread Warden → Warden's Ledger (+2 passive points); checkpoint back to Holten",
+     "o": 1,
+     "r": "+2 Passive Points: Warden's Ledger (Oswin)",
+     "p": 2,
+     "in": "p1_5"
+    },
+    {
+     "t": "Kill Thane Wulfric & Lady Elswyth; portal out",
+     "in": "p1_6"
+    },
+    {
+     "t": "Talk to Renly, WP to Kingsmarch, Hooded One → Interlude 2 (Vastiri)",
+     "in": "p1_town"
+    }
+   ]
+  },
+  {
+   "name": "Interlude 2",
+   "levels": "upper 50s",
+   "steps": [
+    {
+     "t": "Talk to Asala and Zarka, take the NE exit",
      "in": "p2_town"
     },
     {
@@ -534,18 +571,37 @@
      "in": "p2_1"
     },
     {
-     "t": "Activate the waypoint, WP back to the Bazaar, Hooded One → Mount Kriar",
+     "t": "Activate the waypoint and carry on through the desert",
      "in": "p2_2"
+    },
+    {
+     "t": "Kill Elzarah, the Cobra Lord, talk to Asala",
+     "in": "p2_3"
+    },
+    {
+     "t": "Kill Vornas → Qimah",
+     "in": "p2_5"
+    },
+    {
+     "t": "Pick a Boon at the Seven Pillars; summon Jado (opens Qimah Reservoir)",
+     "r": "Qimah Boon (swappable): e.g. Tabana +5% all ele res / Orbala 3% MS",
+     "k": [
+      "res"
+     ],
+     "in": "p2_6"
+    },
+    {
+     "t": "Kill Azmadi, the Faridun Prince, use the Grand Barya, talk to Jado; portal to the Bazaar → Hooded One → Interlude 3 (Mount Kriar)",
+     "in": "p2_7"
     }
    ]
   },
   {
    "name": "Interlude 3",
-   "levels": "~51",
+   "levels": "low 60s",
    "steps": [
     {
-     "t": "Interlude 3: through the Ashen Forest to Kriar Village",
-     "l": "~51",
+     "t": "Through the Ashen Forest to Kriar Village",
      "in": "p3_1"
     },
     {
@@ -576,74 +632,8 @@
      "in": "p3_6"
     },
     {
-     "t": "Kill Zolin & Zelina, then summon and talk to Doryani; WP to the Pools of Khatal",
+     "t": "Kill Zolin & Zelina, then summon and talk to Doryani; WP to Kingsmarch",
      "in": "p3_7"
-    }
-   ]
-  },
-  {
-   "name": "Interlude 2 · part 2",
-   "levels": "~54",
-   "steps": [
-    {
-     "t": "Interlude 2 (part 2): kill Elzarah, the Cobra Lord, talk to Asala",
-     "l": "~54",
-     "in": "p2_3"
-    },
-    {
-     "t": "Kill Vornas → Qimah",
-     "in": "p2_5"
-    },
-    {
-     "t": "Pick a Boon at the Seven Pillars; summon Jado (opens Qimah Reservoir)",
-     "r": "Qimah Boon (swappable): e.g. Tabana +5% all ele res / Orbala 3% MS",
-     "k": [
-      "res"
-     ],
-     "in": "p2_6"
-    },
-    {
-     "t": "Kill Azmadi, the Faridun Prince, use the Grand Barya, talk to Jado; portal to Bazaar → Hooded One → Ogham",
-     "in": "p2_7"
-    }
-   ]
-  },
-  {
-   "name": "Interlude 1",
-   "levels": "~57",
-   "steps": [
-    {
-     "t": "Interlude 1: kill Isolde & Heldra → Stones of Serle",
-     "l": "~57",
-     "in": "p1_1"
-    },
-    {
-     "t": "Activate the 6 megaliths, kill Siora, talk to Una",
-     "in": "p1_2"
-    },
-    {
-     "t": "Checkpoint to the darkness, through The Blackwood to Holten",
-     "in": "p1_3"
-    },
-    {
-     "t": "Optional: buy Greater Runes from the Soul of the Ferryman (~2000 gold each)",
-     "o": 1,
-     "in": "p1_4"
-    },
-    {
-     "t": "Kill Oswin, the Dread Warden → Warden's Ledger (+2 passive points); checkpoint back to Holten",
-     "o": 1,
-     "r": "+2 Passive Points: Warden's Ledger (Oswin)",
-     "p": 2,
-     "in": "p1_5"
-    },
-    {
-     "t": "Kill Thane Wulfric & Lady Elswyth; portal out",
-     "in": "p1_6"
-    },
-    {
-     "t": "Talk to Renly, WP to Kingsmarch",
-     "in": "p1_town"
     },
     {
      "t": "Hooded One: Book of Specialisation (+2 passive points) → Travel to Oriath",
