@@ -67,10 +67,24 @@ function parseLine(line) {
 // after dying), and that mustn't skip the steps still to do out in the zone.
 const AHEAD = 60; // how far ahead a new area may be (a few skipped steps, an optional zone)
 // prevArea: the area you were in before (a town: you're coming back from town)
-function advance(route, steps, current, area, prevArea) {
+function advance(route, steps, current, area, prevArea) { return decide(route, steps, current, area, prevArea).index; }
+// the same, with why (for the route's trace): { index, why, at (the step that named the area) }
+//   same-zone: back in the zone of the step you're on; logout-return: back after the route's own
+//   log-out; in / to: a step ahead names the area; town-trip: a town that isn't next on the route;
+//   not-ahead: no step in the next AHEAD names it; known-elsewhere: the route names it, but not ahead
+function decide(route, steps, current, area, prevArea) {
+  const r = decideRaw(route, steps, current, area, prevArea);
+  if (r.why === 'not-ahead') {
+    const x = norm(area);
+    const i = steps.findIndex((s) => norm(s.in) === x || norm(s.to) === x);
+    if (i >= 0) return { ...r, why: 'known-elsewhere', at: i };
+  }
+  return r;
+}
+function decideRaw(route, steps, current, area, prevArea) {
   const x = norm(area);
-  if (!x) return current;
   const from = Math.max(0, current || 0);
+  if (!x) return { index: from, why: 'no-area' };
   if (steps[from] && norm(steps[from].zone) === x) {
     // back in the area you're doing this step in: after dying or a trip to sell, stay on it. But when
     // the route itself logs you out here and brings you back ("Log out", then "Waypoint to" this
@@ -82,13 +96,13 @@ function advance(route, steps, current, area, prevArea) {
         for (let k = j; k < Math.min(steps.length, j + AHEAD); k++) {
           const s = steps[k];
           if (!(s.in || s.to)) continue;
-          if (s.to && norm(s.to) === x) return Math.min(k + 1, steps.length);
-          if (s.in && norm(s.in) === x) return k;
+          if (s.to && norm(s.to) === x) return { index: Math.min(k + 1, steps.length), why: 'logout-return', at: k };
+          if (s.in && norm(s.in) === x) return { index: k, why: 'logout-return', at: k };
           if (!isTown(route, s.in || s.to)) break;
         }
       }
     }
-    return from;
+    return { index: from, why: 'same-zone' };
   }
   const town = isTown(route, x);
   const until = Math.min(steps.length, from + AHEAD);
@@ -97,11 +111,11 @@ function advance(route, steps, current, area, prevArea) {
     const s = steps[i];
     const named = s.in || s.to;
     if (!named) continue;
-    if (s.in && norm(s.in) === x) return i;
-    if (s.to && norm(s.to) === x) return Math.min(i + 1, steps.length);
-    if (town) return from; // another area comes first: this is just a trip to town
+    if (s.in && norm(s.in) === x) return { index: i, why: 'in', at: i };
+    if (s.to && norm(s.to) === x) return { index: Math.min(i + 1, steps.length), why: 'to', at: i };
+    if (town) return { index: from, why: 'town-trip', next: named }; // another area comes first: this is just a trip to town
   }
-  return from;
+  return { index: from, why: 'not-ahead' };
 }
 
 // what the steps you've done have given you: passive points, ascendancy (trials and labs), the
@@ -138,4 +152,4 @@ function defaultLogPaths(game) {
   ];
 }
 
-module.exports = { load, flatten, isTown, parseLine, advance, totals, defaultLogPaths, AHEAD, TOWN };
+module.exports = { load, flatten, isTown, parseLine, advance, decide, totals, defaultLogPaths, AHEAD, TOWN };

@@ -92,3 +92,17 @@ test('route: a whole campaign played in order follows every step to the end', ()
     }
   }
 });
+
+test('route: says why it moved or stayed (for the trace)', () => {
+  const route = R.load('poe2');
+  const steps = R.flatten(route);
+  assert.strictEqual(R.decide(route, steps, 2, 'g1_4').why, 'in');
+  assert.strictEqual(R.decide(route, steps, 2, 'g1_2').why, 'same-zone');
+  const nextArea = (i) => steps.slice(i).find((x) => x.in || x.to);
+  const away = steps.findIndex((s, i) => i > 0 && !R.isTown(route, s.zone) && nextArea(i) && !R.isTown(route, nextArea(i).in || nextArea(i).to));
+  assert.strictEqual(R.decide(route, steps, away, 'g1_town').why, 'town-trip');
+  assert.strictEqual(R.decide(route, steps, 2, 'g4_10').why, 'known-elsewhere'); // Act 4, far ahead
+  assert.strictEqual(R.decide(route, steps, 2, 'MapSomething').why, 'not-ahead');
+  const p1 = R.load('poe1'); const s1 = R.flatten(p1);
+  assert.strictEqual(R.decide(p1, s1, 0, '1_1_2').why, 'to');
+});

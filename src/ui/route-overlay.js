@@ -20,8 +20,8 @@
     const total = v.totalsOf && v.totalsOf.passives;
     const foot = `<div class="rov-foot"><span>Passives ${v.totals.passives}${total ? ` of ${total}` : ''}</span>${v.level ? `<span>Level ${esc(v.level)}</span>` : ''}${v.areaLevel ? `<span>Area ${esc(v.areaLevel)}</span>` : ''}${!v.follow ? '<span class="rov-warn">Not following zones</span>' : ''}</div>`;
     box.innerHTML = head + now + nx + foot;
-    document.getElementById('rovBack').addEventListener('click', () => window.api.routeStep(-1));
-    document.getElementById('rovNext').addEventListener('click', () => window.api.routeStep(1));
+    document.getElementById('rovBack').addEventListener('click', () => window.api.routeStep(-1, 'overlay'));
+    document.getElementById('rovNext').addEventListener('click', () => window.api.routeStep(1, 'overlay'));
     document.getElementById('rovClose').addEventListener('click', () => window.api.routeOverlayClose());
     window.api.routeOverlaySize(box.offsetHeight + 8); // (the box's 4px margin above and below)
   }

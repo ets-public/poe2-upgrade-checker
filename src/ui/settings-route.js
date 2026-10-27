@@ -59,8 +59,8 @@
 
   async function set(patch) { v = await window.api.routeSet(patch); render(); }
   function bind() {
-    document.getElementById('routeBack').addEventListener('click', async () => { v = await window.api.routeStep(-1); render(); });
-    document.getElementById('routeNext').addEventListener('click', async () => { v = await window.api.routeStep(1); render(); });
+    document.getElementById('routeBack').addEventListener('click', async () => { v = await window.api.routeStep(-1, 'tab'); render(); });
+    document.getElementById('routeNext').addEventListener('click', async () => { v = await window.api.routeStep(1, 'tab'); render(); });
     document.getElementById('routeFollow').addEventListener('change', (e) => set({ follow: e.target.checked }));
     document.getElementById('routeOptional').addEventListener('change', (e) => set({ optional: e.target.checked }));
     document.getElementById('routeOverlay2').addEventListener('click', () => set({ overlay: !v.overlay }));

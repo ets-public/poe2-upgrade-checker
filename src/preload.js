@@ -112,7 +112,7 @@ contextBridge.exposeInMainWorld('api', {
   routeGet: () => ipcRenderer.invoke('route:get'),
   routeSet: (patch) => ipcRenderer.invoke('route:set', patch),
   routeJump: (index) => ipcRenderer.invoke('route:jump', index),
-  routeStep: (delta) => ipcRenderer.invoke('route:step', delta),
+  routeStep: (delta, source) => ipcRenderer.invoke('route:step', delta, source),
   routeReset: () => ipcRenderer.invoke('route:reset'),
   routeBrowse: () => ipcRenderer.invoke('route:browse'),
   routeOverlayClose: () => ipcRenderer.send('route:overlay-close'),
