@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- **From contributors:** Where to spend works signed out of pathofexile.com: it shrinks its search step by step like Find upgrades does (every slot said "too many filters"), and when every slot fails the same way it shows when it ran, with *Search again now* (thanks Spardutti, #7).
 - **Prices from listings like yours:** a price check reads each listing it finds and compares it with your item on the stats it's priced on. Listings with more than yours (a ring with your resistances and damage plus 80 life and attack speed) or much less are left out of the price, so better items no longer push yours up. If too few listings are just like yours, the price comes from the ones that differ by one stat, and the card says so; it's never "solid" then.
 - **More listings before judging:** a price check now loosens its search until at least 5 are found (it stopped at 3, so a jewel came out at 5 div from asking prices of 2, 5 and 13 div). The looser matches that aren't like your item are left out again, so they add evidence without changing what's compared.
 - **Cheap listings aren't thrown out as baits any more:** the old rule compared each cheap listing with the middle of the whole market. Most listings on the trade site are overpriced ones that haven't sold, so real offers at 30–300 ex for a ring could be dropped as "price-fixing baits", and a ~60 ex ring read 4 div. Now only one or two listings far under the next ones are baits (or a group a hundred times under them). The F3 card says how many were left out.
