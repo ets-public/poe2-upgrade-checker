@@ -21,6 +21,11 @@ const trade = require('./trade');
 // recent the listings must be
 const LEVELS = [
   { lo: 0.9, hi: 1.4, miss: (n) => (n >= 5 ? 1 : 0), indexed: '3days', label: 'similar values, listed in the last 3 days' },
+  // what the item sells on, nothing else: its top-tier mods (T1-T2), the special ones that don't
+  // normally roll on it (no tier: minion mods on a ring), key stats and big totals. Filler (a T6
+  // evasion roll) and middling mods are left out, so the rings that share what makes yours valuable
+  // are found instead of any ring with some of its stats (needs the advanced copy, with tiers)
+  { drivers: true, lo: 0.85, hi: 2, indexed: '1week', label: 'the mods that make it valuable (top tiers and special mods), listed in the last week' },
   { lo: 0.8, hi: 1.8, miss: (n) => (n >= 2 ? 1 : 0), indexed: '1week', label: 'close values, listed in the last week' },
   { lo: 0.75, hi: 2.5, miss: (n) => (n >= 6 ? 2 : n >= 2 ? 1 : 0), indexed: '2weeks', label: 'the main stats, listed in the last 2 weeks' },
 ];
@@ -63,6 +68,14 @@ const KEY = /Movement Speed|Level of all .*Skills|Level of all .*Gems|\bSpirit\b
 
 const isUnique = (item) => /unique/i.test(item.rarity || '');
 
+// the mods an item sells on: null without tiers (a plain copy); else the keys of its T1-T2 mods and
+// of the mods without a tier in an advanced copy (special mods: desecrated, corrupted, essence...)
+function driverKeys(item) {
+  const lines = ((item && item.lines) || []).filter((l) => l.tag === 'explicit' && l.key);
+  if (!lines.some((l) => l.tier != null)) return null;
+  return new Set(lines.filter((l) => l.tier == null || l.tier <= 2).map((l) => l.key));
+}
+
 // the stats this item is priced on: [{ id, value, label, kind }]
 function priceStats(item, opts = {}) {
   const sources = trade.statSources(item);
@@ -89,8 +102,10 @@ function priceStats(item, opts = {}) {
     mods.push(s);
   }
   const stats = [];
+  const drivers = driverKeys(item);
   for (const t of totals.values()) {
-    if (t.value >= (PSEUDO_MIN[t.id] || 1)) stats.push({ id: t.id, value: t.value, label: t.label, kind: 'pseudo' });
+    // a total is something buyers price on when it's big (twice the least that counts)
+    if (t.value >= (PSEUDO_MIN[t.id] || 1)) stats.push({ id: t.id, value: t.value, label: t.label, kind: 'pseudo', driver: !!drivers && t.value >= 2 * (PSEUDO_MIN[t.id] || 1) });
     else skipped.push(`${t.label} ${t.value} (under ${PSEUDO_MIN[t.id]}: too small to price on)`);
   }
   for (const s of mods) {
@@ -99,7 +114,7 @@ function priceStats(item, opts = {}) {
     const value = m.invert ? -s.value : s.value;
     if (!(value > 0)) { skipped.push(`${s.key} ${s.value} (a downside)`); continue; } // a downside, or a "reduced" mod the trade site counts as negative
     if (stats.some((x) => x.id === m.id)) continue;
-    stats.push({ id: m.id, value, label: s.key, kind: 'mod' });
+    stats.push({ id: m.id, value, label: s.key, kind: 'mod', driver: !!drivers && (drivers.has(s.key) || KEY.test(s.key)) });
   }
   // the item's own numbers: defences on armour, DPS on weapons
   const equip = [];
@@ -122,7 +137,16 @@ const round = (x) => (x >= 10 ? Math.floor(x) : Math.round(x * 10) / 10);
 function buildPriceQuery(item, opts = {}) {
   const lv = Math.max(0, Math.min(LEVELS.length - 1, opts.level || 0));
   const L = LEVELS[lv];
-  const { stats, equip, skipped } = priceStats(item, opts);
+  const all = priceStats(item, opts);
+  const { equip, skipped } = all;
+  let stats = all.stats;
+  if (L.drivers) {
+    // only worth a search of its own when it leaves something out and still has two things to go on
+    // (or one key stat: a +2 melee skills amulet sells on that)
+    const d = stats.filter((s) => s.driver);
+    if ((d.length < 2 && !d.some((s) => KEY.test(s.label))) || d.length === stats.length) return { skip: true, level: lv, levels: LEVELS.length, levelLabel: L.label, drivers: true };
+    stats = d;
+  }
   const filters = stats.map((s) => {
     const value = { min: round(s.value * L.lo) };
     if (L.hi) value.max = Math.ceil(s.value * L.hi);
@@ -134,7 +158,7 @@ function buildPriceQuery(item, opts = {}) {
   const restF = filters.filter((f, i) => !KEY.test(stats[i].label));
   const n = filters.length;
   const r = restF.length;
-  const restNeed = r ? Math.max(keyF.length ? 0 : 1, r - L.miss(n)) : 0;
+  const restNeed = r ? (L.drivers ? r : Math.max(keyF.length ? 0 : 1, r - L.miss(n))) : 0;
   const need = keyF.length + restNeed;
   const qf = {};
   const cat = trade.categoryFor(item.itemClass, opts.filtersData);
@@ -164,7 +188,7 @@ function buildPriceQuery(item, opts = {}) {
   if (r && restNeed > 0) groups.push({ type: 'count', value: { min: restNeed }, filters: restF });
   const query = { status: { option: 'available' }, stats: groups, filters: qf };
   return {
-    body: { query, sort: { price: 'asc' } }, need, total: n, level: lv, levels: LEVELS.length, levelLabel: L.label, skipped,
+    body: { query, sort: { price: 'asc' } }, need, total: n, level: lv, levels: LEVELS.length, levelLabel: L.label, skipped, drivers: !!L.drivers,
     labels: stats.map((s) => s.label).concat(equip.map((e) => ({ ar: 'Armour', ev: 'Evasion', es: 'Energy Shield', spirit: 'Spirit', pdps: 'Physical DPS', edps: 'Elemental DPS' })[e.f])),
   };
 }

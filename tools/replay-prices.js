@@ -49,7 +49,8 @@ for (const c of cases) {
   const market = !map && !tablet && pq.usesPriceQuery(item); // as the app does: tablets aren't compared listing by listing
   let group = { group: 'all', listings };
   const preferLocal = ['Weapon', 'Offhand', 'Helmet', 'Body Armour', 'Gloves', 'Boots'].includes(item.slot);
-  if (map || market) group = comparables.pick(item, listings, map ? { kind: 'map', game: c.game } : { game: c.game, preferLocal, statIndex: statIndex(c.game) }, pq.MIN);
+  const lastStep = (c.steps || [])[(c.steps || []).length - 1] || {};
+  if (map || market) group = comparables.pick(item, listings, map ? { kind: 'map', game: c.game } : { game: c.game, preferLocal, statIndex: statIndex(c.game), drivers: !!lastStep.drivers }, pq.MIN);
   const s = priceStats(group.listings, { now: Date.parse(c.at) || Date.now(), alike: group.group === 'alike' || (tablet && (c.steps || []).length > 0 && c.steps[c.steps.length - 1].level === 0) }); // listing ages as they were at the check
   const was = c.verdict || {};
   const now = group.group === 'weaker' ? `more than ${fmt(s && s.typicalEx)} (every listing weaker)` : s ? `${fmt(s.typicalEx)} (${fmt(s.lowEx)}–${fmt(s.highEx)})` : 'none';

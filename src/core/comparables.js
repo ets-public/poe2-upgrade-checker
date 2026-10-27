@@ -21,7 +21,7 @@ const MUCH_LESS = 0.75; // "well under yours"
 function statMap(item, opts) {
   const { stats, equip } = pq.priceStats(item, opts);
   const m = new Map();
-  for (const s of stats) m.set(s.id, { value: s.value, label: s.label });
+  for (const s of stats) m.set(s.id, { value: s.value, label: s.label, driver: !!s.driver });
   for (const e of equip) m.set(`equip.${e.f}`, { value: e.value, label: { ar: 'Armour', ev: 'Evasion', es: 'Energy Shield', spirit: 'Spirit', pdps: 'Physical DPS', edps: 'Elemental DPS' }[e.f] || e.f });
   return m;
 }
@@ -55,9 +55,16 @@ function pick(item, listings, opts = {}, min = 3) {
   const stats = map ? pq.mapStats : statMap;
   const less = map ? 0.9 : MUCH_LESS;
   const ours = stats(item, opts);
+  // a search on the mods that make it valuable: compared on those alone (a listing's other mods are
+  // neither extra nor missing)
+  if (opts.drivers && !map) for (const [id] of [...ours]) if (!(ours.get(id).driver)) ours.delete(id);
   for (const x of all) {
     if (!x.item) { x.diff = null; continue; }
-    try { x.diff = compare(ours, stats(x.item, opts), less); } catch (_) { x.diff = null; }
+    try {
+      const theirs = stats(x.item, opts);
+      if (opts.drivers && !map) for (const id of [...theirs.keys()]) if (!ours.has(id)) theirs.delete(id);
+      x.diff = compare(ours, theirs, less);
+    } catch (_) { x.diff = null; }
   }
   const sellers = (list) => new Set(list.filter((x) => x.priceEx > 0).map((x) => x.account || x.id)).size;
   const alike = all.filter((x) => x.diff && !x.diff.extra.length && !x.diff.missing.length);

@@ -37,8 +37,8 @@ module.exports = function (C) {
   // stats, waystones and maps on their numbers and mod count; a tablet's first search already asks
   // for every mod at close values, so what it finds is like yours (exact)
   // (self: your item, to leave your own listing out, whatever the search)
-  function compareWith(item, opts, market, mapish, level) {
-    if (market) return { item, opts, self: item };
+  function compareWith(item, opts, market, mapish, level, drivers) {
+    if (market) return { item, opts: drivers ? { ...opts, drivers: true } : opts, self: item };
     if (!mapish || /unique/i.test(item.rarity || '')) return { self: item };
     if (priceQuery.isTablet(item)) return { exact: level === 0, self: item };
     return { item, opts: { ...opts, kind: 'map' }, self: item };
@@ -244,6 +244,7 @@ module.exports = function (C) {
     const steps = [];
     for (let level = 0; level < levels; level++) {
       q = mapish ? priceQuery.buildMapPriceQuery(item, { ...opts, level }) : market ? priceQuery.buildPriceQuery(item, { ...opts, level }) : trade.buildSimilarQuery(item, { ...opts, level });
+      if (q.skip) { C.log(`price L${level}: skipped (${q.drivers ? 'no top-tier or special mods to search on alone, or the copy has no tiers' : 'nothing to search'})`); continue; }
       if (chosen) {
         const c = trade.buildQuery(chosen.map((p) => ({ key: p.key, min: p.min, max: p.max, source: p.source, ...(typeof p.id === 'string' && /^[a-z]+\.[a-z0-9_]{1,80}$/.test(p.id) ? { id: p.id, idType: ['pseudo', 'explicit', 'implicit', 'enchant', 'rune', 'fractured', 'crafted'].includes(p.idType) ? p.idType : undefined } : {}) })), { itemClass: item.itemClass, statIndex: d.index, filtersData: d.filters, preferLocal: armourOrWeapon, status: 'available' });
         q.body.query.stats = c.body.query.stats;
@@ -255,7 +256,7 @@ module.exports = function (C) {
       q.body.sort = { price: 'asc' };
       r = await C.runSearch(league, q.body, chosen ? 'price chosen' : `price L${level}`);
       logQuery(q, level, r && r.ok ? r.total : null, enough);
-      steps.push({ level, total: r && r.ok ? r.total : null, labels: q.labels, query: q.body.query });
+      steps.push({ level, total: r && r.ok ? r.total : null, labels: q.labels, query: q.body.query, drivers: q.drivers || undefined });
       if (!r.ok || r.total == null || r.total >= enough) break;
       if (r.near) break;
       await new Promise((res) => setTimeout(res, 700));
@@ -272,7 +273,7 @@ module.exports = function (C) {
       const rates = { ...(C.store.settings.currencyRates || {}), ...(C.store.settings.divineRate ? { divine: C.store.settings.divineRate } : {}) };
       const raw = r.ids && r.ids.length ? await C.fetchListings(league, r.searchId, r.ids.slice(0, 40), C.tg()) : [];
       let listings = raw.map((x) => listingLib.summarise(x, item.itemClass, rates, C.G().base));
-      const cmp = compareWith(item, opts, market, mapish, q.level || 0);
+      const cmp = compareWith(item, opts, market, mapish, q.level || 0, !!q.drivers);
       let summary = priceSummary(listings, league, q.level || 0, cmp);
       // few of the cheapest 40 are like yours: the ones like it are often a little dearer, so 40 more
       // are read (one more round of the trade site's fetches) before judging
@@ -295,7 +296,7 @@ module.exports = function (C) {
     if (shown === 'superseded') {
       // you searched again or changed game while this loaded: nothing to show, no browser either
     } else if (shown) {
-      const cmp = compareWith(item, opts, market, mapish, q.level || 0);
+      const cmp = compareWith(item, opts, market, mapish, q.level || 0, !!q.drivers);
       Object.defineProperty(C.resultsState.ctx, 'priceCompare', { value: cmp, enumerable: false, writable: true, configurable: true });
       summary = priceSummary(C.resultsState.listings, league, q.level || 0, cmp);
       logPrices(C.resultsState.listings, summary);
