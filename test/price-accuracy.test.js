@@ -94,3 +94,12 @@ test('waystone: never priced on weaker waystones', () => {
   assert.ok(['alike', 'better'].includes(g.group), g.group);
   assert.ok(priceStats(g.listings, { now: NOW }).typicalEx >= 2000);
 });
+
+test('price: loose matches far apart give a range, not one made-up number (the Chimeric Hold case)', () => {
+  const { tooWide } = require('../src/core/price');
+  // rings found only on some of your stats, asking 60 div to 400 div: no one price
+  const wide = priceStats([3290, 39474, 131580, 219081, 263160].map((ex) => L(ex)), { now: NOW }); // its listings, yours left out
+  assert.strictEqual(tooWide(wide), true);
+  // loose matches that agree (2x apart) still give a price
+  assert.strictEqual(tooWide(priceStats([335, 400, 520, 684].map((ex) => L(ex)), { now: NOW })), false);
+});

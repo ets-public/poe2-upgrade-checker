@@ -100,4 +100,9 @@ function confidence(s, level = 0) {
   return { grade, why: why.join(', ') };
 }
 
-module.exports = { priceStats, confidence, STALE_DAYS };
+// listings that aren't like yours this far apart (cheapest to 5th cheapest seller, past 4x: the
+// "prices far apart" of confidence()) give a range, not a price: any one number would be made up
+const WIDE = 4;
+const tooWide = (s) => !!(s && s.count >= 2 && s.lowEx > 0 && s.highEx / s.lowEx > WIDE);
+
+module.exports = { priceStats, confidence, tooWide, WIDE, STALE_DAYS };

@@ -94,6 +94,14 @@ module.exports = function (C) {
       out.verdict = `Can't price this reliably: ${s.unconvertible} of the listings are priced in currencies without a known rate.`;
     } else if (s.few) {
       out.verdict = s.count ? `Only ${s.count} listed – not enough to judge${s.count ? ` (from ${fmtEx(s.cheapestEx)})` : ''}.` : 'No priced listings.';
+    } else if (group && group.group !== 'alike' && priceLib.tooWide(s)) {
+      // priced from listings that aren't like yours, and they're far apart (a ring found only on
+      // some of its stats, listed at 1 div to 200 div): any one number would be made up, so the range
+      // is the answer
+      const n = Math.min(5, s.count);
+      out.wide = true; out.lowEx = s.lowEx; out.highEx = s.highEx;
+      out.range = `${fmtEx(s.lowEx)} – ${fmtEx(s.highEx)}`;
+      out.verdict = `No one price: nothing listed is close enough to yours, and the cheapest ${n} similar listings ask ${out.range}.`;
     } else {
       out.typicalEx = s.typicalEx; out.typical = fmtEx(s.typicalEx);
       out.range = s.lowEx !== s.highEx ? `${fmtEx(s.lowEx)} – ${fmtEx(s.highEx)}` : null;
