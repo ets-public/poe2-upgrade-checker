@@ -51,7 +51,7 @@
       list = `<div class="card-p"><ul class="route-steps">${rows.map(({ s, idx }) => `<li data-i="${idx}" class="${idx < v.current ? 'done' : idx === v.current ? 'cur' : ''}${s.o ? ' opt' : ''}" title="Make this the current step">
           <span class="rn">${s.i + 1}</span><span><span class="rt">${esc(s.t)}</span>${tags(s)}${s.h ? `<span class="rh">${esc(s.h)}</span>` : ''}${rewardLine(s) ? `<span class="rh">${esc(rewardLine(s))}</span>` : ''}</span><span class="rl">${s.l ? `lvl ${esc(s.l)}` : ''}</span></li>`).join('')}</ul></div>`;
     }
-    const credit = `<div class="route-credit">Route for ${esc(gameName)} ${esc(v.for)}, checked ${esc(v.checked)}. ${esc(v.note || '')} Route data: ${(v.sources || []).map((x) => `${esc(x.name)} by ${esc(x.by)} (${esc(x.licence)})`).join(', ')}; endgame notes are our own.</div>`;
+    const credit = `<div class="route-credit">Route for ${esc(gameName)} ${esc(v.for)}, checked ${esc(v.checked)}. ${esc(v.note || '')} Route data: ${(v.sources || []).map((x) => `${esc(x.name)} by ${esc(x.by)} (${esc(x.licence)})`).join(', ')}; endgame notes${v.game === 'poe1' ? ' and the optional side quests (facts from poedb.tw)' : ''} are our own.</div>`;
     body().innerHTML = nowCard + follow + acts + list + credit;
     const ob = document.getElementById('routeOverlayBtn'); if (ob) ob.textContent = v.overlay ? 'Hide overlay' : 'Show overlay';
     bind();

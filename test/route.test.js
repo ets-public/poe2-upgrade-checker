@@ -106,3 +106,27 @@ test('route: says why it moved or stayed (for the trace)', () => {
   const p1 = R.load('poe1'); const s1 = R.flatten(p1);
   assert.strictEqual(R.decide(p1, s1, 0, '1_1_2').why, 'to');
 });
+
+test('route: every optional quest is on the route, marked optional, and doing one is followed', () => {
+  const p2 = R.flatten(R.load('poe2'));
+  assert.ok(p2.filter((s) => s.o).length >= 60, 'PoE2: Splitstone\'s optional zones, bosses and side objectives');
+  assert.ok(p2.some((s) => s.o && /Mysterious Campsite/.test(s.t)) && p2.some((s) => s.o && /Mud Burrow/.test(s.t)));
+  const r1 = R.load('poe1'); const p1 = R.flatten(r1);
+  for (const q of ['A Dirty Job', 'A Swig of Hope', 'A Fixture of Fate', 'The King\'s Feast', 'Bestel\'s Epic', 'In Memory of Greust', 'The Wings of Vastiri', 'Fastis Fortuna', 'No Love for Old Ghosts', 'Map to Tsoatha']) {
+    const steps = p1.filter((s) => s.t.includes(q));
+    assert.ok(steps.length >= 2 && steps.every((s) => s.o), `PoE1 ${q}: found and handed in, optional`);
+  }
+  // optional quests don't change the passive points the campaign gives
+  assert.strictEqual(R.totals(p1, p1.length).passives, 23);
+  // into the Fetid Pool from the Mud Flats: the optional step; then on to the Submerged Passage
+  const mud = p1.findIndex((s) => s.to === '1_1_3');
+  let cur = R.advance(r1, p1, mud, '1_1_3');
+  cur = R.advance(r1, p1, cur, '1_1_3a');
+  assert.ok(/A Dirty Job/.test(p1[cur].t));
+  cur = R.advance(r1, p1, cur, '1_1_3');
+  assert.ok(/A Dirty Job/.test(p1[cur].t), 'back in the Mud Flats: stays');
+  cur = R.advance(r1, p1, cur, '1_1_4_1');
+  assert.strictEqual(p1[cur - 1].to, '1_1_4_1');
+  // skipping it: the Mud Flats straight to the Submerged Passage passes it
+  assert.strictEqual(p1[R.advance(r1, p1, mud + 1, '1_1_4_1') - 1].to, '1_1_4_1');
+});

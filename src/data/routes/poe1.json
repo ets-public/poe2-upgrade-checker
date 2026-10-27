@@ -52,12 +52,23 @@
      "t": "Get the waypoint"
     },
     {
+     "t": "The Spirit Flame (Curse of the Allflame league, 3.29): find a use for the Allflame on the Coast, take it to Valerie, the Corsair aboard the Sovereign, then beat Captain Fairgraves in The Ship Graveyard",
+     "h": "Unlocks Allflame crafting with Vesper. Rewards include Dead Man's Sulphur, a Coral, Iron or Paua Ring, an Orb of Alchemy or Orb of Transmutation.",
+     "o": true
+    },
+    {
      "t": "➞ The Mud Flats",
      "to": "1_1_3"
     },
     {
      "t": "Find 3× Glyph",
      "h": "Little streams connect the 3 Rhoa nests"
+    },
+    {
+     "t": "A Dirty Job: ➞ The Fetid Pool (off the Mud Flats), kill every monster there",
+     "in": "1_1_3a",
+     "r": "2 passive refund points (Book of Regrets)",
+     "o": true
     },
     {
      "t": "➞ The Submerged Passage",
@@ -80,6 +91,11 @@
     },
     {
      "t": "Hand in Breaking Some Eggs"
+    },
+    {
+     "t": "Hand in A Dirty Job to Tarkleigh",
+     "r": "2 passive refund points (Book of Regrets)",
+     "o": true
     },
     {
      "t": "Hand in Mercy Mission"
@@ -506,6 +522,10 @@
      "t": "Get the waypoint"
     },
     {
+     "t": "A Swig of Hope: find the Decanter Spiritus in the Marketplace",
+     "o": true
+    },
+    {
      "t": "➞ The Catacombs",
      "h": "Look around nearby",
      "to": "1_3_6"
@@ -643,6 +663,10 @@
      "h": "Follow the road"
     },
     {
+     "t": "A Swig of Hope: find Chitus' Plum in the Imperial Gardens",
+     "o": true
+    },
+    {
      "t": "Complete the Labyrinth trial",
      "k": [
       "trial"
@@ -658,6 +682,29 @@
     {
      "t": "Waypoint to The Imperial Gardens",
      "to": "1_3_15"
+    },
+    {
+     "t": "A Fixture of Fate: ➞ The Library (off the Imperial Gardens)",
+     "in": "1_3_17_1",
+     "h": "Get the waypoint.",
+     "o": true
+    },
+    {
+     "t": "Find a Loose Candle ➞ The Archives, find 4× Golden Page",
+     "in": "1_3_17_2",
+     "o": true
+    },
+    {
+     "t": "Waypoint to The Library, hand in A Fixture of Fate to Siosa",
+     "in": "1_3_17_1",
+     "r": "A support gem and an Uncarved Gemstone; Siosa then sells skill gems",
+     "o": true
+    },
+    {
+     "t": "A Swig of Hope: take the Decanter Spiritus and Chitus' Plum to Captain Fairgraves in The Docks",
+     "in": "1_3_9",
+     "r": "A Coral, Paua, Gold or Bone Ring",
+     "o": true
     },
     {
      "t": "➞ The Sceptre of God",
@@ -942,6 +989,10 @@
      "h": "Go ↖"
     },
     {
+     "t": "The King's Feast: find and kill Utula in the Ruined Square",
+     "o": true
+    },
+    {
      "t": "➞ The Ossuary",
      "to": "1_5_6"
     },
@@ -975,6 +1026,11 @@
     {
      "t": "Hand in Kitava's Torments",
      "p": 1
+    },
+    {
+     "t": "Hand in The King's Feast to Bannon",
+     "r": "A weapon or shield",
+     "o": true
     },
     {
      "t": "Waypoint to The Ruined Square",
@@ -1020,6 +1076,11 @@
     {
      "t": "➞ The Coast",
      "to": "2_6_2"
+    },
+    {
+     "t": "Bestel's Epic: ➞ The Tidal Island (off the Coast), find Bestel's Manuscript in the wreck of his ship",
+     "in": "2_6_3",
+     "o": true
     },
     {
      "t": "➞ The Mud Flats",
@@ -1085,6 +1146,11 @@
     {
      "t": "Hand in The Cloven One",
      "p": 1
+    },
+    {
+     "t": "Hand in Bestel's Epic to Bestel",
+     "r": "A belt or an amulet",
+     "o": true
     },
     {
      "t": "Waypoint to Prisoner's Gate",
@@ -1325,6 +1391,10 @@
      "to": "2_7_8"
     },
     {
+     "t": "In Memory of Greust: take Greust's Necklace (from Helena, after Greust dies) to the Azmeri Shrine in the Northern Forest",
+     "o": true
+    },
+    {
      "t": "➞ The Dread Thicket",
      "to": "2_7_9"
     },
@@ -1351,6 +1421,11 @@
     {
      "t": "Hand in Kishara's Star",
      "p": 1
+    },
+    {
+     "t": "Hand in In Memory of Greust to Helena",
+     "r": "One of Greust's treasures (an amulet)",
+     "o": true
     },
     {
      "t": "Waypoint to Aspirants' Plaza",
@@ -1563,6 +1638,10 @@
      "t": "Get the crafting recipe"
     },
     {
+     "t": "The Wings of Vastiri: find and kill Hector Titucius, Eternal Servant in the Bath House, take the Wings of Vastiri",
+     "o": true
+    },
+    {
      "t": "➞ The High Gardens",
      "h": "Search ← side",
      "to": "2_8_4"
@@ -1576,6 +1655,11 @@
     {
      "t": "Hand in Reflection of Terror",
      "p": 1
+    },
+    {
+     "t": "Hand in The Wings of Vastiri to Hargan",
+     "r": "A Crimson, Viridian or Cobalt Jewel, or a Two-Stone Ring",
+     "o": true
     }
    ]
   },
@@ -1614,6 +1698,10 @@
      "h": "Go ↗ until you find the cliff"
     },
     {
+     "t": "Fastis Fortuna: find and kill Boulderback in the Foothills, take the Calendar of Fortune",
+     "o": true
+    },
+    {
      "t": "➞ The Boiling Lake",
      "to": "2_9_6"
     },
@@ -1635,6 +1723,11 @@
     },
     {
      "t": "Hand in Queen of the Sands, take Bottled Storm"
+    },
+    {
+     "t": "Hand in Fastis Fortuna to Petarus and Vanja",
+     "r": "2 passive refund points (Book of Regrets)",
+     "o": true
     },
     {
      "t": "Waypoint to The Vastiri Desert",
@@ -1810,6 +1903,10 @@
      "h": "Interact with the switch just before the zig-zagging walls, go to the opposite side to access Hidden Gem: Facetor's Lens"
     },
     {
+     "t": "No Love for Old Ghosts: find Queen Atziri's Elixir of Allure in the Ossuary",
+     "o": true
+    },
+    {
      "t": "Log out (back to town)"
     },
     {
@@ -1825,6 +1922,11 @@
     {
      "t": "Hand in Vilenta's Vengeance",
      "p": 1
+    },
+    {
+     "t": "Hand in No Love for Old Ghosts to Weylam Roth",
+     "r": "2 passive refund points (Book of Regrets)",
+     "o": true
     },
     {
      "t": "Waypoint to Aspirants' Plaza",
@@ -1843,6 +1945,11 @@
     {
      "t": "Waypoint to The Ravaged Square",
      "to": "2_10_2"
+    },
+    {
+     "t": "Map to Tsoatha: ➞ The Reliquary (off the Ravaged Square), find the Teardrop",
+     "in": "2_10_8",
+     "o": true
     },
     {
      "t": "➞ The Torched Courts",
@@ -1869,6 +1976,11 @@
     },
     {
      "t": "Hand in Death and Rebirth"
+    },
+    {
+     "t": "Hand in Map to Tsoatha to Lilly Roth",
+     "r": "A belt",
+     "o": true
     },
     {
      "t": "Waypoint to The Ravaged Square",

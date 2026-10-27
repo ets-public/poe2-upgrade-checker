@@ -11,6 +11,12 @@ licence. Thank you to their authors.
   in number order (1, 2, 3) here, with the steps between them reworded; Splitstone uses a speedrun order.
   Copyright (c) 2026 Splitstone contributors.
 
+The optional PoE2 steps are Splitstone's own notes on optional zones, bosses and side content. The
+optional PoE1 side quests (the ones exile-leveling's route leaves out: A Dirty Job, A Swig of Hope, A
+Fixture of Fate, The King's Feast, Bestel's Epic, In Memory of Greust, The Wings of Vastiri, Fastis
+Fortuna, No Love for Old Ghosts, Map to Tsoatha, and the 3.29 league's The Spirit Flame) are written
+by this app from the quests' facts (areas, NPCs, rewards) as listed on poedb.tw.
+
 The "endgame" cards and the reward notes added to the steps are this app's own.
 
 Both projects are under the MIT licence:

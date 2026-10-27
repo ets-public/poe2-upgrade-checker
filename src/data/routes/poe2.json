@@ -41,9 +41,27 @@
      "in": "g1_2"
     },
     {
+     "t": "Mysterious Campsite (checkpoint), guaranteed Uncut Skill Gem",
+     "o": true
+    },
+    {
+     "t": "Mud Burrow / The Devourer: only a Lv2 skill gem plus a support gem from Renly (unless you're doing the Ritual cluster)",
+     "h": "Side content most routes skip: small rewards.",
+     "o": true
+    },
+    {
      "t": "Grab the Tree of Souls waypoint and the Grim Tangle waypoint, then go up the river to The Red Vale",
      "l": "3-4",
      "in": "g1_4"
+    },
+    {
+     "t": "Witch Hut cauldron gives a Medium Life + Mana Flask even without the kill. Areagne, Forgotten Witch drops a Support Gem (respawn at checkpoint first)",
+     "o": true
+    },
+    {
+     "t": "Gerung, the Brambleghast: only a Lv2 skill gem (Ritual cluster 1 needs him)",
+     "h": "Side content most routes skip: small rewards.",
+     "o": true
     },
     {
      "t": "Activate 3 Obelisks of Rust, kill The Rust King, portal to town",
@@ -64,17 +82,33 @@
      "in": "g1_6"
     },
     {
+     "t": "Ervig, the Rotted Druid: guaranteed Support Gem",
+     "o": true
+    },
+    {
      "t": "Activate waypoint + checkpoint, enter Tomb of the Consort",
      "l": "7",
      "in": "g1_7"
+    },
+    {
+     "t": "Ancient Ruin sarcophagus at the zone edge: guaranteed Iron or Lazuli Ring (transmute it)",
+     "o": true
     },
     {
      "t": "Kill Asinia → Memorial Key Piece",
      "in": "g1_9"
     },
     {
+     "t": "Haunted Treasure POI spawns a rare with a guaranteed Support Gem",
+     "o": true
+    },
+    {
      "t": "Kill Draven → Memorial Key Piece",
      "in": "g1_8"
+    },
+    {
+     "t": "Forgotten Riches POI: gold + rare chest with a Support Gem",
+     "o": true
     },
     {
      "t": "Open the Memorial Gate by the WP, kill Lachlann of Endless Lament, go to Hunting Grounds",
@@ -107,6 +141,10 @@
      "t": "Pick up Una's Lute at Una's Hut, follow the road to Ogham Village",
      "l": "10",
      "in": "g1_13_1"
+    },
+    {
+     "t": "Crop Circle rare in the wheat field: guaranteed Lv4 Uncut Skill Gem (walk into the center)",
+     "o": true
     },
     {
      "t": "Kill The Executioner, pull the lever, talk to Leitis. Get Smithing Tools from Renly's Workshop.",
@@ -146,6 +184,10 @@
      "in": "g2_1"
     },
     {
+     "t": "Raider Camp (checkpoint): tier-2 support gem",
+     "o": true
+    },
+    {
      "t": "Talk to the Hooded One, then Asala → Desert Map → Mawdun Quarry",
      "in": "g2_town"
     },
@@ -153,6 +195,10 @@
      "t": "Find the entrance to Mawdun Mine",
      "l": "15-16",
      "in": "g2_10_1"
+    },
+    {
+     "t": "War Cache at the zone edge (checkpoint): guaranteed Artificer's Orb. Don't backtrack for it",
+     "o": true
     },
     {
      "t": "Kill Rudja, the Dread Engineer, free Risu, portal to caravan",
@@ -169,6 +215,15 @@
      "in": "g2_2"
     },
     {
+     "t": "Bell chest (checkpoint): Uncut Skill Gem Lv6",
+     "o": true
+    },
+    {
+     "t": "Balbala (most speedrunners): a Lv28 Barya is available in Deshar for the late ascendancy",
+     "h": "Side content most routes skip: small rewards.",
+     "o": true
+    },
+    {
      "t": "Kill Jamanra, the Risen King (level 18+), take the stairs down, portal to caravan",
      "l": "18",
      "in": "g2_3"
@@ -183,6 +238,10 @@
      "in": "g2_5_1"
     },
     {
+     "t": "Shrine of Bones near checkpoint: Lv2 support gem",
+     "o": true
+    },
+    {
      "t": "Kill Iktab & Ekbab → Mastodon Tusks; collect the Sun Clan Relic from hyenas",
      "l": "20-21",
      "in": "g2_5_2"
@@ -195,14 +254,26 @@
      "in": "g2_4_1"
     },
     {
+     "t": "Abandoned Prayer (down the stairs): guaranteed magic amulet",
+     "o": true
+    },
+    {
      "t": "Find the entrance to the Buried Shrines",
      "l": "22-23",
      "in": "g2_4_2"
     },
     {
+     "t": "Golden Tomb (Spirit Gem Lv7), Ninth Treasure of Keth scarab (Jewel)",
+     "o": true
+    },
+    {
      "t": "Kill Azarian, the Forsaken Son, put the Water Goddess to rest → Essence of Water",
      "l": "22-24",
      "in": "g2_4_3"
+    },
+    {
+     "t": "Elemental Offering (checkpoint): resistance ring + matching rune. Pick your lowest resistance",
+     "o": true
     },
     {
      "t": "Activate the 3 Ancient Seals; place both relics at the Relic Altar (+1 charm slot)",
@@ -216,6 +287,10 @@
      "in": "g2_7"
     },
     {
+     "t": "Titan's Sword POI: guaranteed Lesser Rune (only if on your path)",
+     "o": true
+    },
+    {
      "t": "Desert Map to the sandstorm (Traitor's Passage), Sound the Horn at the front, Asala → Deshar",
      "in": "g2_town"
     },
@@ -225,9 +300,17 @@
      "in": "g2_8"
     },
     {
+     "t": "Guaranteed Artificer's Orb right at the start along the left or right edge",
+     "o": true
+    },
+    {
      "t": "Run through to The Spires of Deshar",
      "l": "25-27",
      "in": "g2_9_1"
+    },
+    {
+     "t": "Shifting Vases / Hushed Urn: 4 rares + Lv2 Support Gem",
+     "o": true
     },
     {
      "t": "Click the Sisters of Garukhan (+10% lightning res), kill Tor Gul, the Defiler",
@@ -275,6 +358,10 @@
      "in": "g3_1"
     },
     {
+     "t": "Orok Campfire basket near the exit: Lesser Jeweller's Orb",
+     "o": true
+    },
+    {
      "t": "Talk to Oswald (opens his shop), check vendors, exit at the top of town to Jungle Ruins",
      "in": "g3_town"
     },
@@ -303,6 +390,10 @@
      "in": "g3_5"
     },
     {
+     "t": "Ravaged Camp: guaranteed rare armour + Lost Temple Logbook",
+     "o": true
+    },
+    {
      "t": "Use Small Soul Cores (altar + locked exit); kill Blackjaw → Flame Core (+10% fire res)",
      "l": "33",
      "r": "+10% Fire Resistance (Flame Core, Blackjaw)",
@@ -324,6 +415,10 @@
      "t": "Walk over the pressure pads, activate the mechanism at the end",
      "l": "34-35",
      "in": "g3_2_2"
+    },
+    {
+     "t": "Narag's Hut rare drops a rare weapon",
+     "o": true
     },
     {
      "t": "Kill Ignagduk, the Bog Witch → Gemrot Skull (+30 Spirit)",
@@ -357,6 +452,11 @@
      "t": "Kill the Queen of Filth → Temple Door Idol; return and talk to Alva (opens Temple of Kopec)",
      "l": "36-37",
      "in": "g3_11"
+    },
+    {
+     "t": "Mushrooms / Cauldron Keeper (quality flasks only)",
+     "h": "Side content most routes skip: small rewards.",
+     "o": true
     },
     {
      "t": "Kill Mektul, the Forgemaster → Hammer of Kamasa to Oswald: Reforging Bench",
@@ -406,17 +506,41 @@
      "in": "g4_town"
     },
     {
+     "t": "Vendors: Arastas (jewellery/caster), Ngakanu (attack weapons)",
+     "o": true
+    },
+    {
      "t": "Go through to the Volcanic Warrens",
      "in": "g4_1_1"
+    },
+    {
+     "t": "Beast Pen (checkpoint): Mimok the Enslaved → Uncut Support Gem Lv4",
+     "o": true
+    },
+    {
+     "t": "Blind Beast (Primal Arena) → Greater Blank Rune (trade at Dannig for a Greater Rune)",
+     "o": true
+    },
+    {
+     "t": "Fossilised Formation along the outer walls: Lesser Jeweller's Orb",
+     "o": true
     },
     {
      "t": "Kill Krutog, Lord of Kin → weapon piece 1/3 (or free Matiki)",
      "in": "g4_1_2"
     },
     {
+     "t": "Nest (checkpoint): kill the Magma Golems. The one killed last decides the ring: fire → Ruby, lightning → Topaz",
+     "o": true
+    },
+    {
      "t": "Sail to Kedge Bay, run through the fog to Journey's End",
      "o": 1,
      "in": "g4_2_1"
+    },
+    {
+     "t": "Abandoned Ship, Tidal Cay (Tombgrowl), Doran the Deft (rogue exile)",
+     "o": true
     },
     {
      "t": "Tujen → kill Captain Hartlin → Verisium → Dannig's Verisium Spikes → free Freya → kill Omniphobia; Tujen: +2 passive points",
@@ -445,9 +569,17 @@
      "in": "g4_3_1"
     },
     {
+     "t": "Crabshell Cavern (checkpoint): Uncut Support Gem",
+     "o": true
+    },
+    {
      "t": "Kill Diamora, Song of Death → free Matiki (or weapon piece)",
      "o": 1,
      "in": "g4_3_2"
+    },
+    {
+     "t": "Beckoning Clam (checkpoint) → Humming Pearl → Rog in Kingsmarch: Pearlescent Amulet (all resistances)",
+     "o": true
     },
     {
      "t": "Talk to Matiki, peer into the Well, complete the 3 Tests of Mettle, Pay Respects at the Silent Hall (+5% max mana)",
@@ -477,6 +609,10 @@
      "in": "g4_town"
     },
     {
+     "t": "Ange → Shoreline Hideout (hideout + trading)",
+     "o": true
+    },
+    {
      "t": "The Runeseeker: turn in 4 Torn Map pieces → Plunder's Point → Expedition → Deserted Post → Farrow (unlocks Verisium Anvil)",
      "o": 1,
      "in": "g4_13"
@@ -485,6 +621,10 @@
      "t": "Follow Missionary Lorandis, destroy the forcefield, kill Torvian → The Excavation",
      "l": "46-47",
      "in": "g4_8a"
+    },
+    {
+     "t": "Bells: cliff side = 3 Exalted Orbs, opposite = 3 Regal Orbs",
+     "o": true
     },
     {
      "t": "Kill Benedictus (Precursor Forge), talk to the Hooded One, portal to Kingsmarch",
@@ -498,6 +638,10 @@
      "t": "Kill Tavakai (final Act 4 boss), talk to him, portal to Kingsmarch",
      "l": "48",
      "in": "g4_11_2"
+    },
+    {
+     "t": "Mad Butcher (Ngakanu hut), Meeting House chests",
+     "o": true
     },
     {
      "t": "Talk to the Hooded One → Interludes unlocked; Kaimana: Shark Fin → permanent Lesson",
@@ -515,6 +659,10 @@
      "in": "p1_1"
     },
     {
+     "t": "Uncut Skill Gem on a corpse by the road (checkpoint)",
+     "o": true
+    },
+    {
      "t": "Activate the 6 megaliths, kill Siora, talk to Una",
      "in": "p1_2"
     },
@@ -523,9 +671,19 @@
      "in": "p1_3"
     },
     {
+     "t": "Omen altars in the Blackwood (Omens / Dark Omens)",
+     "h": "Side content most routes skip: small rewards.",
+     "o": true
+    },
+    {
      "t": "Optional: buy Greater Runes from the Soul of the Ferryman (~2000 gold each)",
      "o": 1,
      "in": "p1_4"
+    },
+    {
+     "t": "Sigbert & Godwin (Psalm of Blood) unless doing the Ritual cluster",
+     "h": "Side content most routes skip: small rewards.",
+     "o": true
     },
     {
      "t": "Kill Oswin, the Dread Warden → Warden's Ledger (+2 passive points); checkpoint back to Holten",
@@ -571,12 +729,20 @@
      "in": "p2_1"
     },
     {
+     "t": "Torbik (vendor in a wagon with a checkpoint, NE): kill his attackers first. Sells caster weapons, sceptres, jewellery",
+     "o": true
+    },
+    {
      "t": "Activate the waypoint and carry on through the desert",
      "in": "p2_2"
     },
     {
      "t": "Kill Elzarah, the Cobra Lord, talk to Asala",
      "in": "p2_3"
+    },
+    {
+     "t": "Put Yoon's and Rangeen's Barya (found on the way) into the two pedestals at the edges → 2 wishes: rare ring, amulet or jewel",
+     "o": true
     },
     {
      "t": "Kill Vornas → Qimah",
@@ -593,6 +759,10 @@
     {
      "t": "Kill Azmadi, the Faridun Prince, use the Grand Barya, talk to Jado; portal to the Bazaar → Hooded One → Interlude 3 (Mount Kriar)",
      "in": "p2_7"
+    },
+    {
+     "t": "2 Vials of Sacred Water (monster drops) into the Sacred Wells → 1 random currency each. Also a rare: Bloodbilge (giant vase)",
+     "o": true
     }
    ]
   },
@@ -603,6 +773,10 @@
     {
      "t": "Through the Ashen Forest to Kriar Village",
      "in": "p3_1"
+    },
+    {
+     "t": "Ancient Monument (checkpoint): Lv14 Uncut Skill Gem (level scales with interlude order)",
+     "o": true
     },
     {
      "t": "Kill Lythara, the Wayward Spear → Gemcrust Skull (+40 Spirit)",
@@ -634,6 +808,10 @@
     {
      "t": "Kill Zolin & Zelina, then summon and talk to Doryani; WP to Kingsmarch",
      "in": "p3_7"
+    },
+    {
+     "t": "Sealed Vaults at Stone Altars using Small Soul Cores (currency)",
+     "o": true
     },
     {
      "t": "Hooded One: Book of Specialisation (+2 passive points) → Travel to Oriath",
