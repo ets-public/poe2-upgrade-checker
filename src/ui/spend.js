@@ -44,9 +44,10 @@
     const errs = rows.map((r) => r.error).filter(Boolean);
     const sameErr = !run.partial && rows.length > 1 && errs.length === rows.length && errs.every((e) => e === errs[0]) ? errs[0] : null;
     if (sameErr) {
-      body().innerHTML = `<div class="card-p note">${esc(sameErr)}</div><div class="row"><button class="primary" data-goto-gear>Go to My gear</button></div>`;
+      body().innerHTML = `<div class="card-p note">${esc(sameErr)}</div><div class="card-p dim">From the search at ${esc(when)}${run.reused ? ' (kept for 30 minutes)' : ''}. <button class="link" id="spendAgain">Search again now</button></div><div class="row"><button class="primary" data-goto-gear>Go to My gear</button></div>`;
       const g = body().querySelector('[data-goto-gear]');
       if (g) g.addEventListener('click', () => document.querySelector('.tabs button[data-tab="gear"]').click());
+      body().querySelector('#spendAgain').addEventListener('click', () => go(true));
       return;
     }
     const headline = run.partial ? '' : top

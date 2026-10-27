@@ -13,11 +13,11 @@
 
 const { norm } = require('./statnorm');
 const { BASE, STATUSES, statusOpt, EQUIPMENT_FILTERS, buildStatIndex, matchStat, localFor, LOWER_BETTER, categoryFor } = require('./trade/stats');
-const { buildQuery, buildUpgradeQuery, buildGearQuery } = require('./trade/queries');
+const { buildQuery, buildUpgradeQuery, buildGearQuery, GEAR_SEARCH_SIZES } = require('./trade/queries');
 const { CURRENCIES, statSources, baseWithoutSockets, RELAX, buildSimilarQuery, buildCraftQuery } = require('./trade/similar');
 const { priceFilter, applyBudget, budgetLabel } = require('./trade/budget');
 const { apiUrl, pageUrl, searchUrl, fetchUrl, resultsUrl, prefilledUrl, isTradePage, adaptQuery } = require('./trade/urls');
 module.exports = {
-  BASE, EQUIPMENT_FILTERS, localFor, LOWER_BETTER, CURRENCIES, priceFilter, applyBudget, budgetLabel, norm, buildStatIndex, matchStat, categoryFor, buildQuery, buildUpgradeQuery, buildGearQuery, buildSimilarQuery, buildCraftQuery, statSources, baseWithoutSockets, RELAX, STATUSES, statusOpt,
+  BASE, EQUIPMENT_FILTERS, localFor, LOWER_BETTER, CURRENCIES, priceFilter, applyBudget, budgetLabel, norm, buildStatIndex, matchStat, categoryFor, buildQuery, buildUpgradeQuery, buildGearQuery, GEAR_SEARCH_SIZES, buildSimilarQuery, buildCraftQuery, statSources, baseWithoutSockets, RELAX, STATUSES, statusOpt,
   searchUrl, resultsUrl, prefilledUrl, fetchUrl, apiUrl, pageUrl, isTradePage, adaptQuery,
 };

@@ -149,7 +149,7 @@ module.exports = function (C) {
       const LEVELS = [{ share: 1.06, baseShare: 0.9, label: 'clearly better than yours' }, { share: 1, baseShare: 0.85, label: 'a little better than yours' }, { share: 0.9, baseShare: 0.75, label: 'within 10% of yours' }];
       // if the trade site says "too complex", shrink the search step by step (logged out it
       // allows only a handful of filters); the results are still scored by your gear score
-      const SIZES = [{ maxFilters: 40 }, { maxFilters: 20, explicitOnly: true }, { maxFilters: 10, explicitOnly: true, coreShare: 0 }, { maxFilters: 6, explicitOnly: true, coreShare: 0 }, { countOnly: true, explicitOnly: true }];
+      const SIZES = trade.GEAR_SEARCH_SIZES;
       // start at the size the trade site accepted last time, so we don't spend searches on ones it rejects
       const sizeKey = (await C.signedIn()) ? 'signed' : 'anon';
       const learnedSize = (C.store.settings.gearSearchSize || {})[sizeKey] || 0;

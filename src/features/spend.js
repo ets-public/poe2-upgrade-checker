@@ -240,7 +240,7 @@ module.exports = function (C) {
     const weights = C.gearLib.searchWeights(item.slot, { ...go, resNeed: C.resNeedFor(slot) });
     if (!weights.length) return null;
     const sizeKey = (await C.signedIn()) ? 'signed' : 'anon';
-    const SIZES = [{ maxFilters: 40 }, { maxFilters: 20, explicitOnly: true }, { maxFilters: 10, explicitOnly: true, coreShare: 0 }, { maxFilters: 6, explicitOnly: true, coreShare: 0 }];
+    const SIZES = C.trade.GEAR_SEARCH_SIZES;
     let size = Math.min((C.store.settings.gearSearchSize || {})[sizeKey] || 0, SIZES.length - 1);
     for (;;) {
       const q = C.trade.buildGearQuery(item, { ...opts, weights, share: 1.06, baseShare: 0.9, ...SIZES[size] });

@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "start": "electron .",
-    "test": "node --test test/core.test.js test/trade.test.js test/rates.test.js test/listing.test.js test/pob.test.js test/pobverdict.test.js test/price.test.js test/pricequery.test.js test/runepick.test.js test/monstermods.test.js test/buildplanner.test.js test/games.test.js test/pobengine.test.js test/poe1-parser.test.js test/ninja.test.js test/keepsell.test.js test/workflow.test.js test/searchstr.test.js test/credits.test.js test/gearscore.test.js test/autoweights.test.js test/review-fixes.test.js test/price-accuracy.test.js test/known-issues.test.js",
+    "test": "node --test test/core.test.js test/trade.test.js test/rates.test.js test/listing.test.js test/pob.test.js test/pobverdict.test.js test/price.test.js test/pricequery.test.js test/runepick.test.js test/monstermods.test.js test/buildplanner.test.js test/games.test.js test/pobengine.test.js test/poe1-parser.test.js test/ninja.test.js test/keepsell.test.js test/workflow.test.js test/searchstr.test.js test/credits.test.js test/gearscore.test.js test/autoweights.test.js test/review-fixes.test.js test/price-accuracy.test.js test/known-issues.test.js test/gearsearch.test.js",
     "pob": "node tools/get-pob.js",
     "dist": "node tools/get-pob.js && npx electron-builder@26.18.0 --win nsis portable --publish never",
     "dist:linux": "node tools/get-pob.js && npx electron-builder@26.18.0 --linux AppImage --publish never"
