@@ -1,0 +1,45 @@
+/* League start: the route overlay and the League start tab */
+
+/* ---------- overlay ---------- */
+body.route-overlay { background: transparent; overflow: hidden; margin: 0; font-size: 13px; }
+.rov { margin: 4px; background: rgba(12, 10, 8, .92); border: 1px solid var(--bronze); border-radius: 4px; padding: 8px 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, .6); }
+.rov-head { display: flex; align-items: center; gap: 8px; -webkit-app-region: drag; cursor: move; color: var(--gold); font-size: 12px; }
+.rov-head .rov-act { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rov-head button { -webkit-app-region: no-drag; padding: 0 6px; min-width: 0; line-height: 18px; }
+.rov-now { margin-top: 6px; color: var(--bone); font-size: 14px; line-height: 1.35; }
+.rov-now .rov-hint { display: block; color: var(--dim); font-size: 12px; }
+.rov-next { margin-top: 4px; color: var(--dim); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rov-foot { margin-top: 6px; display: flex; gap: 10px; color: var(--bronze-text); font-size: 11px; }
+.rov-foot .rov-warn { color: #e0a060; }
+
+/* rewards on a step: passive points, ascendancy, resistances, spirit */
+.rtag { display: inline-block; font-size: 11px; padding: 0 5px; border-radius: 3px; margin-left: 4px; border: 1px solid var(--iron-hi); color: var(--gold-hi); white-space: nowrap; }
+.rtag.res { color: #e8a0a0; }
+.rtag.trial, .rtag.lab { color: #c9a6ff; }
+.rtag.spirit { color: #9fd3ff; }
+.rtag.opt { color: var(--dim); }
+
+/* ---------- League start tab ---------- */
+.route-top { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: start; }
+.route-now { font-size: 15px; color: var(--bone); }
+.route-sum { display: flex; flex-wrap: wrap; gap: 14px; color: var(--bronze-text); font-size: 12px; margin-top: 6px; }
+.route-acts { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.route-acts button.on { border-color: var(--gold); color: #fff; }
+.route-steps { list-style: none; margin: 0; padding: 0; }
+.route-steps li { display: grid; grid-template-columns: 22px 1fr auto; gap: 6px; padding: 4px 6px; border-bottom: 1px solid var(--iron-lo); cursor: pointer; }
+.route-steps li:hover { background: rgba(255, 255, 255, .03); }
+.route-steps li.done { color: var(--dim); }
+.route-steps li.done .rt { text-decoration: line-through; text-decoration-color: rgba(138, 133, 124, .5); }
+.route-steps li.cur { background: rgba(231, 180, 120, .08); outline: 1px solid var(--bronze); }
+.route-steps li.opt .rt::before { content: 'Optional: '; color: var(--dim); }
+.route-steps .rn { color: var(--dim); font-size: 11px; text-align: right; padding-top: 2px; }
+.route-steps .rh { display: block; color: var(--dim); font-size: 12px; }
+.route-steps .rl { color: var(--dim); font-size: 11px; white-space: nowrap; }
+.route-log { margin-top: 8px; }
+.route-log .path { font-family: Consolas, monospace; font-size: 12px; color: var(--bronze-text); word-break: break-all; }
+.route-end h4 { margin: 10px 0 4px; color: var(--gold); }
+.route-end ul { margin: 0 0 6px 18px; padding: 0; }
+.route-credit { font-size: 11px; color: var(--dim); margin-top: 10px; }
+.route-next { margin-top: 4px; }
+.route-opts { margin-top: 6px; }
+.route-log .warn { color: #e0a060; }

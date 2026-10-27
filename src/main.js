@@ -249,6 +249,7 @@ const prices = require('./features/prices')(C);
 const mapFeature = require('./features/mapcheck')(C);
 require('./features/lootfilter')(C);
 require('./features/spend')(C);
+const routeFeature = require('./features/route')(C);
 require('./features/runes')(C);
 function ninjaPrice(item) {
   // with the same price in chaos orbs (PoE2), for the price card
@@ -377,6 +378,7 @@ app.whenReady().then(() => {
   C.registerHotkey();
   C.registerResultsHotkey();
   C.registerPriceHotkey();
+  routeFeature.start();
   buildTrayMenu();
   setInterval(C.pollClipboard, 250);
   setInterval(C.watchCursor, 200);

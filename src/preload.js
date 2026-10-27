@@ -108,4 +108,14 @@ contextBridge.exposeInMainWorld('api', {
   suggestWeights: () => ipcRenderer.invoke('weights:suggest'),
   onFindUpgrade: (cb) => ipcRenderer.on('find:slot', (_e, slot) => cb(slot)),
   findUpgrade: (slot) => ipcRenderer.send('find:open', slot),
+  // league start: the campaign route (League start tab and its overlay)
+  routeGet: () => ipcRenderer.invoke('route:get'),
+  routeSet: (patch) => ipcRenderer.invoke('route:set', patch),
+  routeJump: (index) => ipcRenderer.invoke('route:jump', index),
+  routeStep: (delta) => ipcRenderer.invoke('route:step', delta),
+  routeReset: () => ipcRenderer.invoke('route:reset'),
+  routeBrowse: () => ipcRenderer.invoke('route:browse'),
+  routeOverlayClose: () => ipcRenderer.send('route:overlay-close'),
+  routeOverlaySize: (h) => ipcRenderer.send('route:overlay-size', h),
+  onRouteUpdate: (cb) => ipcRenderer.on('route:update', (_e, v) => cb(v)),
 });

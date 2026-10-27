@@ -1,0 +1,686 @@
+{
+ "game": "poe2",
+ "for": "0.5.5 (Forbidden Rites)",
+ "checked": "2026-10-28",
+ "note": "Path of Exile 2 1.0 (11 December 2026) removes the interludes and adds the final acts: this route will be updated after its patch notes.",
+ "sources": [
+  {
+   "name": "Splitstone",
+   "by": "Splitstone contributors",
+   "url": "https://github.com/noman-omen/poe2-splitstone",
+   "licence": "MIT",
+   "what": "the campaign route, area ids, level targets and permanent rewards (patch 0.5.5, Forbidden Rites)"
+  }
+ ],
+ "totals": {
+  "passives": 24,
+  "note": "from books and quests in Acts 1–4 and the interludes"
+ },
+ "acts": [
+  {
+   "name": "Act 1",
+   "levels": "1 → 14",
+   "steps": [
+    {
+     "t": "Kill The Bloated Miller, enter Clearfell Encampment",
+     "l": "1",
+     "in": "g1_1"
+    },
+    {
+     "t": "Talk to Renly → first Uncut Skill Gem, head out to Clearfell",
+     "l": "2",
+     "in": "g1_town"
+    },
+    {
+     "t": "Kill Beira of the Rotten Pack (+10% cold res), go to The Grelwood",
+     "l": "2-3",
+     "r": "+10% Cold Resistance (Head of the Winter Wolf, Beira)",
+     "k": [
+      "res"
+     ],
+     "in": "g1_2"
+    },
+    {
+     "t": "Grab the Tree of Souls waypoint and the Grim Tangle waypoint, then go up the river to The Red Vale",
+     "l": "3-4",
+     "in": "g1_4"
+    },
+    {
+     "t": "Activate 3 Obelisks of Rust, kill The Rust King, portal to town",
+     "l": "5",
+     "in": "g1_5"
+    },
+    {
+     "t": "Hand the runes to Renly → Runed Spikes, then WP to The Grelwood",
+     "in": "g1_town"
+    },
+    {
+     "t": "Break the 3 Runic Seals at the Tree of Souls, portal to town, talk to Una there, then WP to The Grim Tangle",
+     "in": "g1_4"
+    },
+    {
+     "t": "Summon Una at the roots, continue to Cemetery of the Eternals",
+     "l": "5-6",
+     "in": "g1_6"
+    },
+    {
+     "t": "Activate waypoint + checkpoint, enter Tomb of the Consort",
+     "l": "7",
+     "in": "g1_7"
+    },
+    {
+     "t": "Kill Asinia → Memorial Key Piece",
+     "in": "g1_9"
+    },
+    {
+     "t": "Kill Draven → Memorial Key Piece",
+     "in": "g1_8"
+    },
+    {
+     "t": "Open the Memorial Gate by the WP, kill Lachlann of Endless Lament, go to Hunting Grounds",
+     "in": "g1_7"
+    },
+    {
+     "t": "Kill The Crowbell (+2 passive points), activate Ogham Farmlands WP, go to Freythorn",
+     "l": "7-8",
+     "r": "+2 Passive Points: Book of Specialisation (Crowbell)",
+     "p": 2,
+     "in": "g1_11"
+    },
+    {
+     "t": "Cleanse 3 Ritual Altars, kill The King in the Mists (+30 Spirit)",
+     "l": "8-9",
+     "o": 1,
+     "r": "+30 Spirit (Gembloom Skull, King in the Mists)",
+     "k": [
+      "spirit"
+     ],
+     "in": "g1_12"
+    },
+    {
+     "t": "Finn: pick a Charm; Una: buy a Greater Life/Mana Flask, then WP to Ogham Farmlands",
+     "l": "10",
+     "o": 1,
+     "in": "g1_town"
+    },
+    {
+     "t": "Pick up Una's Lute at Una's Hut, follow the road to Ogham Village",
+     "l": "10",
+     "in": "g1_13_1"
+    },
+    {
+     "t": "Kill The Executioner, pull the lever, talk to Leitis. Get Smithing Tools from Renly's Workshop.",
+     "l": "11",
+     "in": "g1_13_2"
+    },
+    {
+     "t": "Hand Una's Lute to Una (+2 passive points), collect Leitis' Lv5 gem, give Smithing Tools + Blank Rune to Renly",
+     "r": "+2 Passive Points: Book of Specialisation (Una, The Lost Lute)",
+     "p": 2,
+     "in": "g1_town"
+    },
+    {
+     "t": "Go to Ogham Manor, reaching level 13 on the way",
+     "l": "12",
+     "in": "g1_14"
+    },
+    {
+     "t": "Kill Candlemass (+20 life) on floor 1, kill Count Geonor at level 14",
+     "l": "14",
+     "r": "+20 Maximum Life (Candlemass)",
+     "in": "g1_15"
+    },
+    {
+     "t": "Talk to the Hooded One → 'Follow the Beast's Trail' → Vastiri Outskirts",
+     "in": "g1_town"
+    }
+   ]
+  },
+  {
+   "name": "Act 2",
+   "levels": "14 → 29",
+   "steps": [
+    {
+     "t": "Kill Rathbreaker, portal back, take Zarka's Uncut Skill Gem, enter The Ardura Caravan",
+     "l": "14",
+     "in": "g2_1"
+    },
+    {
+     "t": "Talk to the Hooded One, then Asala → Desert Map → Mawdun Quarry",
+     "in": "g2_town"
+    },
+    {
+     "t": "Find the entrance to Mawdun Mine",
+     "l": "15-16",
+     "in": "g2_10_1"
+    },
+    {
+     "t": "Kill Rudja, the Dread Engineer, free Risu, portal to caravan",
+     "l": "16-17",
+     "in": "g2_10_2"
+    },
+    {
+     "t": "Talk to Risu, then Asala → Desert Map → Traitor's Passage",
+     "in": "g2_town"
+    },
+    {
+     "t": "Run through to The Halani Gates",
+     "l": "17-18",
+     "in": "g2_2"
+    },
+    {
+     "t": "Kill Jamanra, the Risen King (level 18+), take the stairs down, portal to caravan",
+     "l": "18",
+     "in": "g2_3"
+    },
+    {
+     "t": "Take Zarka's Lv7 Uncut Skill Gem, talk to Asala → Mastodon Badlands",
+     "in": "g2_town"
+    },
+    {
+     "t": "Find the entrance to The Bone Pits",
+     "l": "19-20",
+     "in": "g2_5_1"
+    },
+    {
+     "t": "Kill Iktab & Ekbab → Mastodon Tusks; collect the Sun Clan Relic from hyenas",
+     "l": "20-21",
+     "in": "g2_5_2"
+    },
+    {
+     "t": "Kill Kabala, Constrictor Queen (+2 passive points); collect the Kabala Clan Relic from snakes",
+     "l": "21-22",
+     "r": "+2 Passive Points: Book of Specialisation (Kabala)",
+     "p": 2,
+     "in": "g2_4_1"
+    },
+    {
+     "t": "Find the entrance to the Buried Shrines",
+     "l": "22-23",
+     "in": "g2_4_2"
+    },
+    {
+     "t": "Kill Azarian, the Forsaken Son, put the Water Goddess to rest → Essence of Water",
+     "l": "22-24",
+     "in": "g2_4_3"
+    },
+    {
+     "t": "Activate the 3 Ancient Seals; place both relics at the Relic Altar (+1 charm slot)",
+     "l": "23-25",
+     "r": "+1 Charm Slot (Relic Altar); Charm bonus: 30% charm charges OR 30% charm duration (swappable)",
+     "in": "g2_6"
+    },
+    {
+     "t": "Kill Zalmarath, the Colossus → Flame Ruby; Zarka gives the Horn of the Vastiri",
+     "l": "24-26",
+     "in": "g2_7"
+    },
+    {
+     "t": "Desert Map to the sandstorm (Traitor's Passage), Sound the Horn at the front, Asala → Deshar",
+     "in": "g2_town"
+    },
+    {
+     "t": "Take the Final Letter from Fallen Dekhara; kill the Watchful Twins vultures for the Lv28 Barya",
+     "l": "24-27",
+     "in": "g2_8"
+    },
+    {
+     "t": "Run through to The Spires of Deshar",
+     "l": "25-27",
+     "in": "g2_9_1"
+    },
+    {
+     "t": "Click the Sisters of Garukhan (+10% lightning res), kill Tor Gul, the Defiler",
+     "l": "26-27",
+     "r": "+10% Lightning Resistance (Sisters of Garukhan)",
+     "k": [
+      "res"
+     ],
+     "in": "g2_9_2"
+    },
+    {
+     "t": "Hand the Final Letter to Shambrin (+2 passive points); Zarka → Desert Map → Trial of the Sekhemas",
+     "r": "+2 Passive Points: Book of Specialisation (Shambrin, Tradition's Toll)",
+     "p": 2,
+     "in": "g2_town"
+    },
+    {
+     "t": "1st Ascendancy: run the trial with the Lv28 Barya from Deshar",
+     "l": "~28",
+     "o": 1,
+     "r": "1st Ascendancy: 2 Ascendancy Points",
+     "k": [
+      "trial"
+     ],
+     "in": "g2_13"
+    },
+    {
+     "t": "Kill Jamanra, the Abomination (act boss)",
+     "l": "28-29",
+     "in": "g2_12"
+    },
+    {
+     "t": "Talk to the Hooded One in the shrine NW of the caravan's midpoint, then Asala → Sandswept Marsh",
+     "in": "g2_town"
+    }
+   ]
+  },
+  {
+   "name": "Act 3",
+   "levels": "29 → 41",
+   "steps": [
+    {
+     "t": "Run through to the Ziggurat Encampment",
+     "l": "29-30",
+     "in": "g3_1"
+    },
+    {
+     "t": "Talk to Oswald (opens his shop), check vendors, exit at the top of town to Jungle Ruins",
+     "in": "g3_town"
+    },
+    {
+     "t": "Kill Mighty Silverfist (+2 passive points), follow snakes to the Venom Crypts",
+     "l": "29-31",
+     "r": "+2 Passive Points: Book of Specialisation (Mighty Silverfist)",
+     "p": 2,
+     "in": "g3_3"
+    },
+    {
+     "t": "Take the venom from the corpse; hand it to Servi for a PERMANENT choice + Artificer's Orb",
+     "l": "30 (area 35)",
+     "o": 1,
+     "r": "Servi's Venom Draught (PERMANENT): 25% Stun Threshold / 30% Elemental Ailment Threshold / 25% Mana Regen",
+     "in": "g3_4"
+    },
+    {
+     "t": "Run through to the Chimeral Wetlands",
+     "l": "31",
+     "in": "g3_2_1"
+    },
+    {
+     "t": "Grab the Temple of Chaos WP, kill Xyclucian → Chimeral Inscribed Ultimatum, enter Jiquani's Machinarium",
+     "l": "32-33",
+     "in": "g3_5"
+    },
+    {
+     "t": "Use Small Soul Cores (altar + locked exit); kill Blackjaw → Flame Core (+10% fire res)",
+     "l": "33",
+     "r": "+10% Fire Resistance (Flame Core, Blackjaw)",
+     "k": [
+      "res"
+     ],
+     "in": "g3_6_1"
+    },
+    {
+     "t": "Place 2 Medium Soul Cores in the generators, kill Zicoatl → Large Soul Core, WP to Jungle Ruins",
+     "l": "33-34",
+     "in": "g3_6_2"
+    },
+    {
+     "t": "Put the Large Soul Core into the Stone Altar → opens The Matlan Waterways",
+     "in": "g3_3"
+    },
+    {
+     "t": "Walk over the pressure pads, activate the mechanism at the end",
+     "l": "34-35",
+     "in": "g3_2_2"
+    },
+    {
+     "t": "Kill Ignagduk, the Bog Witch → Gemrot Skull (+30 Spirit)",
+     "l": "35",
+     "o": 1,
+     "r": "+30 Spirit (Gemrot Skull, Ignagduk)",
+     "k": [
+      "spirit"
+     ],
+     "in": "g3_7"
+    },
+    {
+     "t": "Servi: Ghastly Spear → charm (and venom if not done); Alva at the bottom → The Drowned City",
+     "in": "g3_town"
+    },
+    {
+     "t": "2nd Ascendancy: Trial of Chaos with the Chimeral Inscribed Ultimatum",
+     "l": "33+",
+     "o": 1,
+     "r": "2nd Ascendancy: 2 Ascendancy Points",
+     "k": [
+      "trial"
+     ]
+    },
+    {
+     "t": "Grab the WP at the start, run through to the Apex of Filth",
+     "l": "35-36",
+     "in": "g3_8"
+    },
+    {
+     "t": "Kill the Queen of Filth → Temple Door Idol; return and talk to Alva (opens Temple of Kopec)",
+     "l": "36-37",
+     "in": "g3_11"
+    },
+    {
+     "t": "Kill Mektul, the Forgemaster → Hammer of Kamasa to Oswald: Reforging Bench",
+     "l": "36-37",
+     "o": 1,
+     "in": "g3_9"
+    },
+    {
+     "t": "Run to the top, kill Ketzuli, High Priest of the Sun; talk to Alva",
+     "l": "37",
+     "in": "g3_12"
+    },
+    {
+     "t": "Go through the Gateway, down the stairs to Utzaal",
+     "in": "g3_town"
+    },
+    {
+     "t": "Kill Viper Napuatzi; kill every Vaal Goliath for the Sacrificial Heart",
+     "l": "38-39",
+     "in": "g3_14"
+    },
+    {
+     "t": "Sacrifice the Sacrificial Heart at the blood altar (+2 passive points), enter The Black Chambers",
+     "l": "39-40",
+     "r": "+2 Passive Points: Sacrificial Heart",
+     "p": 2,
+     "in": "g3_16"
+    },
+    {
+     "t": "Kill Doryani, Royal Thaumaturge (act boss)",
+     "l": "40-42",
+     "in": "g3_17"
+    },
+    {
+     "t": "Talk to Doryani (Cataclysm), then Doryani → Hooded One → Alva last → Kingsmarch",
+     "in": "g3_town"
+    }
+   ]
+  },
+  {
+   "name": "Act 4",
+   "levels": "41 → 50",
+   "steps": [
+    {
+     "t": "Talk to Doryani and Alva, then Makoru at the ship → Isle of Kin",
+     "l": "41",
+     "in": "g4_town"
+    },
+    {
+     "t": "Go through to the Volcanic Warrens",
+     "in": "g4_1_1"
+    },
+    {
+     "t": "Kill Krutog, Lord of Kin → weapon piece 1/3 (or free Matiki)",
+     "in": "g4_1_2"
+    },
+    {
+     "t": "Sail to Kedge Bay, run through the fog to Journey's End",
+     "o": 1,
+     "in": "g4_2_1"
+    },
+    {
+     "t": "Tujen → kill Captain Hartlin → Verisium → Dannig's Verisium Spikes → free Freya → kill Omniphobia; Tujen: +2 passive points",
+     "o": 1,
+     "r": "+2 Passive Points: Mist-shrouded Tome (Tujen, Dark Mists)",
+     "p": 2,
+     "in": "g4_2_2"
+    },
+    {
+     "t": "Go through to Solitary Confinement; optional Goddess of Justice (flask recovery)",
+     "l": "43",
+     "r": "Goddess of Justice: +30% life OR mana flask recovery (swappable)",
+     "in": "g4_5_1"
+    },
+    {
+     "t": "Kill The Prisoner → weapon piece 2/3 (or free Matiki)",
+     "in": "g4_5_2"
+    },
+    {
+     "t": "Kill Scourge of the Skies → weapon piece 3/3 (or free Matiki)",
+     "in": "g4_7"
+    },
+    {
+     "t": "Kill the Great White One → Shark Fin (for Kaimana's permanent buff)",
+     "o": 1,
+     "in": "g4_3_1"
+    },
+    {
+     "t": "Kill Diamora, Song of Death → free Matiki (or weapon piece)",
+     "o": 1,
+     "in": "g4_3_2"
+    },
+    {
+     "t": "Talk to Matiki, peer into the Well, complete the 3 Tests of Mettle, Pay Respects at the Silent Hall (+5% max mana)",
+     "l": "45",
+     "o": 1,
+     "r": "+5% Maximum Mana (Silent Hall)",
+     "in": "g4_4_1"
+    },
+    {
+     "t": "Complete 3 tests → 3 tattoos (+5% res or +5 attribute each, permanent); kill Yama the White",
+     "o": 1,
+     "r": "3 Tattoos (PERMANENT): each +5% fire/cold/lightning res OR +5 Str/Int/Dex",
+     "k": [
+      "res"
+     ],
+     "in": "g4_4_2"
+    },
+    {
+     "t": "Talk to Navali → Tattoo of Hinekora (+2 passive points)",
+     "o": 1,
+     "r": "+2 Passive Points: Tattoo of Hinekora (Navali)",
+     "p": 2,
+     "in": "g4_4_3"
+    },
+    {
+     "t": "Talk to the Hooded One, then Makoru → Arastas (needs all 3 weapon pieces)",
+     "in": "g4_town"
+    },
+    {
+     "t": "The Runeseeker: turn in 4 Torn Map pieces → Plunder's Point → Expedition → Deserted Post → Farrow (unlocks Verisium Anvil)",
+     "o": 1,
+     "in": "g4_13"
+    },
+    {
+     "t": "Follow Missionary Lorandis, destroy the forcefield, kill Torvian → The Excavation",
+     "l": "46-47",
+     "in": "g4_8a"
+    },
+    {
+     "t": "Kill Benedictus (Precursor Forge), talk to the Hooded One, portal to Kingsmarch",
+     "in": "g4_10"
+    },
+    {
+     "t": "Talk to the Hooded One, then Rhodri at the ship → Ngakanu",
+     "in": "g4_town"
+    },
+    {
+     "t": "Kill Tavakai (final Act 4 boss), talk to him, portal to Kingsmarch",
+     "l": "48",
+     "in": "g4_11_2"
+    },
+    {
+     "t": "Talk to the Hooded One → Interludes unlocked; Kaimana: Shark Fin → permanent Lesson",
+     "r": "Kaimana's Lesson (PERMANENT, needs Shark Fin): Kaom's or Rakiata's",
+     "in": "g4_town"
+    }
+   ]
+  },
+  {
+   "name": "Interlude 2 · part 1",
+   "levels": "~50",
+   "steps": [
+    {
+     "t": "Interlude 2 (part 1): talk to Asala and Zarka, take the NE exit",
+     "l": "~50",
+     "in": "p2_town"
+    },
+    {
+     "t": "Take Molten One's Gift (+5% max life)",
+     "o": 1,
+     "r": "+5% Maximum Life (Molten One's Gift)",
+     "in": "p2_1"
+    },
+    {
+     "t": "Just grab the waypoint, go back to the Khari Crossing",
+     "o": 1,
+     "in": "p2_5"
+    },
+    {
+     "t": "Kill Akthi & Anundr (scorpion + sandworm), portal to the Bazaar → Risu: +2 passive points",
+     "o": 1,
+     "r": "+2 Passive Points: Book of Specialisation (Risu, Clearing the Way)",
+     "p": 2,
+     "in": "p2_1"
+    },
+    {
+     "t": "Activate the waypoint, WP back to the Bazaar, Hooded One → Mount Kriar",
+     "in": "p2_2"
+    }
+   ]
+  },
+  {
+   "name": "Interlude 3",
+   "levels": "~51",
+   "steps": [
+    {
+     "t": "Interlude 3: through the Ashen Forest to Kriar Village",
+     "l": "~51",
+     "in": "p3_1"
+    },
+    {
+     "t": "Kill Lythara, the Wayward Spear → Gemcrust Skull (+40 Spirit)",
+     "r": "+40 Spirit (Gemcrust Skull, Lythara)",
+     "k": [
+      "spirit"
+     ],
+     "in": "p3_2"
+    },
+    {
+     "t": "Kill the Abominable Yeti → Icy Tusks; portal to The Glade, give to Hilda: +2 passive points; WP back",
+     "o": 1,
+     "r": "+2 Passive Points: Book of Specialisation (Hilda, Icy Tusks)",
+     "p": 2,
+     "in": "p3_4"
+    },
+    {
+     "t": "Kill Rakkar, the Frozen Talon → entrance to Kriar Peaks",
+     "in": "p3_3"
+    },
+    {
+     "t": "Talk to Elder Madox → 1 Unique of your choice; take the platform down into the Etched Ravine",
+     "in": "p3_5"
+    },
+    {
+     "t": "Kill Stormgore, the Guardian → The Cuachic Vault",
+     "in": "p3_6"
+    },
+    {
+     "t": "Kill Zolin & Zelina, then summon and talk to Doryani; WP to the Pools of Khatal",
+     "in": "p3_7"
+    }
+   ]
+  },
+  {
+   "name": "Interlude 2 · part 2",
+   "levels": "~54",
+   "steps": [
+    {
+     "t": "Interlude 2 (part 2): kill Elzarah, the Cobra Lord, talk to Asala",
+     "l": "~54",
+     "in": "p2_3"
+    },
+    {
+     "t": "Kill Vornas → Qimah",
+     "in": "p2_5"
+    },
+    {
+     "t": "Pick a Boon at the Seven Pillars; summon Jado (opens Qimah Reservoir)",
+     "r": "Qimah Boon (swappable): e.g. Tabana +5% all ele res / Orbala 3% MS",
+     "k": [
+      "res"
+     ],
+     "in": "p2_6"
+    },
+    {
+     "t": "Kill Azmadi, the Faridun Prince, use the Grand Barya, talk to Jado; portal to Bazaar → Hooded One → Ogham",
+     "in": "p2_7"
+    }
+   ]
+  },
+  {
+   "name": "Interlude 1",
+   "levels": "~57",
+   "steps": [
+    {
+     "t": "Interlude 1: kill Isolde & Heldra → Stones of Serle",
+     "l": "~57",
+     "in": "p1_1"
+    },
+    {
+     "t": "Activate the 6 megaliths, kill Siora, talk to Una",
+     "in": "p1_2"
+    },
+    {
+     "t": "Checkpoint to the darkness, through The Blackwood to Holten",
+     "in": "p1_3"
+    },
+    {
+     "t": "Optional: buy Greater Runes from the Soul of the Ferryman (~2000 gold each)",
+     "o": 1,
+     "in": "p1_4"
+    },
+    {
+     "t": "Kill Oswin, the Dread Warden → Warden's Ledger (+2 passive points); checkpoint back to Holten",
+     "o": 1,
+     "r": "+2 Passive Points: Warden's Ledger (Oswin)",
+     "p": 2,
+     "in": "p1_5"
+    },
+    {
+     "t": "Kill Thane Wulfric & Lady Elswyth; portal out",
+     "in": "p1_6"
+    },
+    {
+     "t": "Talk to Renly, WP to Kingsmarch",
+     "in": "p1_town"
+    },
+    {
+     "t": "Hooded One: Book of Specialisation (+2 passive points) → Travel to Oriath",
+     "r": "+2 Passive Points: Book of Specialisation (Hooded One, Siege of Oriath)",
+     "p": 2,
+     "in": "g4_town"
+    },
+    {
+     "t": "Talk to the Hooded One and Doryani, use the Map Device. Campaign complete.",
+     "in": "g_endgame_town"
+    }
+   ]
+  }
+ ],
+ "endgame": [
+  {
+   "title": "Before maps",
+   "items": [
+    "Maps unlock after the last interlude, usually around level 60–65.",
+    "Cap your resistances (75%) before mapping seriously.",
+    "Ascendancy points 5–8: the Trial of the Sekhemas with a level 60+ Barya (points 5–6) and a level 75+ Barya (points 7–8), or the Trial of Chaos with higher-level Ultimatums."
+   ]
+  },
+  {
+   "title": "First steps on the Atlas",
+   "items": [
+    "Clear your first map, then talk to Doryani and Farrow.",
+    "Clear your first Precursor Tower to raise the Fortress: Fortress maps give Atlas points.",
+    "Do each league mechanic's questline: they give Atlas points too.",
+    "Gear up around tier 11 before pushing to tier 15."
+   ]
+  },
+  {
+   "title": "League start economy",
+   "items": [
+    "Keep the low-level Uncut Skill and Spirit gems from the campaign: they sell once the Currency Exchange opens in Act 4."
+   ]
+  }
+ ]
+}

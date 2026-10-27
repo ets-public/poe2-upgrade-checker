@@ -1,0 +1,1948 @@
+{
+ "game": "poe1",
+ "for": "3.29 (Curse of the Allflame)",
+ "checked": "2026-10-28",
+ "note": "3.30 launches on 13 November 2026; its campaign changes (if any) are announced at ExileCon on 6–7 November. Check this route then.",
+ "sources": [
+  {
+   "name": "exile-leveling",
+   "by": "HeartofPhos",
+   "url": "https://github.com/HeartofPhos/exile-leveling",
+   "licence": "MIT",
+   "what": "the campaign route and area ids (league-start route, killing all three bandits)"
+  }
+ ],
+ "towns": [
+  "1_1_town",
+  "1_2_town",
+  "1_3_town",
+  "1_4_town",
+  "1_5_town",
+  "2_6_town",
+  "2_7_town",
+  "2_8_town",
+  "2_9_town",
+  "2_10_town",
+  "2_11_endgame_town",
+  "Labyrinth_Airlock"
+ ],
+ "totals": {
+  "passives": 24,
+  "note": "23 from quests, plus 1 for killing all three bandits"
+ },
+ "acts": [
+  {
+   "name": "Act 1",
+   "steps": [
+    {
+     "t": "Find and kill Hillock"
+    },
+    {
+     "t": "➞ Lioneye's Watch",
+     "to": "1_1_town"
+    },
+    {
+     "t": "Hand in Enemy at the Gate"
+    },
+    {
+     "t": "➞ The Coast",
+     "to": "1_1_2"
+    },
+    {
+     "t": "Get the waypoint"
+    },
+    {
+     "t": "➞ The Mud Flats",
+     "to": "1_1_3"
+    },
+    {
+     "t": "Find 3× Glyph",
+     "h": "Little streams connect the 3 Rhoa nests"
+    },
+    {
+     "t": "➞ The Submerged Passage",
+     "to": "1_1_4_1"
+    },
+    {
+     "t": "Waypoint to The Coast",
+     "to": "1_1_2"
+    },
+    {
+     "t": "➞ The Tidal Island",
+     "to": "1_1_2a"
+    },
+    {
+     "t": "Find and kill Hailrake, take Medicine Chest",
+     "h": "Go ←"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in Breaking Some Eggs"
+    },
+    {
+     "t": "Hand in Mercy Mission"
+    },
+    {
+     "t": "Waypoint to The Submerged Passage",
+     "to": "1_1_4_1"
+    },
+    {
+     "t": "➞ The Flooded Depths",
+     "h": "Go right of the bridge",
+     "to": "1_1_4_0"
+    },
+    {
+     "t": "Find and kill The Dweller of the Deep",
+     "h": "Search opposite the entrance"
+    },
+    {
+     "t": "Take the Boat ➞ The Submerged Passage",
+     "to": "1_1_4_1"
+    },
+    {
+     "t": "➞ The Ledge",
+     "to": "1_1_5"
+    },
+    {
+     "t": "➞ The Climb",
+     "to": "1_1_6"
+    },
+    {
+     "t": "➞ The Lower Prison",
+     "to": "1_1_7_1"
+    },
+    {
+     "t": "Waypoint to Lioneye's Watch",
+     "to": "1_1_town"
+    },
+    {
+     "t": "Hand in The Dweller of the Deep",
+     "p": 1
+    },
+    {
+     "t": "Hand in The Caged Brute"
+    },
+    {
+     "t": "Waypoint to The Lower Prison",
+     "to": "1_1_7_1"
+    },
+    {
+     "t": "Complete the Labyrinth trial",
+     "k": [
+      "trial"
+     ],
+     "h": "Usually ↗"
+    },
+    {
+     "t": "➞ The Upper Prison",
+     "to": "1_1_7_2"
+    },
+    {
+     "t": "Find Chemist's Strongbox",
+     "h": "Look for map icon, access with nearby switch"
+    },
+    {
+     "t": "➞ The Warden's Quarters, kill Brutus, Lord Incarcerator",
+     "h": "Recommended Level: 8"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in The Caged Brute"
+    },
+    {
+     "t": "Waypoint to Prisoner's Gate",
+     "to": "1_1_8"
+    },
+    {
+     "t": "➞ The Ship Graveyard",
+     "h": "Go down the ledge next to the road",
+     "to": "1_1_9"
+    },
+    {
+     "t": "Kill Captain Fairgraves, take Allflame"
+    },
+    {
+     "t": "➞ The Cavern of Wrath",
+     "to": "1_1_11_1"
+    },
+    {
+     "t": "Waypoint to Lioneye's Watch",
+     "to": "1_1_town"
+    },
+    {
+     "t": "Hand in The Marooned Mariner",
+     "p": 1
+    },
+    {
+     "t": "Hand in The Siren's Cadence"
+    },
+    {
+     "t": "Waypoint to The Cavern of Wrath",
+     "to": "1_1_11_1"
+    },
+    {
+     "t": "➞ The Cavern of Anger",
+     "h": "Follow the water",
+     "to": "1_1_11_2"
+    },
+    {
+     "t": "➞ Merveil's Lair, kill Merveil, the Siren",
+     "h": "Follow the water"
+    }
+   ]
+  },
+  {
+   "name": "Act 2",
+   "steps": [
+    {
+     "t": "➞ The Southern Forest",
+     "to": "1_2_1"
+    },
+    {
+     "t": "➞ The Forest Encampment",
+     "to": "1_2_town"
+    },
+    {
+     "t": "➞ The Old Fields",
+     "h": "Go ↗",
+     "to": "1_2_2"
+    },
+    {
+     "t": "Find The Den, place a portal"
+    },
+    {
+     "t": "➞ The Crossroads",
+     "h": "Follow the road",
+     "to": "1_2_3"
+    },
+    {
+     "t": "Waypoint to The Forest Encampment",
+     "h": "Follow the road",
+     "to": "1_2_town"
+    },
+    {
+     "t": "Take the portal"
+    },
+    {
+     "t": "➞ The Den",
+     "to": "1_2_2a"
+    },
+    {
+     "t": "Find and kill The Great White Beast"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in The Great White Beast"
+    },
+    {
+     "t": "Waypoint to The Crossroads",
+     "to": "1_2_3"
+    },
+    {
+     "t": "➞ The Chamber of Sins Level 1",
+     "h": "Go ↖",
+     "to": "1_2_6_1"
+    },
+    {
+     "t": "➞ The Chamber of Sins Level 2",
+     "h": "Go in same direction as the waypoint",
+     "to": "1_2_6_2"
+    },
+    {
+     "t": "Complete the Labyrinth trial",
+     "k": [
+      "trial"
+     ]
+    },
+    {
+     "t": "Kill Fidelitas, the Mourning, take Baleful Gem",
+     "h": "Look for the long hallway"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in Intruders in Black"
+    },
+    {
+     "t": "Waypoint to The Crossroads",
+     "to": "1_2_3"
+    },
+    {
+     "t": "➞ The Fellshrine Ruins",
+     "h": "Go ↘",
+     "to": "1_2_15"
+    },
+    {
+     "t": "➞ The Crypt Level 1",
+     "h": "Follow the road",
+     "to": "1_2_5_1"
+    },
+    {
+     "t": "Complete the Labyrinth trial",
+     "k": [
+      "trial"
+     ]
+    },
+    {
+     "t": "➞ The Crypt Level 2",
+     "to": "1_2_5_2"
+    },
+    {
+     "t": "Find Altar, take Golden Hand"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in Through Sacred Ground",
+     "p": 1
+    },
+    {
+     "t": "➞ The Riverways",
+     "h": "Go ↙",
+     "to": "1_2_7"
+    },
+    {
+     "t": "Get the waypoint",
+     "h": "Follow the road"
+    },
+    {
+     "t": "➞ The Western Forest",
+     "h": "Follow the road",
+     "to": "1_2_9"
+    },
+    {
+     "t": "Get the waypoint",
+     "h": "Follow the road"
+    },
+    {
+     "t": "➞ The Weaver's Chambers",
+     "h": "Search the side of road opposite the waypoint",
+     "to": "1_2_10"
+    },
+    {
+     "t": "➞ The Weaver's Nest, kill The Weaver, take Maligaro's Spike",
+     "h": "Try go ←, if it's blocked go ↗"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in Sharp and Cruel"
+    },
+    {
+     "t": "Waypoint to The Crossroads",
+     "to": "1_2_3"
+    },
+    {
+     "t": "➞ The Broken Bridge",
+     "h": "Go ↗",
+     "to": "1_2_4"
+    },
+    {
+     "t": "Kill Kraityn, Scarbearer, take Kraityn's Amulet",
+     "h": "Follow the road"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Waypoint to The Riverways",
+     "to": "1_2_7"
+    },
+    {
+     "t": "➞ The Wetlands",
+     "h": "Look for 2 pillars near the waypoint, follow the trail",
+     "to": "1_2_12"
+    },
+    {
+     "t": "Find and kill Oak, Skullbreaker, take Oak's Amulet"
+    },
+    {
+     "t": "Waypoint to The Western Forest",
+     "h": "Search opposite direction of the encampment entrance",
+     "to": "1_2_9"
+    },
+    {
+     "t": "Kill Alira Darktongue, take Alira's Amulet",
+     "h": "Go ↓ look for the torch touching the road"
+    },
+    {
+     "t": "Kill Captain Arteri",
+     "h": "Follow the road ↙"
+    },
+    {
+     "t": "Take Thaumetic Emblem, activate Thaumetic Seal"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in Deal with the Bandits, take The Apex",
+     "r": "Kill all three for a passive point, or help one: Alira (resistances), Oak (life), Kraityn (movement speed)",
+     "k": [
+      "choice"
+     ]
+    },
+    {
+     "t": "Waypoint to Lioneye's Watch",
+     "to": "1_1_town"
+    },
+    {
+     "t": "Hand in The Way Forward",
+     "p": 1
+    },
+    {
+     "t": "Waypoint to The Wetlands",
+     "to": "1_2_12"
+    },
+    {
+     "t": "Poison the Tree Roots ➞ The Vaal Ruins",
+     "to": "1_2_11"
+    },
+    {
+     "t": "➞ The Northern Forest",
+     "h": "S shape or L shape leads to exit",
+     "to": "1_2_8"
+    },
+    {
+     "t": "➞ The Caverns",
+     "to": "1_2_14_2"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ The Ancient Pyramid",
+     "to": "1_2_14_3"
+    },
+    {
+     "t": "➞ Pyramid Apex, kill Vaal Oversoul",
+     "h": "First floor exit will be in one of the 3 corners"
+    },
+    {
+     "t": "Get the crafting recipe"
+    }
+   ]
+  },
+  {
+   "name": "Act 3",
+   "steps": [
+    {
+     "t": "➞ The City of Sarn",
+     "to": "1_3_1"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Help and talk to Clarissa"
+    },
+    {
+     "t": "➞ The Sarn Encampment",
+     "to": "1_3_town"
+    },
+    {
+     "t": "➞ The Slums",
+     "h": "Go ↑",
+     "to": "1_3_2"
+    },
+    {
+     "t": "➞ The Crematorium",
+     "h": "Follow Stairs",
+     "to": "1_3_3_1"
+    },
+    {
+     "t": "Complete the Labyrinth trial",
+     "k": [
+      "trial"
+     ]
+    },
+    {
+     "t": "Find and kill Piety, take Tolman's Bracelet"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Talk to Clarissa, take Sewer Keys"
+    },
+    {
+     "t": "Hand in Lost in Love"
+    },
+    {
+     "t": "➞ The Slums",
+     "h": "Go ↑",
+     "to": "1_3_2"
+    },
+    {
+     "t": "➞ The Sewers",
+     "to": "1_3_10_1"
+    },
+    {
+     "t": "Find 1× Platinum Bust"
+    },
+    {
+     "t": "Get the waypoint"
+    },
+    {
+     "t": "Find 2× Platinum Bust"
+    },
+    {
+     "t": "➞ The Marketplace",
+     "to": "1_3_5"
+    },
+    {
+     "t": "Get the waypoint"
+    },
+    {
+     "t": "➞ The Catacombs",
+     "h": "Look around nearby",
+     "to": "1_3_6"
+    },
+    {
+     "t": "Complete the Labyrinth trial",
+     "k": [
+      "trial"
+     ]
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in Victario's Secrets",
+     "p": 1
+    },
+    {
+     "t": "Waypoint to The Marketplace",
+     "to": "1_3_5"
+    },
+    {
+     "t": "➞ The Battlefront",
+     "h": "Search ↑",
+     "to": "1_3_7"
+    },
+    {
+     "t": "Get the waypoint",
+     "h": "Go ↖"
+    },
+    {
+     "t": "Find and take Ribbon Spool",
+     "h": "Go ↙"
+    },
+    {
+     "t": "➞ The Solaris Temple Level 1",
+     "h": "Go ↗",
+     "to": "1_3_8_1"
+    },
+    {
+     "t": "➞ The Solaris Temple Level 2",
+     "to": "1_3_8_2"
+    },
+    {
+     "t": "➞ Eternal Laboratory, get the crafting recipe"
+    },
+    {
+     "t": "Waypoint to The Battlefront",
+     "to": "1_3_7"
+    },
+    {
+     "t": "➞ The Docks",
+     "h": "Go ↖",
+     "to": "1_3_9"
+    },
+    {
+     "t": "Find and take Thaumetic Sulphite"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Waypoint to The Solaris Temple Level 2",
+     "to": "1_3_8_2"
+    },
+    {
+     "t": "Talk to Lady Dialla"
+    },
+    {
+     "t": "Hand in The Ribbon Spool"
+    },
+    {
+     "t": "Hand in Fiery Dust, take Infernal Talc"
+    },
+    {
+     "t": "Waypoint to The Sewers",
+     "to": "1_3_10_1"
+    },
+    {
+     "t": "Burn the Undying Blockage"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ The Ebony Barracks",
+     "to": "1_3_13"
+    },
+    {
+     "t": "Get the waypoint"
+    },
+    {
+     "t": "Kill General Gravicius",
+     "h": "Go ↖"
+    },
+    {
+     "t": "➞ The Lunaris Temple Level 1",
+     "to": "1_3_14_1"
+    },
+    {
+     "t": "➞ The Lunaris Temple Level 2",
+     "to": "1_3_14_2"
+    },
+    {
+     "t": "Find and kill Piety, take Tower Key",
+     "h": "Follow stairs that are going up"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in Piety's Pets",
+     "p": 1
+    },
+    {
+     "t": "Hand in Sever the Right Hand"
+    },
+    {
+     "t": "Waypoint to The Ebony Barracks",
+     "to": "1_3_13"
+    },
+    {
+     "t": "➞ The Imperial Gardens",
+     "h": "Go ↗",
+     "to": "1_3_15"
+    },
+    {
+     "t": "Get the waypoint",
+     "h": "Follow the road"
+    },
+    {
+     "t": "Complete the Labyrinth trial",
+     "k": [
+      "trial"
+     ],
+     "h": "Go ↑"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Waypoint to The Imperial Gardens",
+     "to": "1_3_15"
+    },
+    {
+     "t": "➞ The Sceptre of God",
+     "to": "1_3_18_1"
+    },
+    {
+     "t": "➞ The Upper Sceptre of God",
+     "h": "Stairs spawn in one of the corners",
+     "to": "1_3_18_2"
+    },
+    {
+     "t": "➞ Tower Rooftop, Kill Dominus, High Templar",
+     "h": "Look for barricades"
+    }
+   ]
+  },
+  {
+   "name": "Act 4",
+   "steps": [
+    {
+     "t": "➞ The Aqueduct",
+     "to": "1_4_1"
+    },
+    {
+     "t": "➞ Highgate",
+     "to": "1_4_town"
+    },
+    {
+     "t": "➞ The Dried Lake",
+     "to": "1_4_2"
+    },
+    {
+     "t": "Find and kill Voll, Emperor of Purity, take Deshret's Banner"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Break Deshret's Seal"
+    },
+    {
+     "t": "Hand in Breaking the Seal"
+    },
+    {
+     "t": "➞ The Mines Level 1",
+     "to": "1_4_3_1"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ The Mines Level 2",
+     "to": "1_4_3_2"
+    },
+    {
+     "t": "Free Deshret"
+    },
+    {
+     "t": "➞ The Crystal Veins",
+     "to": "1_4_3_3"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Waypoint to Highgate",
+     "to": "1_4_town"
+    },
+    {
+     "t": "Hand in An Indomitable Spirit",
+     "p": 1
+    },
+    {
+     "t": "Waypoint to The Sarn Encampment",
+     "to": "1_3_town"
+    },
+    {
+     "t": "➞ Aspirants' Plaza, get the waypoint",
+     "to": "Labyrinth_Airlock"
+    },
+    {
+     "t": "Run the Normal Labyrinth",
+     "r": "Ascendancy: 2 points",
+     "k": [
+      "lab"
+     ]
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Waypoint to The Crystal Veins",
+     "to": "1_4_3_3"
+    },
+    {
+     "t": "➞ Daresso's Dream",
+     "to": "1_4_5_1"
+    },
+    {
+     "t": "➞ The Grand Arena",
+     "to": "1_4_5_2"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Waypoint to The Crystal Veins",
+     "to": "1_4_3_3"
+    },
+    {
+     "t": "➞ Kaom's Dream",
+     "to": "1_4_4_1"
+    },
+    {
+     "t": "➞ Kaom's Stronghold",
+     "h": "Go ↗",
+     "to": "1_4_4_3"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ Caldera of the King, kill King Kaom, take The Eye of Fury"
+    },
+    {
+     "t": "Take the portal"
+    },
+    {
+     "t": "Waypoint to The Grand Arena",
+     "to": "1_4_5_2"
+    },
+    {
+     "t": "➞ The Ring of Blades, kill Daresso, King of Swords, take The Eye of Desire",
+     "h": "Go ↙ follow the exits keeping ←"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Waypoint to The Crystal Veins",
+     "to": "1_4_3_3"
+    },
+    {
+     "t": "Talk to Lady Dialla"
+    },
+    {
+     "t": "➞ The Belly of the Beast Level 1",
+     "to": "1_4_6_1"
+    },
+    {
+     "t": "➞ The Belly of the Beast Level 2",
+     "to": "1_4_6_2"
+    },
+    {
+     "t": "➞ The Bowels of the Beast, kill Piety, the Abomination"
+    },
+    {
+     "t": "Talk to Piety"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ The Harvest",
+     "to": "1_4_6_3"
+    },
+    {
+     "t": "Find and kill Doedre Darktongue, take Malachai's Lungs"
+    },
+    {
+     "t": "Find and kill Maligaro, The Inquisitor, take Malachai's Heart"
+    },
+    {
+     "t": "Find and kill Shavronne of Umbra, take Malachai's Entrails"
+    },
+    {
+     "t": "Hand in Corpus Malachus"
+    },
+    {
+     "t": "➞ The Black Core, kill Malachai, The Nightmare"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in The Eternal Nightmare"
+    },
+    {
+     "t": "➞ The Ascent",
+     "to": "1_4_7"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Activate The Resonator, use Oriath Portal"
+    }
+   ]
+  },
+  {
+   "name": "Act 5",
+   "steps": [
+    {
+     "t": "➞ The Slave Pens",
+     "to": "1_5_1"
+    },
+    {
+     "t": "Find and kill Overseer Krow",
+     "h": "Go ↓ until you find the hanged Karui"
+    },
+    {
+     "t": "➞ Overseer's Tower",
+     "to": "1_5_town"
+    },
+    {
+     "t": "Hand in Return to Oriath"
+    },
+    {
+     "t": "➞ The Control Blocks",
+     "to": "1_5_2"
+    },
+    {
+     "t": "Find and take Miasmeter",
+     "h": "Go ← as much as possible"
+    },
+    {
+     "t": "Find and kill Justicar Casticus, take Eyes of Zeal",
+     "h": "Go ↗ from Miasmeter"
+    },
+    {
+     "t": "➞ Oriath Square",
+     "to": "1_5_3"
+    },
+    {
+     "t": "➞ The Templar Courts",
+     "h": "Go ↗",
+     "to": "1_5_4"
+    },
+    {
+     "t": "➞ The Chamber of Innocence",
+     "h": "Loop around clockwise",
+     "to": "1_5_5"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ Sanctum of Innocence, kill High Templar Avarius",
+     "h": "Go ↖ counter-clockwise spiral"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in The Key to Freedom"
+    },
+    {
+     "t": "Hand in In Service to Science",
+     "p": 1
+    },
+    {
+     "t": "Hand in Death to Purity"
+    },
+    {
+     "t": "Waypoint to The Chamber of Innocence",
+     "to": "1_5_5"
+    },
+    {
+     "t": "➞ The Torched Courts",
+     "to": "1_5_4b"
+    },
+    {
+     "t": "➞ The Ruined Square",
+     "h": "Loop around counter-clockwise",
+     "to": "1_5_3b"
+    },
+    {
+     "t": "Get the waypoint",
+     "h": "Go ↖"
+    },
+    {
+     "t": "➞ The Ossuary",
+     "to": "1_5_6"
+    },
+    {
+     "t": "Find and take Sign of Purity"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Waypoint to The Ruined Square",
+     "to": "1_5_3b"
+    },
+    {
+     "t": "➞ The Reliquary",
+     "h": "Go ↙ find the plaza",
+     "to": "1_5_7"
+    },
+    {
+     "t": "Find 3× Kitava's Torment, search in the corners of the map"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in Kitava's Torments",
+     "p": 1
+    },
+    {
+     "t": "Waypoint to The Ruined Square",
+     "to": "1_5_3b"
+    },
+    {
+     "t": "➞ The Cathedral Rooftop",
+     "h": "Go ↙",
+     "to": "1_5_8"
+    },
+    {
+     "t": "➞ Cathedral Apex, kill Kitava, the Insatiable",
+     "r": "−30% to all resistances from now on",
+     "k": [
+      "res"
+     ]
+    },
+    {
+     "t": "Talk to Lilly Roth, Sail to Wraeclast"
+    }
+   ]
+  },
+  {
+   "name": "Act 6",
+   "steps": [
+    {
+     "t": "➞ Lioneye's Watch",
+     "to": "2_6_town"
+    },
+    {
+     "t": "➞ The Twilight Strand",
+     "to": "2_6_1"
+    },
+    {
+     "t": "Kill Everything"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in Fallen from Grace"
+    },
+    {
+     "t": "➞ The Coast",
+     "to": "2_6_2"
+    },
+    {
+     "t": "➞ The Mud Flats",
+     "to": "2_6_4"
+    },
+    {
+     "t": "Find and kill The Dishonoured Queen, take Eye of Conquest",
+     "h": "↗ corner of area, normally by a house"
+    },
+    {
+     "t": "➞ The Karui Fortress",
+     "to": "2_6_5"
+    },
+    {
+     "t": "➞ Tukohama's Keep, kill Tukohama, Karui God of War",
+     "h": "Go ↗"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ The Ridge",
+     "h": "Go ↑",
+     "to": "2_6_6"
+    },
+    {
+     "t": "➞ The Lower Prison",
+     "to": "2_6_7_1"
+    },
+    {
+     "t": "Complete the Labyrinth trial",
+     "k": [
+      "trial"
+     ]
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ Shavronne's Tower",
+     "to": "2_6_7_2"
+    },
+    {
+     "t": "➞ Prison Rooftop, kill Shavronne the Returned & Reassembled Brutus"
+    },
+    {
+     "t": "➞ The Warden's Chambers"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ Prisoner's Gate",
+     "to": "2_6_8"
+    },
+    {
+     "t": "➞ Valley of the Fire Drinker, kill Abberath, the Cloven One",
+     "h": "Go down the ledge next to the road"
+    },
+    {
+     "t": "Take the portal"
+    },
+    {
+     "t": "Hand in The Cloven One",
+     "p": 1
+    },
+    {
+     "t": "Waypoint to Prisoner's Gate",
+     "to": "2_6_8"
+    },
+    {
+     "t": "➞ The Western Forest",
+     "h": "Follow the road",
+     "to": "2_6_9"
+    },
+    {
+     "t": "Get the crafting recipe",
+     "h": "Look for the torch touching the road"
+    },
+    {
+     "t": "➞ The Riverways",
+     "h": "Follow the road",
+     "to": "2_6_10"
+    },
+    {
+     "t": "Get the waypoint",
+     "h": "Follow the road"
+    },
+    {
+     "t": "➞ The Wetlands",
+     "h": "Look for 2 pillars near the waypoint, follow the trail",
+     "to": "2_6_11"
+    },
+    {
+     "t": "➞ The Spawning Ground, kill Ryslatha, the Puppet Mistress",
+     "h": "Go ↖"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in The Father of War",
+     "p": 1
+    },
+    {
+     "t": "Hand in Essence of Umbra"
+    },
+    {
+     "t": "Hand in The Puppet Mistress",
+     "p": 1
+    },
+    {
+     "t": "Waypoint to The Riverways",
+     "to": "2_6_10"
+    },
+    {
+     "t": "➞ The Southern Forest",
+     "h": "Follow the road until it ends",
+     "to": "2_6_12"
+    },
+    {
+     "t": "➞ The Cavern of Anger",
+     "to": "2_6_13"
+    },
+    {
+     "t": "Take The Black Flag"
+    },
+    {
+     "t": "➞ The Beacon",
+     "to": "2_6_14"
+    },
+    {
+     "t": "Get the crafting recipe",
+     "h": "Follow the shore"
+    },
+    {
+     "t": "Complete Pillar Push"
+    },
+    {
+     "t": "Light the Beacon, throw in The Black Flag"
+    },
+    {
+     "t": "Talk to Weylam Roth, sail to The Brine King's Reef",
+     "to": "2_6_15"
+    },
+    {
+     "t": "➞ The Bring King's Throne, kill Tsoagoth, The Brine King"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Select Pantheons"
+    }
+   ]
+  },
+  {
+   "name": "Act 7",
+   "steps": [
+    {
+     "t": "Waypoint to The Bridge Encampment",
+     "to": "2_7_town"
+    },
+    {
+     "t": "➞ The Broken Bridge",
+     "to": "2_7_1"
+    },
+    {
+     "t": "Find and take Silver Locket",
+     "h": "Follow the road, look for the broken the waypoint"
+    },
+    {
+     "t": "➞ The Crossroads",
+     "h": "Follow the road",
+     "to": "2_7_2"
+    },
+    {
+     "t": "Get the waypoint"
+    },
+    {
+     "t": "➞ The Fellshrine Ruins",
+     "h": "Go ↘",
+     "to": "2_7_3"
+    },
+    {
+     "t": "➞ The Crypt",
+     "h": "Follow the road",
+     "to": "2_7_4"
+    },
+    {
+     "t": "Complete the Labyrinth trial",
+     "k": [
+      "trial"
+     ]
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Find Sarcophagus to next floor"
+    },
+    {
+     "t": "Find and take Maligaro's Map"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Waypoint to The Crossroads",
+     "to": "2_7_2"
+    },
+    {
+     "t": "➞ The Chamber of Sins Level 1",
+     "h": "Go ↖",
+     "to": "2_7_5_1"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Get the waypoint"
+    },
+    {
+     "t": "Activate Map Device with Maligaro's Map"
+    },
+    {
+     "t": "➞ Maligaro's Sanctum",
+     "to": "2_7_5_map"
+    },
+    {
+     "t": "➞ Maligaro's Workshop, kill Maligaro, the Artist, take Black Venom",
+     "h": "Follow edges of the zone and cross bridges in the corners"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in Essence of the Artist"
+    },
+    {
+     "t": "Hand in The Silver Locket"
+    },
+    {
+     "t": "Waypoint to The Chamber of Sins Level 1",
+     "to": "2_7_5_1"
+    },
+    {
+     "t": "Hand in Web of Secrets, take Obsidian Key"
+    },
+    {
+     "t": "➞ The Chamber of Sins Level 2",
+     "h": "Go in same direction as the waypoint",
+     "to": "2_7_5_2"
+    },
+    {
+     "t": "Complete the Labyrinth trial",
+     "k": [
+      "trial"
+     ],
+     "h": "Find the switch hidden behind Trial of Ascendancy Plaque to access Hidden Gem: Quality"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Open Secret Passage ➞ The Den",
+     "to": "2_7_6"
+    },
+    {
+     "t": "➞ The Ashen Fields",
+     "to": "2_7_7"
+    },
+    {
+     "t": "➞ The Forest Encampment, kill Greust, Lord of the Forest",
+     "h": "Go ↙"
+    },
+    {
+     "t": "➞ The Northern Forest",
+     "to": "2_7_8"
+    },
+    {
+     "t": "Get the waypoint"
+    },
+    {
+     "t": "➞ The Causeway",
+     "to": "2_7_10"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Find and take Kishara's Star"
+    },
+    {
+     "t": "➞ The Vaal City",
+     "to": "2_7_11"
+    },
+    {
+     "t": "Find the waypoint"
+    },
+    {
+     "t": "Waypoint to The Northern Forest",
+     "to": "2_7_8"
+    },
+    {
+     "t": "➞ The Dread Thicket",
+     "to": "2_7_9"
+    },
+    {
+     "t": "Find and take 7× Firefly"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ Den of Despair, kill Gruthkul, Mother of Despair"
+    },
+    {
+     "t": "Take the portal"
+    },
+    {
+     "t": "Hand in The Master of a Million Faces",
+     "p": 1
+    },
+    {
+     "t": "Hand in Queen of Despair",
+     "p": 1
+    },
+    {
+     "t": "Hand in Kishara's Star",
+     "p": 1
+    },
+    {
+     "t": "Waypoint to Aspirants' Plaza",
+     "to": "Labyrinth_Airlock"
+    },
+    {
+     "t": "Run the Cruel Labyrinth",
+     "r": "Ascendancy: 2 points",
+     "k": [
+      "lab"
+     ]
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Waypoint to The Vaal City",
+     "to": "2_7_11"
+    },
+    {
+     "t": "Hand in Lighting the Way"
+    },
+    {
+     "t": "➞ The Temple of Decay Level 1",
+     "h": "In the room with a central pit, look ↙ or ↗ for a side area containing a Corrupted Unique",
+     "to": "2_7_12_1"
+    },
+    {
+     "t": "➞ The Temple of Decay Level 2",
+     "to": "2_7_12_2"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ Arakaali's Web, kill Arakaali, Spinner of Shadows"
+    }
+   ]
+  },
+  {
+   "name": "Act 8",
+   "steps": [
+    {
+     "t": "➞ The Sarn Ramparts",
+     "to": "2_8_1"
+    },
+    {
+     "t": "➞ The Sarn Encampment",
+     "to": "2_8_town"
+    },
+    {
+     "t": "➞ The Toxic Conduits",
+     "h": "Go ←",
+     "to": "2_8_2_1"
+    },
+    {
+     "t": "➞ Doedre's Cesspool",
+     "h": "Black splashes of paint on ground points to the right direction to go",
+     "to": "2_8_2_2"
+    },
+    {
+     "t": "➞ The Cauldron, kill Doedre the Vile"
+    },
+    {
+     "t": "➞ Sewer Outlet"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ The Quay",
+     "h": "Go ↗",
+     "to": "2_8_8"
+    },
+    {
+     "t": "Find and take Ankh of Eternity",
+     "h": "Follow ← wall"
+    },
+    {
+     "t": "➞ Resurrection Site",
+     "h": "Go ↘"
+    },
+    {
+     "t": "Talk to Clarissa, kill Tolman"
+    },
+    {
+     "t": "➞ The Grain Gate",
+     "to": "2_8_9"
+    },
+    {
+     "t": "Find and kill Gemling Legionnaires",
+     "h": "Follow the dead guards by doorways"
+    },
+    {
+     "t": "➞ The Imperial Fields",
+     "h": "Follow the dead guards by doorways",
+     "to": "2_8_10"
+    },
+    {
+     "t": "➞ The Solaris Temple Level 1",
+     "h": "Follow the road until the waypoint",
+     "to": "2_8_12_1"
+    },
+    {
+     "t": "Get the waypoint"
+    },
+    {
+     "t": "➞ The Solaris Temple Level 2",
+     "to": "2_8_12_2"
+    },
+    {
+     "t": "Find and kill Dawn, Harbinger of Solaris, take Sun Orb"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in Essence of the Hag"
+    },
+    {
+     "t": "Hand in The Gemling Legion",
+     "p": 1
+    },
+    {
+     "t": "Hand in Love is Dead",
+     "p": 1
+    },
+    {
+     "t": "Waypoint to The Solaris Temple Level 1",
+     "to": "2_8_12_1"
+    },
+    {
+     "t": "➞ The Solaris Concourse",
+     "to": "2_8_11"
+    },
+    {
+     "t": "➞ The Harbour Bridge",
+     "h": "Go ↙",
+     "to": "2_8_13"
+    },
+    {
+     "t": "➞ The Lunaris Concourse",
+     "to": "2_8_6"
+    },
+    {
+     "t": "Get the waypoint",
+     "h": "Go ↖"
+    },
+    {
+     "t": "➞ The Lunaris Temple Level 1",
+     "to": "2_8_7_1_"
+    },
+    {
+     "t": "➞ The Lunaris Temple Level 2",
+     "to": "2_8_7_2"
+    },
+    {
+     "t": "Find and kill Dusk, Harbinger of Lunaris, take Moon Orb"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Waypoint to The Lunaris Concourse",
+     "to": "2_8_6"
+    },
+    {
+     "t": "➞ The Harbour Bridge",
+     "h": "Go ↘",
+     "to": "2_8_13"
+    },
+    {
+     "t": "➞ The Sky Shrine, activate Statue of the Sisters"
+    },
+    {
+     "t": "Kill Lunaris, Eternal Moon & Solaris, Eternal Sun"
+    },
+    {
+     "t": "➞ The Blood Aqueduct",
+     "h": "Farm Level: 58-62",
+     "to": "2_9_1"
+    },
+    {
+     "t": "➞ Highgate",
+     "to": "2_9_town"
+    },
+    {
+     "t": "Waypoint to The Lunaris Concourse",
+     "to": "2_8_6"
+    },
+    {
+     "t": "➞ The Bath House",
+     "h": "Go ↓",
+     "to": "2_8_5"
+    },
+    {
+     "t": "Complete the Labyrinth trial",
+     "k": [
+      "trial"
+     ],
+     "h": "Search ← side"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ The High Gardens",
+     "h": "Search ← side",
+     "to": "2_8_4"
+    },
+    {
+     "t": "➞ The Pools of Terror, kill Yugul, Reflection of Terror"
+    },
+    {
+     "t": "Take the portal"
+    },
+    {
+     "t": "Hand in Reflection of Terror",
+     "p": 1
+    }
+   ]
+  },
+  {
+   "name": "Act 9",
+   "steps": [
+    {
+     "t": "Waypoint to Highgate",
+     "to": "2_9_town"
+    },
+    {
+     "t": "➞ The Descent",
+     "to": "2_9_2"
+    },
+    {
+     "t": "➞ The Vastiri Desert",
+     "to": "2_9_3"
+    },
+    {
+     "t": "Get the waypoint",
+     "h": "Go →"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Find and take The Storm Blade"
+    },
+    {
+     "t": "➞ The Foothills",
+     "h": "Go ↖",
+     "to": "2_9_5"
+    },
+    {
+     "t": "Get the waypoint",
+     "h": "Go ↗ until you find the cliff"
+    },
+    {
+     "t": "➞ The Boiling Lake",
+     "to": "2_9_6"
+    },
+    {
+     "t": "Find and Kill The Basilisk, take Basilisk Acid",
+     "h": "Go ↗ look for petrified soldiers"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Talk to Sin"
+    },
+    {
+     "t": "Hand in The Storm Blade"
+    },
+    {
+     "t": "Hand in Queen of the Sands, take Bottled Storm"
+    },
+    {
+     "t": "Waypoint to The Vastiri Desert",
+     "to": "2_9_3"
+    },
+    {
+     "t": "➞ The Oasis",
+     "h": "Go ↗",
+     "to": "2_9_4"
+    },
+    {
+     "t": "➞ The Sand Pit, kill Shakari, Queen of the Sands"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in Queen of the Sands",
+     "p": 1
+    },
+    {
+     "t": "Waypoint to The Foothills",
+     "to": "2_9_5"
+    },
+    {
+     "t": "➞ The Tunnel",
+     "h": "Go ↖",
+     "to": "2_9_7"
+    },
+    {
+     "t": "Before the waypoint, complete the Labyrinth trial",
+     "k": [
+      "trial"
+     ],
+     "h": "Look for the hidden switch halfway to Trial of Ascendancy Plaque in the corner opposite the entrance to access Hidden Gem: Transfigured"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ The Quarry",
+     "to": "2_9_8"
+    },
+    {
+     "t": "Get the waypoint",
+     "h": "Go ↖"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ Shrine of the Winds, kill Garukhan, Queen of the Winds, take Sekhema Feather",
+     "h": "↗ or ↙"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in The Ruler of Highgate",
+     "p": 1
+    },
+    {
+     "t": "Waypoint to The Quarry",
+     "to": "2_9_8"
+    },
+    {
+     "t": "➞ The Refinery",
+     "h": "↖ or ↗",
+     "to": "2_9_9"
+    },
+    {
+     "t": "Get the crafting recipe",
+     "h": "Look for a sewer grate leading to Refinery Tunnels, it is attached to the cart tracks"
+    },
+    {
+     "t": "Find and kill General Adus, take Trarthan Powder",
+     "h": "Go ↗ follow cart tracks"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Waypoint to The Quarry",
+     "to": "2_9_8"
+    },
+    {
+     "t": "Talk to Sin"
+    },
+    {
+     "t": "➞ The Belly of the Beast",
+     "to": "2_9_10_1"
+    },
+    {
+     "t": "➞ The Rotting Core",
+     "to": "2_9_10_2"
+    },
+    {
+     "t": "➞ The Black Core"
+    },
+    {
+     "t": "Talk to Sin"
+    },
+    {
+     "t": "➞ Doedre's Despair, kill Doedre, Darksoul"
+    },
+    {
+     "t": "➞ Maligaro's Misery, kill Maligaro, The Broken"
+    },
+    {
+     "t": "➞ Shavronne's Sorrow, kill Shavronne, Unbound"
+    },
+    {
+     "t": "Talk to Sin ➞ The Black Heart, kill The Depraved Trinity"
+    },
+    {
+     "t": "Take the portal"
+    }
+   ]
+  },
+  {
+   "name": "Act 10",
+   "steps": [
+    {
+     "t": "Waypoint to Oriath Docks",
+     "to": "2_10_town"
+    },
+    {
+     "t": "➞ The Cathedral Rooftop",
+     "to": "2_10_1"
+    },
+    {
+     "t": "➞ Cathedral Apex, kill Plaguewing",
+     "h": "Go ↑"
+    },
+    {
+     "t": "➞ The Ravaged Square",
+     "to": "2_10_2"
+    },
+    {
+     "t": "Place a portal in the plaza"
+    },
+    {
+     "t": "➞ The Control Blocks",
+     "h": "Go ↓",
+     "to": "2_10_7"
+    },
+    {
+     "t": "Waypoint to Oriath Docks",
+     "to": "2_10_town"
+    },
+    {
+     "t": "Hand in Safe Passage"
+    },
+    {
+     "t": "Take the portal"
+    },
+    {
+     "t": "Get the waypoint",
+     "h": "Go ↗"
+    },
+    {
+     "t": "➞ The Ossuary",
+     "to": "2_10_9"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Complete the Labyrinth trial",
+     "k": [
+      "trial"
+     ],
+     "h": "Interact with the switch just before the zig-zagging walls, go to the opposite side to access Hidden Gem: Facetor's Lens"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Waypoint to The Control Blocks",
+     "to": "2_10_7"
+    },
+    {
+     "t": "Find and kill Vilenta"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Hand in Vilenta's Vengeance",
+     "p": 1
+    },
+    {
+     "t": "Waypoint to Aspirants' Plaza",
+     "to": "Labyrinth_Airlock"
+    },
+    {
+     "t": "Run the Merciless Labyrinth",
+     "r": "Ascendancy: 2 points",
+     "k": [
+      "lab"
+     ]
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Waypoint to The Ravaged Square",
+     "to": "2_10_2"
+    },
+    {
+     "t": "➞ The Torched Courts",
+     "h": "Go ↘",
+     "to": "2_10_3"
+    },
+    {
+     "t": "➞ The Desecrated Chambers",
+     "h": "Loop around clockwise",
+     "to": "2_10_4"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "➞ Sanctum of Innocence, kill Avarius, Reassembled, take The Staff of Purity",
+     "h": "Go ↖ counter-clockwise spiral"
+    },
+    {
+     "t": "Log out (back to town)"
+    },
+    {
+     "t": "Talk to Bannon"
+    },
+    {
+     "t": "Hand in Death and Rebirth"
+    },
+    {
+     "t": "Waypoint to The Ravaged Square",
+     "to": "2_10_2"
+    },
+    {
+     "t": "Talk to Innocence",
+     "h": "Go ↗"
+    },
+    {
+     "t": "➞ The Canals",
+     "to": "2_10_5"
+    },
+    {
+     "t": "➞ The Feeding Trough",
+     "to": "2_10_6"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Talk to Sin"
+    },
+    {
+     "t": "➞ Altar of Hunger, kill Kitava, the Insatiable",
+     "r": "−30% to all resistances from now on",
+     "k": [
+      "res"
+     ]
+    },
+    {
+     "t": "Talk to Sin ➞ Oriath Docks",
+     "to": "2_10_town"
+    },
+    {
+     "t": "Talk to Lilly Roth, Set Sail from Oriath"
+    },
+    {
+     "t": "➞ Karui Shores",
+     "to": "2_11_endgame_town"
+    },
+    {
+     "t": "Get the crafting recipe"
+    },
+    {
+     "t": "Hand in An End to Hunger",
+     "p": 2,
+     "h": "Type /passives in chat to confirm that you have all 24 passives from quests"
+    }
+   ]
+  }
+ ],
+ "endgame": [
+  {
+   "title": "Before maps",
+   "items": [
+    "Most characters finish the campaign around level 65–70.",
+    "The two Kitava fights (Act 5 and Act 10) each take 30% off your resistances: cap your elemental resistances at 75% again before mapping.",
+    "Check you have all 24 quest passive points: type /passives in chat."
+   ]
+  },
+  {
+   "title": "First maps and the Atlas",
+   "items": [
+    "Complete each new map for its Atlas bonus and always kill the map boss: that opens the next tiers.",
+    "Spend your first Atlas passives on one simple mechanic (Essence and Strongbox \"alch and go\" are common league-start picks) rather than spreading them.",
+    "Push to tier 14+ maps for the Eldritch altars, then go for your Voidstones: the Searing Exarch or the Eater of Worlds first, the Maven last."
+   ]
+  },
+  {
+   "title": "Last ascendancy points",
+   "items": [
+    "The Eternal Labyrinth (your last 2 ascendancy points) needs the six trials found in maps and an Offering to the Goddess."
+   ]
+  }
+ ]
+}

@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/pages.css">
   <link rel="stylesheet" href="css/polish.css">
   <link rel="stylesheet" href="css/native.css">
+  <link rel="stylesheet" href="css/route.css">
 </head>
 <body class="app">
   <aside class="side">
@@ -19,6 +20,7 @@
       <button data-tab="char"><i>☰</i>Character</button>
       <button data-tab="find"><i>⌕</i>Find upgrades</button>
       <button data-tab="spend"><i>◈</i>Where to spend</button>
+      <button data-tab="route"><i>⚑</i>League start</button>
       <button data-tab="build"><i>✦</i>Build &amp; stats</button>
       <button data-tab="test"><i>✎</i>Check an item</button>
       <button data-tab="options"><i>⚙</i>Settings</button>
@@ -116,6 +118,14 @@
         <div class="page-actions"><button class="primary" id="spendRun">Find where to spend</button></div>
       </header>
       <div id="spendBody"><div class="card-p dim">Press <b>Find where to spend</b>. It runs one trade search per slot, so it takes a few minutes (the trade site allows only a few searches a minute). Your price range is the one on Find upgrades.</div></div>
+    </section>
+
+    <section class="tab" id="tab-route">
+      <header class="page-head">
+        <div><h2>League start</h2><div class="sub">The campaign route step by step, with every passive point, trial and permanent reward, then the first steps into the endgame. Click a step to make it the current one.</div></div>
+        <div class="page-actions"><button id="routeOverlayBtn">Show overlay</button></div>
+      </header>
+      <div id="routeBody"><div class="card-p dim">Loading…</div></div>
     </section>
 
     <section class="tab" id="tab-find">
@@ -429,6 +439,8 @@
   <script src="settings-more.js"></script>
   <script src="character.js"></script>
   <script src="spend.js"></script>
+  <script src="route-common.js"></script>
+  <script src="settings-route.js"></script>
   <script src="picker.js"></script>
 </body>
 </html>
