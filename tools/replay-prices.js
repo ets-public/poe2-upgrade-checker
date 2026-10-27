@@ -12,6 +12,7 @@ const { parseItem } = require('../src/core/parser');
 const pq = require('../src/core/pricequery');
 const comparables = require('../src/core/comparables');
 const { priceStats } = require('../src/core/price');
+const { sameItem } = require('../src/core/listing');
 
 const args = process.argv.slice(2);
 const file = args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--item') || path.join(process.env.APPDATA || '', 'PoE2 Upgrade Checker', 'price-checks.jsonl');
@@ -41,7 +42,8 @@ for (const c of cases) {
   if (ratedOnly && !fb) continue;
   const item = c.item && parseItem(c.item);
   if (!item || (only && !String(item.name || '').toLowerCase().includes(only))) continue;
-  const listings = (c.listings || []).map((x, i) => ({ id: 'l' + i, account: 'l' + i, price: x.price, priceEx: x.priceEx, indexed: x.indexed, item: x.text ? Object.assign(parseItem(x.text) || {}, { listingText: x.text }, x.affixes != null ? { affixCount: x.affixes } : {}) : null }));
+  const read = (c.listings || []).map((x, i) => ({ id: 'l' + i, account: 'l' + i, price: x.price, priceEx: x.priceEx, indexed: x.indexed, item: x.text ? Object.assign(parseItem(x.text) || {}, { listingText: x.text }, x.affixes != null ? { affixCount: x.affixes } : {}) : null }));
+  const listings = read.filter((x) => !(x.item && sameItem(item, x.item))); // your own listing of this item: as the app does
   const map = pq.usesMapPriceQuery(item) && !pq.isTablet(item) && !/unique/i.test(item.rarity || '');
   const tablet = pq.isTablet(item);
   const market = !map && !tablet && pq.usesPriceQuery(item); // as the app does: tablets aren't compared listing by listing

@@ -84,3 +84,15 @@ test('multi-line mod strings, odd mod fields and bad prices', () => {
   }
   assert.equal(L.formatPrice({ amount: 2, currency: 'Divine' }), '2 div');
 });
+
+test('sameItem: your own listing of the item you checked is found, a similar item is not', () => {
+  const { parseItem } = require('../src/core/parser');
+  const { sameItem } = require('../src/core/listing');
+  const mine = parseItem('Item Class: Rings\nRarity: Rare\nChimeric Hold\nRuby Ring\n--------\nItem Level: 81\n--------\n{ Implicit Modifier }\n+25(20-30)% to Fire Resistance\n--------\n{ Prefix Modifier "Manipulator\'s" }\nMinions deal 26(25-27)% increased Damage\n{ Prefix Modifier "Fleet" (Tier: 6) }\n+67(52-79) to Evasion Rating\n{ Suffix Modifier "of the Lightning" (Tier: 2) }\n+36(36-40)% to Lightning Resistance\n--------\nCorrupted\n--------\nNote: ~b/o 200 divine');
+  const listed = parseItem('Item Class: Rings\nRarity: Rare\nChimeric Hold\nRuby Ring\n--------\nItem Level: 81\n--------\n+25% to Fire Resistance (implicit)\n--------\n+67 to Evasion Rating\n+36% to Lightning Resistance\nMinions deal 26% increased Damage\n--------\nCorrupted');
+  const other = parseItem('Item Class: Rings\nRarity: Rare\nDoom Loop\nRuby Ring\n--------\nItem Level: 81\n--------\n+25% to Fire Resistance (implicit)\n--------\n+68 to Evasion Rating\n+36% to Lightning Resistance\nMinions deal 26% increased Damage\n--------\nCorrupted');
+  assert.strictEqual(sameItem(mine, listed), true);
+  assert.strictEqual(sameItem(mine, other), false); // one roll differs: someone else's ring
+  const two = parseItem('Item Class: Rings\nRarity: Magic\nRuby Ring of Fire\nRuby Ring\n--------\nItem Level: 81\n--------\n+25% to Fire Resistance (implicit)\n--------\n+30% to Cold Resistance');
+  assert.strictEqual(sameItem(two, two), false); // too few rolled mods to tell
+});

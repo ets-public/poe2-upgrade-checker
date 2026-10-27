@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- **Checking an item you have up for sale no longer prices it off your own listing:** the trade search finds your listing too (the same item, every mod at the same value), and its asking price was counted as the market's, so a ring you listed at 30 div came out at about 30 div. Your own listing is now left out, the card says so, and the log marks it *[your own listing]*. In 47 saved checks it was in 15 of the 16 items with a price note.
 - **From contributors:** Where to spend works signed out of pathofexile.com: it shrinks its search step by step like Find upgrades does (every slot said "too many filters"), and when every slot fails the same way it shows when it ran, with *Search again now* (thanks Spardutti, #7).
 - **Prices from listings like yours:** a price check reads each listing it finds and compares it with your item on the stats it's priced on. Listings with more than yours (a ring with your resistances and damage plus 80 life and attack speed) or much less are left out of the price, so better items no longer push yours up. If too few listings are just like yours, the price comes from the ones that differ by one stat, and the card says so; it's never "solid" then.
 - **More listings before judging:** a price check now loosens its search until at least 5 are found (it stopped at 3, so a jewel came out at 5 div from asking prices of 2, 5 and 13 div). The looser matches that aren't like your item are left out again, so they add evidence without changing what's compared.

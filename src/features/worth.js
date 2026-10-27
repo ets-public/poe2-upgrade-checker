@@ -36,16 +36,23 @@ module.exports = function (C) {
   // how a price search's listings are compared with your item (comparables.js): gear on its priced
   // stats, waystones and maps on their numbers and mod count; a tablet's first search already asks
   // for every mod at close values, so what it finds is like yours (exact)
+  // (self: your item, to leave your own listing out, whatever the search)
   function compareWith(item, opts, market, mapish, level) {
-    if (market) return { item, opts };
-    if (!mapish || /unique/i.test(item.rarity || '')) return null;
-    if (priceQuery.isTablet(item)) return level === 0 ? { exact: true } : null;
-    return { item, opts: { ...opts, kind: 'map' } };
+    if (market) return { item, opts, self: item };
+    if (!mapish || /unique/i.test(item.rarity || '')) return { self: item };
+    if (priceQuery.isTablet(item)) return { exact: level === 0, self: item };
+    return { item, opts: { ...opts, kind: 'map' }, self: item };
   }
   function priceSummary(listings, league, level = 0, cmp = null) {
     const pl = (k, one, many) => `${k} ${k === 1 ? one : many}`;
     const notes = [];
     let group = null;
+    // your own listing (the item you checked, up for sale): your asking price, not the market's
+    let own = 0;
+    if (cmp && cmp.self) {
+      for (const x of listings || []) if (x) { x.own = !!x.item && listingLib.sameItem(cmp.self, x.item); if (x.own) own++; }
+      if (own) { listings = listings.filter((x) => x && !x.own); notes.push(own === 1 ? 'your own listing of this item left out' : `${own} listings of this very item left out (yours)`); }
+    }
     if (cmp && cmp.item) {
       group = comparables.pick(cmp.item, listings, cmp.opts || {}, priceQuery.MIN);
       const better = (listings || []).filter((x) => x && x.diff && x.diff.extra.length).length;
@@ -61,7 +68,7 @@ module.exports = function (C) {
     // values): their cheap ones are the market, not baits, and dearer asks don't lift the price
     const alike = (group && group.group === 'alike') || !!(cmp && cmp.exact);
     const s = priceLib.priceStats(listings, { alike });
-    if (!s) return null;
+    if (!s) return own ? { count: 0, sellers: 0, total: own, notes, baits: 0, group: null, typicalEx: null, typical: null, range: null, few: true, own, verdict: 'The only listing found is your own (the same item), so there is nothing to price it against.' } : null;
     // every listing found is weaker than yours: their price is a floor, not your item's price
     if (group && group.group === 'weaker') {
       const floor = s.count ? fmtEx(s.typicalEx) : null;
@@ -79,7 +86,7 @@ module.exports = function (C) {
     if (s.noPrice) notes.push(`${s.noPrice} unpriced`);
     if (s.spread && !s.few) notes.push('prices vary a lot');
     const out = {
-      count: s.count, sellers: s.sellers, total: s.total, notes, baits: s.baits || 0, group: group ? group.group : null,
+      count: s.count, sellers: s.sellers, total: s.total, notes, baits: s.baits || 0, group: group ? group.group : null, alike, own,
       cheapestEx: s.cheapestEx == null ? null : s.cheapestEx, typicalEx: null, few: !!s.few, unreliable: s.unreliable,
       cheapest: s.cheapestEx == null ? null : fmtEx(s.cheapestEx), typical: null, range: null,
     };
@@ -123,13 +130,13 @@ module.exports = function (C) {
     const base = C.G().baseShort;
     const all = (listings || []).filter(Boolean);
     const g = summary && summary.group;
-    const inGroup = (x) => !g || g === 'all' || (x.diff && (g === 'alike' ? !x.diff.extra.length && !x.diff.missing.length : x.diff.extra.length + x.diff.missing.length <= 1));
-    const s = priceLib.priceStats(all.filter(inGroup));
+    const inGroup = (x) => !x.own && (!g || g === 'all' || (x.diff && (g === 'alike' ? !x.diff.extra.length && !x.diff.missing.length : x.diff.extra.length + x.diff.missing.length <= 1)));
+    const s = priceLib.priceStats(all.filter(inGroup), { alike: !!(summary && summary.alike) });
     const baits = (s && s.baitPrices) || []; const stale = (s && s.stalePrices) || [];
     const marks = (ex) => { let i = baits.indexOf(ex); if (i >= 0) { baits.splice(i, 1); return ' [bait]'; } i = stale.indexOf(ex); if (i >= 0) { stale.splice(i, 1); return ' [stale]'; } return ''; };
     const diffText = (x) => (!x.diff ? '' : [...x.diff.extra.map((e) => `+${e}`), ...x.diff.missing.map((m) => `-${m}`)].join(', '));
     const rows = all.slice().sort((a, b) => (a.priceEx == null) - (b.priceEx == null) || (a.priceEx || 0) - (b.priceEx || 0)).slice(0, 25).map((x) => {
-      const p = !x.price ? 'unpriced' : x.priceEx == null ? `${x.price.amount} ${x.price.currency} (no rate)` : `${x.price.currency === C.G().base ? '' : `${x.price.amount} ${x.price.currency}=`}${short(x.priceEx)}${inGroup(x) ? marks(x.priceEx) : ' [not like yours]'}`;
+      const p = !x.price ? 'unpriced' : x.priceEx == null ? `${x.price.amount} ${x.price.currency} (no rate)` : `${x.price.currency === C.G().base ? '' : `${x.price.amount} ${x.price.currency}=`}${short(x.priceEx)}${x.own ? ' [your own listing]' : inGroup(x) ? marks(x.priceEx) : ' [not like yours]'}`;
       const d = diffText(x);
       return d ? `${p} {${d}}` : p;
     });

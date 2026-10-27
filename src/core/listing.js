@@ -179,4 +179,19 @@ function summarise(result, itemClass, rates, base) {
   };
 }
 
-module.exports = { clean, modText, modLines, validPrice, listingToItem, priceInEx, formatPrice, summarise };
+// the same item, not just a similar one: every mod with the same value (at least 3 rolled mods, so
+// two plain items can't match by chance). A price check finds your own listing when you check an item
+// you have up for sale (its copied text has your "~b/o" note): that's your asking price, not the
+// market's, and it mustn't price the item.
+function modSignature(item) {
+  return ((item && item.lines) || []).filter((l) => l.key && l.tag !== 'base' && l.tag !== 'info').map((l) => `${l.key}=${l.value}`).sort();
+}
+function sameItem(a, b) {
+  if (!a || !b) return false;
+  if (a.baseType && b.baseType && a.baseType !== b.baseType) return false;
+  const x = modSignature(a); const y = modSignature(b);
+  if (x.filter((s) => /=-?\d/.test(s)).length < 3 || x.length !== y.length) return false;
+  return x.every((s, i) => s === y[i]);
+}
+
+module.exports = { clean, modText, modLines, validPrice, listingToItem, priceInEx, formatPrice, summarise, sameItem, modSignature };
