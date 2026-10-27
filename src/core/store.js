@@ -201,18 +201,55 @@ class Store {
     return true;
   }
 
+  // A new character. Empty (the default): nothing of the one you're on: no gear, no build, the
+  // default gear score profile and weights, no build tweaks, ignored stats or resistances, no linked
+  // build. Copy: all of those (the caller copies its Path of Building files).
   createProfile(name, copyCurrent, game) {
     // unique even when two are made in the same millisecond (a new game's character, then another)
     let id = 'p' + Date.now().toString(36);
     for (let k = 1; this.profileOf(id); k++) id = 'p' + Date.now().toString(36) + k;
     const g = games.isGame(game) ? game : this.activeGame();
     // the gear score is for PoE2 builds; a new PoE2 character never inherits a PoE1 character's 'off'
-    const build = g === 'poe1' ? 'off' : g === this.activeGame() ? (this.data.settings.build || DEFAULT_BUILD) : DEFAULT_BUILD;
+    const build = g === 'poe1' ? 'off' : DEFAULT_BUILD;
     const base = copyCurrent ? JSON.parse(JSON.stringify(this.snapshot())) : { equipped: {}, weights: { ...DEFAULT_WEIGHTS }, ignoreStats: [], build, buildTweaks: {}, resists: null };
     if (copyCurrent && g !== this.activeGame()) base.build = build;
+    const from = this.profileOf(this.data.activeProfile);
+    if (copyCurrent && from && from.buildSource) base.buildSource = JSON.parse(JSON.stringify(from.buildSource));
     this.data.profiles[id] = { name: name || 'New character', game: g, ...base };
+    if (copyCurrent) {
+      const ci = this.data.settings.pobCI;
+      if (isObj(ci) && this.data.activeProfile in ci) this.data.settings.pobCI = { ...ci, [id]: ci[this.data.activeProfile] };
+    }
     this.switchProfile(id);
     return id;
+  }
+
+  // Start a character again from nothing, keeping its name, game and place in the list. It gets a new
+  // id, so nothing kept for the old one (its Path of Building build, results, caches) carries over.
+  // Returns { id, old } (the caller removes the old id's build files), or null.
+  resetProfile(id) {
+    const p = this.profileOf(id);
+    if (!p) return null;
+    const before = this.data.activeProfile;
+    const fresh = this.createProfile(p.name, false, p.game);
+    // the new one where the old one was in the list
+    const order = {};
+    for (const [k, v] of Object.entries(this.data.profiles)) {
+      if (k === fresh) continue;
+      order[k === id ? fresh : k] = k === id ? this.data.profiles[fresh] : v;
+    }
+    this.data.profiles = order;
+    for (const g of Object.keys(this.data.activeByGame || {})) if (this.data.activeByGame[g] === id) this.data.activeByGame[g] = fresh;
+    this.forgetProfileKeys(id);
+    if (before !== id) this.switchProfile(before); // you stay on the character you were on
+    this.save();
+    return { id: fresh, old: id };
+  }
+
+  // settings kept per character id
+  forgetProfileKeys(id) {
+    const ci = this.data.settings.pobCI;
+    if (isObj(ci) && id in ci) { const c = { ...ci }; delete c[id]; this.data.settings.pobCI = c; }
   }
 
   // a character nobody has set up yet: no gear, default name (the PoB file is checked by the caller)
@@ -235,6 +272,7 @@ class Store {
       this.switchProfile(ids.find((x) => x !== id && this.data.profiles[x].game === g) || ids.find((x) => x !== id));
     }
     delete this.data.profiles[id];
+    this.forgetProfileKeys(id);
     const by = this.data.activeByGame || {};
     for (const g of Object.keys(by)) if (by[g] === id) delete by[g];
     this.save();

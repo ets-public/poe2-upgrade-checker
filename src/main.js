@@ -150,6 +150,7 @@ const C = {
   get pobEngs() { return M.pob.pobEngs; },
   get pobErrorOf() { return M.pob.pobErrorOf; },
   get pobFile() { return M.pob.pobFile; },
+  get routeReset() { return routeFeature.reset; },
   get pobJudge() { return M.pob.pobJudge; },
   get pobLastSummary() { return M.build.pobLastSummary; },
   get pobListings() { return M.results.pobListings; },

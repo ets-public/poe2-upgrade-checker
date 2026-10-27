@@ -44,6 +44,7 @@ contextBridge.exposeInMainWorld('api', {
   createProfile: (name, copy) => ipcRenderer.invoke('profiles:create', name, copy),
   renameProfile: (id, name) => ipcRenderer.invoke('profiles:rename', id, name),
   deleteProfile: (id) => ipcRenderer.invoke('profiles:delete', id),
+  resetProfile: (id) => ipcRenderer.invoke('profiles:reset', id),
   setResists: (r) => ipcRenderer.invoke('resists:set', r),
   importPob: (input) => ipcRenderer.invoke('pob:import', input),
   syncPob: () => ipcRenderer.invoke('pob:sync'),

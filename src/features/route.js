@@ -228,7 +228,15 @@ module.exports = function (C) {
     push();
     return view();
   });
-  ipcMain.handle('route:reset', () => { const g = game(); trace('reset', { from: progress(g).current || 0, level: progress(g).level || null }); setProgress(g, { current: 0, area: null, areaLevel: null, level: null }); C.log(`route ${g}: reset`); push(); return view(); });
+  // back to the first step (Start over, or a new character)
+  function reset(why) {
+    const g = game();
+    trace('reset', { from: progress(g).current || 0, level: progress(g).level || null, why: why || 'start over' });
+    setProgress(g, { current: 0, area: null, areaLevel: null, character: null, level: null });
+    C.log(`route ${g}: reset${why ? ` (${why})` : ''}`);
+    push();
+  }
+  ipcMain.handle('route:reset', () => { reset(); return view(); });
   ipcMain.handle('route:browse', async () => {
     const g = game();
     const win = C.settingsWin && !C.settingsWin.isDestroyed() ? C.settingsWin : undefined;
@@ -264,5 +272,5 @@ module.exports = function (C) {
     if (opts().overlay) showOverlay();
   }
 
-  return { start, view, DEFAULT_OVERLAY_HOTKEY };
+  return { start, view, reset, DEFAULT_OVERLAY_HOTKEY };
 };

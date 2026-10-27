@@ -1,6 +1,8 @@
 'use strict';
 
 // Your gear, weights, settings, characters and resistances (IPC for the settings window).
+const fs = require('fs');
+const path = require('path');
 const { ipcMain } = require('electron');
 const ignoreLib = require('../core/ignore');
 const catalogLib = require('../core/catalog');
@@ -123,9 +125,41 @@ module.exports = function (C) {
   // ---------- characters ----------
   ipcMain.handle('profiles:list', () => C.store.listProfiles());
   ipcMain.handle('profiles:switch', (_e, id) => { const ok = C.store.switchProfile(id); C.log(`switched to character ${id}`); C.gameChanged(); return ok; });
-  ipcMain.handle('profiles:create', (_e, name, copy) => { const id = C.store.createProfile(name, copy); C.gameChanged(); return id; });
+  // a character's Path of Building build (and guide) files, by character id
+  const buildFiles = (id) => [C.pobFile(id), C.pobFile(id).replace(/\.xml$/, '.build')];
+  function copyBuildFiles(from, to) {
+    const [a, b] = [buildFiles(from), buildFiles(to)];
+    a.forEach((f, i) => { try { if (fs.existsSync(f)) fs.copyFileSync(f, b[i]); } catch (err) { C.log(`characters: could not copy ${path.basename(f)}: ${err.message}`); } });
+  }
+  function removeBuildFiles(id) {
+    for (const f of buildFiles(id)) { try { fs.rmSync(f, { force: true }); } catch (err) { C.log(`characters: could not remove ${path.basename(f)}: ${err.message}`); } }
+  }
+  ipcMain.handle('profiles:create', (_e, name, copy) => {
+    const from = C.store.data.activeProfile;
+    const id = C.store.createProfile(name, !!copy);
+    if (copy) copyBuildFiles(from, id);
+    else if (C.routeReset) C.routeReset('new character'); // a new character starts the campaign
+    C.log(`characters: new character ${id}${copy ? `, a copy of ${from}` : ', empty'}`);
+    C.gameChanged();
+    return id;
+  });
+  // the character you're on, from nothing again (same name): gear, build, weights, tweaks, resistances, route
+  ipcMain.handle('profiles:reset', (_e, id) => {
+    const r = C.store.resetProfile(id);
+    if (!r) return null;
+    removeBuildFiles(r.old);
+    if (r.id === C.store.data.activeProfile && C.routeReset) C.routeReset('character reset');
+    C.log(`characters: ${r.old} started again as ${r.id}`);
+    C.gameChanged();
+    return r.id;
+  });
   ipcMain.handle('profiles:rename', (_e, id, name) => { C.store.renameProfile(id, name); C.buildTrayMenu(); return true; });
-  ipcMain.handle('profiles:delete', (_e, id) => { const ok = C.store.deleteProfile(id); C.gameChanged(); return ok; });
+  ipcMain.handle('profiles:delete', (_e, id) => {
+    const ok = C.store.deleteProfile(id);
+    if (ok) { removeBuildFiles(id); C.log(`characters: deleted ${id}`); }
+    C.gameChanged();
+    return ok;
+  });
 
   // ---------- resistances ----------
   ipcMain.handle('resists:set', (_e, r) => {

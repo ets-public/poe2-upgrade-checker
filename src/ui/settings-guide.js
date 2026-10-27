@@ -154,10 +154,19 @@ $('#profileSel').addEventListener('change', async () => { await window.api.switc
 $('#profileNew').addEventListener('click', async () => {
   const name = await askText('Name for the new character', '', 'e.g. Witch league starter');
   if (!name) return;
-  const how = await askChoice(`<h2>New character: ${esc(name)}</h2><p>Copy this character's build, weights, ignored stats and gear (you can replace the gear), or start empty?</p>`,
-    [{ label: 'Copy this character', value: 'copy', cls: 'primary' }, { label: 'Start empty', value: 'empty' }, { label: 'Cancel', value: null }]);
+  const cur = (state.profiles || []).find((p) => p.active);
+  const how = await askChoice(`<h2>New character: ${esc(name)}</h2><p><b>Start empty</b>: no gear, no build, default weights and resistances, and League start from the first step.</p><p class="dim">Or copy ${esc(cur ? `"${cur.name}"` : 'this character')}: its gear, Path of Building build, weights, ignored stats and resistances.</p>`,
+    [{ label: 'Start empty', value: 'empty', cls: 'primary' }, { label: 'Copy everything', value: 'copy' }, { label: 'Cancel', value: null }]);
   if (!how) return;
   await window.api.createProfile(name, how === 'copy');
+  clearPobBox();
+  await load();
+});
+$('#profileReset').addEventListener('click', async () => {
+  const cur = (state.profiles || []).find((p) => p.active);
+  if (!cur) return;
+  if (!await askYesNo(`Start "${cur.name}" again from nothing? Its gear, Path of Building build, weights, ignored stats, resistances and League start progress are cleared. This can't be undone.`, 'Clear it')) return;
+  await window.api.resetProfile(cur.id);
   clearPobBox();
   await load();
 });

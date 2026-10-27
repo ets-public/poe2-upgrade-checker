@@ -445,3 +445,50 @@ test('jewel slots: more than 6, and only the needed ones are shown', () => {
   assert.deepEqual(visibleJewels({}), ['Jewel 1', 'Jewel 2', 'Jewel 3', 'Jewel 4', 'Jewel 5', 'Jewel 6']);
   assert.equal(visibleJewels({ 'Jewel 9': {} }).length, 10);
 });
+
+test('a new empty character has nothing of the one you were on; Start again clears one in place', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'poe2uc-fresh-'));
+  const s = new Store(dir);
+  s.setEquipped('Helmet', parseItem(HELMET_OLD));
+  s.setWeight('# to maximum Life', 5);
+  s.setSetting('build', 'djinn-varashta');
+  s.setSetting('resists', { fire: 80, cold: 80, lightning: 80, cap: 75, source: 'pob' });
+  s.setSetting('ignoreStats', ['# to Accuracy Rating']);
+  s.setBuildSource({ type: 'pobbin', url: 'https://pobb.in/abc' });
+  s.setSetting('pobCI', { main: true });
+  const fresh = s.createProfile('League starter', false);
+  assert.deepStrictEqual(s.equipped, {});
+  assert.equal(s.weights['# to maximum Life'], 1);
+  assert.equal(s.settings.build, 'life-res'); // the default gear score profile, not the old character's
+  assert.equal(s.settings.resists, null);
+  assert.deepStrictEqual(s.settings.ignoreStats, []);
+  assert.equal(s.buildSource(), null);
+  assert.ok(!(fresh in s.settings.pobCI));
+  // a copy takes everything, the linked build too
+  s.switchProfile('main');
+  const copy = s.createProfile('Copy', true);
+  assert.ok(s.equipped.Helmet);
+  assert.equal(s.settings.build, 'djinn-varashta');
+  assert.equal(s.buildSource().url, 'https://pobb.in/abc');
+  assert.equal(s.settings.pobCI[copy], true);
+  // Start again: same name and place, a new id, nothing kept
+  const names = s.listProfiles().map((p) => p.name);
+  const r = s.resetProfile(copy);
+  assert.equal(r.old, copy);
+  assert.notEqual(r.id, copy);
+  assert.equal(s.data.activeProfile, r.id);
+  assert.deepStrictEqual(s.listProfiles().map((p) => p.name), names);
+  assert.deepStrictEqual(s.equipped, {});
+  assert.equal(s.settings.resists, null);
+  assert.equal(s.buildSource(), null);
+  assert.ok(!s.profileOf(copy) && !(copy in s.settings.pobCI));
+  // resetting another character keeps you where you are
+  s.resetProfile(fresh);
+  assert.equal(s.data.activeProfile, r.id);
+  s.switchProfile('main');
+  assert.ok(s.equipped.Helmet); // the original is untouched
+  const s2 = new Store(dir);
+  assert.equal(s2.listProfiles().length, 3);
+  s2.deleteProfile('main');
+  assert.ok(!('main' in (s2.settings.pobCI || {})));
+});
