@@ -50,6 +50,9 @@ modified version of it.
 
 - **Path of Building** (vendor/pob, vendor/pob1): the Path of Building Community projects, MIT
   licence, kept with their own LICENSE.md.
+- **League start route data** (src/data/routes): the routes come from exile-leveling by HeartofPhos
+  (PoE1) and Splitstone by its contributors (PoE2), both MIT licence; their notices are in
+  src/data/routes/LICENSES.md.
 - **Fonts** Alegreya Sans and Alegreya Sans SC (assets/fonts, site/fonts): SIL Open Font License.
 - **Electron, electron-updater** and other npm packages: their own licences (mostly MIT).
 - **Path of Exile game data** (passive tree data, item and mod names, art referenced from the
