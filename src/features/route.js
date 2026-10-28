@@ -44,6 +44,11 @@ module.exports = function (C) {
   }
   const stepInfo = (steps, i) => (steps[i] ? { i, act: steps[i].actName, n: steps[i].i + 1, t: String(steps[i].t).slice(0, 90), in: steps[i].in, to: steps[i].to, zone: steps[i].zone } : { i, t: '(campaign done)' });
 
+  const onRoute = (route, steps, area) => {
+    if (!area || routeLib.isTown(route, area)) return false;
+    const x = String(area).toLowerCase();
+    return steps.some((st) => String(st.in || '').toLowerCase() === x || String(st.to || '').toLowerCase() === x);
+  };
   function view(g = game()) {
     const route = routeLib.load(g);
     const steps = routeLib.flatten(route);
@@ -56,7 +61,9 @@ module.exports = function (C) {
       steps: steps.map((s) => ({ t: s.t, h: s.h, r: s.r, p: s.p, k: s.k, l: s.l, o: s.o, f: s.f, act: s.act, i: s.i, hide: !routeLib.shown(s, mode()) })),
       endgame: route.endgame, current: cur, done: cur >= steps.length,
       totals: routeLib.totals(steps, cur),
-      area: p.area || null, areaLevel: p.areaLevel || null, character: p.character || null, level: p.level || null,
+      // the area level only for a zone of the route: a town's or hideout's level says nothing about the
+      // campaign, and a hideout or map at level 65 is usually another character of yours
+      area: p.area || null, areaLevel: onRoute(route, steps, p.area) ? p.areaLevel || null : null, character: p.character || null, level: p.level || null,
       follow: !!o.follow, logPath: (o.logPath || {})[g] || null, found: findLog(g), status: status[g] || null,
       overlay: !!o.overlay, hotkey: o.hotkey || '', hotkeyOk, optional: o.optional !== false, rush: !!o.rush,
     };
