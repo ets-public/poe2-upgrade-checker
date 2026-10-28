@@ -123,11 +123,23 @@ module.exports = function (C) {
     if (Date.now() - awaySince > 1200) hidePopup();
   }
 
+  // How long F2 took, in the log: from the key press to Ctrl+C sent, the item text read, the popup
+  // shown and (when Path of Building judges it) its verdict. One line per F2, written once all are in.
+  let timing = null; // { pressed, sent, text, seq, slot, pob, shown, verdict }
+  function logTiming() {
+    const t = timing;
+    if (!t || !t.shown || (t.pob && !t.verdict)) return;
+    timing = null;
+    const ms = (x) => `${Math.max(0, x - t.pressed)} ms`;
+    C.log(`F2 timing: Ctrl+C sent ${ms(t.sent)}, item text ${ms(t.text)}, popup shown ${ms(t.shown)}${t.pob ? `, PoB verdict ${ms(t.verdict)}` : ''}${t.slot ? ` (${t.slot})` : ''}`);
+  }
+
   function revealPopup(height) {
     clearTimeout(showFallback);
     if (!C.popup) return;
     if (pendingShow || !C.popup.isVisible()) {
       pendingShow = false;
+      if (timing && !timing.shown) { timing.shown = Date.now(); logTiming(); }
       placePopupNearCursor(height);
       C.popup.showInactive(); // don't steal focus from the game
       C.popup.setAlwaysOnTop(true, 'screen-saver');
@@ -155,6 +167,9 @@ module.exports = function (C) {
     pendingShow = true; // every new copy re-positions the popup at the cursor
     const withPob = result && result.ok && result.kind !== 'price' && result.kind !== 'map' && result.kind !== 'quickprice' && !result.isEquipped && result.item && C.pobOn() && C.pobCanJudge(result.item, result.targetSlot);
     if (withPob) result.pobPending = true;
+    // an F2 press that led here (not a refresh of the popup): time it
+    const t = C.hotkeyTiming; C.hotkeyTiming = null;
+    timing = t && Date.now() - t.pressed < 10000 ? { ...t, seq, slot: result && (result.targetSlot || (result.item && result.item.slot)), pob: !!withPob } : null;
     const send = () => C.popup && C.popup.webContents.send('popup:result', serialise(result));
     if (C.popup.webContents.isLoading()) C.popup.webContents.once('did-finish-load', send);
     else send();
@@ -166,7 +181,10 @@ module.exports = function (C) {
         if (!j) result.pobError = C.pobErrorOf(res, 0);
         else C.applyPob(result, j);
       }).catch((err) => { result.pobPending = false; result.pobError = err.message; C.log('pob: ' + err.message); })
-        .then(() => { if (seq === popupSeq && popupItem === item && C.popup && !C.popup.isDestroyed() && C.popup.isVisible()) C.popup.webContents.send('popup:result', serialise(result)); });
+        .then(() => {
+          if (timing && timing.seq === seq) { timing.verdict = Date.now(); logTiming(); }
+          if (seq === popupSeq && popupItem === item && C.popup && !C.popup.isDestroyed() && C.popup.isVisible()) C.popup.webContents.send('popup:result', serialise(result));
+        });
     }
     // uniques: poe.ninja's price next to the verdict
     if (result && result.ok && result.kind !== 'price' && result.kind !== 'quickprice' && result.item && /unique/i.test(result.item.rarity || '')) {

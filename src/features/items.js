@@ -165,6 +165,7 @@ module.exports = function (C) {
   async function onHotkey(mode) {
     if (hotkeyBusy || C.store.settings.paused) return;
     hotkeyBusy = true;
+    const pressedAt = Date.now(); // for the F2 timing line in the log (popup.js)
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     let before = '';
     before = await clipRead();
@@ -189,6 +190,7 @@ module.exports = function (C) {
       // send the copy before anything appears on screen: a window popping up first can make
       // the game drop its tooltip (then nothing gets copied). One Ctrl+C per press, never more.
       const sent = await keys.copy(!!C.store.settings.advancedCopy, { nudge });
+      const sentAt = Date.now();
       if (!sent) C.log('hotkey: could not send Ctrl+C to the game');
       else if (sent !== true && !/^fg=PathOfExile[^;]*;over=PathOfExile/i.test(sent)) C.log('hotkey: sent to ' + sent);
       let text = await waitForText(250);
@@ -196,7 +198,9 @@ module.exports = function (C) {
         C.showResult({ ok: false, loading: true, reason: 'Reading item…' });
         text = await waitForText(1250); // the game can be slow to fill the clipboard when it's busy
       }
+      if (text && mode !== 'price') C.hotkeyTiming = { pressed: pressedAt, sent: sentAt, text: Date.now() };
       if (text && handleItemText(text, 'hotkey', sent, mode)) return;
+      C.hotkeyTiming = null;
       // Nothing copied: put the old clipboard back and say why.
       await clipWrite(before || '');
       C.lastClip = before || '';

@@ -259,7 +259,8 @@ module.exports = function (C) {
       steps.push({ level, total: r && r.ok ? r.total : null, labels: q.labels, query: q.body.query, drivers: q.drivers || undefined });
       if (!r.ok || r.total == null || r.total >= enough) break;
       if (r.near) break;
-      await new Promise((res) => setTimeout(res, 700));
+      // (no fixed pause before the next level: runSearch waits for a slot under the trade site's own
+      // rate limit, keeping one search spare)
     }
     if (!r || !r.ok) return { ok: false, error: (r && r.error) || 'Search failed.' };
     // the search itself failed (only a pre-filled link came back): open that rather than saying "nothing listed"
