@@ -18,5 +18,14 @@
   }
   // the reward text, when it says more than the tags (a PoE2 permanent buff, the bandit choice)
   const rewardLine = (s) => (s.r && !s.p && !(s.k || []).some((k) => ['lab', 'spirit'].includes(k)) ? s.r : s.r && s.k && s.k.includes('choice') ? s.r : '');
-  window.routeUi = { esc, tags, rewardLine };
+  // a step's number in its act, counting only the steps shown (optional ones hidden, the endgame rush):
+  // { n, of } for the step at index idx
+  function pos(v, idx) {
+    const s = v.steps[idx];
+    if (!s) return null;
+    let n = 0; let of = 0;
+    v.steps.forEach((x, j) => { if (x.act !== s.act || (x.hide && j !== idx)) return; of++; if (j <= idx) n++; });
+    return { n, of };
+  }
+  window.routeUi = { esc, tags, rewardLine, pos };
 }());

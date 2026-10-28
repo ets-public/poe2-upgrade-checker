@@ -129,7 +129,8 @@
      "k": [
       "spirit"
      ],
-     "in": "g1_12"
+     "in": "g1_12",
+     "f": 1
     },
     {
      "t": "Finn: pick a Charm; Una: buy a Greater Life/Mana Flask, then WP to Ogham Farmlands",
@@ -335,7 +336,8 @@
      "k": [
       "trial"
      ],
-     "in": "g2_13"
+     "in": "g2_13",
+     "f": 1
     },
     {
      "t": "Kill Jamanra, the Abomination (act boss)",
@@ -377,7 +379,8 @@
      "l": "30 (area 35)",
      "o": 1,
      "r": "Servi's Venom Draught (PERMANENT): 25% Stun Threshold / 30% Elemental Ailment Threshold / 25% Mana Regen",
-     "in": "g3_4"
+     "in": "g3_4",
+     "f": 1
     },
     {
      "t": "Run through to the Chimeral Wetlands",
@@ -428,7 +431,8 @@
      "k": [
       "spirit"
      ],
-     "in": "g3_7"
+     "in": "g3_7",
+     "f": 1
     },
     {
      "t": "Servi: Ghastly Spear → charm (and venom if not done); Alva at the bottom → The Drowned City",
@@ -441,7 +445,8 @@
      "r": "2nd Ascendancy: 2 Ascendancy Points",
      "k": [
       "trial"
-     ]
+     ],
+     "f": 1
     },
     {
      "t": "Grab the WP at the start, run through to the Apex of Filth",
@@ -536,7 +541,8 @@
     {
      "t": "Sail to Kedge Bay, run through the fog to Journey's End",
      "o": 1,
-     "in": "g4_2_1"
+     "in": "g4_2_1",
+     "f": 1
     },
     {
      "t": "Abandoned Ship, Tidal Cay (Tombgrowl), Doran the Deft (rogue exile)",
@@ -547,7 +553,8 @@
      "o": 1,
      "r": "+2 Passive Points: Mist-shrouded Tome (Tujen, Dark Mists)",
      "p": 2,
-     "in": "g4_2_2"
+     "in": "g4_2_2",
+     "f": 1
     },
     {
      "t": "Go through to Solitary Confinement; optional Goddess of Justice (flask recovery)",
@@ -566,7 +573,8 @@
     {
      "t": "Kill the Great White One → Shark Fin (for Kaimana's permanent buff)",
      "o": 1,
-     "in": "g4_3_1"
+     "in": "g4_3_1",
+     "f": 1
     },
     {
      "t": "Crabshell Cavern (checkpoint): Uncut Support Gem",
@@ -575,7 +583,8 @@
     {
      "t": "Kill Diamora, Song of Death → free Matiki (or weapon piece)",
      "o": 1,
-     "in": "g4_3_2"
+     "in": "g4_3_2",
+     "f": 1
     },
     {
      "t": "Beckoning Clam (checkpoint) → Humming Pearl → Rog in Kingsmarch: Pearlescent Amulet (all resistances)",
@@ -586,7 +595,8 @@
      "l": "45",
      "o": 1,
      "r": "+5% Maximum Mana (Silent Hall)",
-     "in": "g4_4_1"
+     "in": "g4_4_1",
+     "f": 1
     },
     {
      "t": "Complete 3 tests → 3 tattoos (+5% res or +5 attribute each, permanent); kill Yama the White",
@@ -595,14 +605,16 @@
      "k": [
       "res"
      ],
-     "in": "g4_4_2"
+     "in": "g4_4_2",
+     "f": 1
     },
     {
      "t": "Talk to Navali → Tattoo of Hinekora (+2 passive points)",
      "o": 1,
      "r": "+2 Passive Points: Tattoo of Hinekora (Navali)",
      "p": 2,
-     "in": "g4_4_3"
+     "in": "g4_4_3",
+     "f": 1
     },
     {
      "t": "Talk to the Hooded One, then Makoru → Arastas (needs all 3 weapon pieces)",
@@ -690,7 +702,8 @@
      "o": 1,
      "r": "+2 Passive Points: Warden's Ledger (Oswin)",
      "p": 2,
-     "in": "p1_5"
+     "in": "p1_5",
+     "f": 1
     },
     {
      "t": "Kill Thane Wulfric & Lady Elswyth; portal out",
@@ -714,19 +727,22 @@
      "t": "Take Molten One's Gift (+5% max life)",
      "o": 1,
      "r": "+5% Maximum Life (Molten One's Gift)",
-     "in": "p2_1"
+     "in": "p2_1",
+     "f": 1
     },
     {
      "t": "Just grab the waypoint, go back to the Khari Crossing",
      "o": 1,
-     "in": "p2_5"
+     "in": "p2_5",
+     "f": 1
     },
     {
      "t": "Kill Akthi & Anundr (scorpion + sandworm), portal to the Bazaar → Risu: +2 passive points",
      "o": 1,
      "r": "+2 Passive Points: Book of Specialisation (Risu, Clearing the Way)",
      "p": 2,
-     "in": "p2_1"
+     "in": "p2_1",
+     "f": 1
     },
     {
      "t": "Torbik (vendor in a wagon with a checkpoint, NE): kill his attackers first. Sells caster weapons, sceptres, jewellery",
@@ -791,7 +807,8 @@
      "o": 1,
      "r": "+2 Passive Points: Book of Specialisation (Hilda, Icy Tusks)",
      "p": 2,
-     "in": "p3_4"
+     "in": "p3_4",
+     "f": 1
     },
     {
      "t": "Kill Rakkar, the Frozen Talon → entrance to Kriar Peaks",

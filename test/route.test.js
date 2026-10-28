@@ -130,3 +130,29 @@ test('route: every optional quest is on the route, marked optional, and doing on
   // skipping it: the Mud Flats straight to the Submerged Passage passes it
   assert.strictEqual(p1[R.advance(r1, p1, mud + 1, '1_1_4_1') - 1].to, '1_1_4_1');
 });
+
+test('route: the endgame rush hides every optional step except the ones with a permanent reward', () => {
+  const rush = { rush: true };
+  const p2 = R.flatten(R.load('poe2'));
+  const kept = p2.filter((s) => s.o && R.shown(s, rush));
+  assert.strictEqual(kept.length, 17);
+  // every passive point is still on the rush: the totals don't change
+  assert.strictEqual(p2.filter((s) => R.shown(s, rush)).reduce((n, s) => n + (s.p || 0), 0), 24);
+  assert.ok(!p2.some((s) => R.shown(s, rush) && /Mysterious Campsite|Mud Burrow|Mektul|Runeseeker|Finn/.test(s.t)));
+  assert.ok(kept.some((s) => /2nd Ascendancy/.test(s.t)) && kept.some((s) => /King in the Mists/.test(s.t)));
+  const r1 = R.load('poe1'); const p1 = R.flatten(r1);
+  assert.ok(!p1.some((s) => s.o && R.shown(s, rush)), 'PoE1: no side quest on the rush');
+  assert.strictEqual(p1.filter((s) => R.shown(s, rush)).reduce((n, s) => n + (s.p || 0), 0), 23);
+  // Step done passes hidden steps; so does a zone change landing on one
+  const mud = p1.findIndex((s) => s.to === '1_1_3');
+  const glyph = mud + 1; // "Find 3× Glyph", then the hidden A Dirty Job
+  assert.ok(/A Dirty Job/.test(p1[glyph + 1].t));
+  assert.strictEqual(R.stepBy(p1, glyph, 1, rush), glyph + 2);
+  assert.strictEqual(R.stepBy(p1, glyph + 2, -1, rush), glyph);
+  assert.strictEqual(R.stepBy(p1, glyph, 1, {}), glyph + 1); // not in the rush: it's shown
+  // going into the Fetid Pool anyway: you're doing it, so it's the current step
+  assert.strictEqual(R.settle(p1, glyph + 1, rush, '1_1_3a'), glyph + 1);
+  assert.strictEqual(R.settle(p1, glyph + 1, rush, '1_1_3'), glyph + 2);
+  // Show optional steps off works the same way
+  assert.strictEqual(R.stepBy(p1, glyph, 1, { optional: false }), glyph + 2);
+});

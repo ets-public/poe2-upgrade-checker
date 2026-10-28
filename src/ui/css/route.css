@@ -41,5 +41,6 @@ body.route-overlay { background: transparent; overflow: hidden; margin: 0; font-
 .route-end ul { margin: 0 0 6px 18px; padding: 0; }
 .route-credit { font-size: 11px; color: var(--dim); margin-top: 10px; }
 .route-next { margin-top: 4px; }
+.route-rush { display: block; margin-top: 6px; }
 .route-opts { margin-top: 6px; }
 .route-log .warn { color: #e0a060; }

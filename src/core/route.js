@@ -118,6 +118,30 @@ function decideRaw(route, steps, current, area, prevArea) {
   return { index: from, why: 'not-ahead' };
 }
 
+// Which steps show. mode: { optional (show optional steps), rush (the endgame rush) }. The rush is
+// the fastest way to the endgame: the campaign without anything optional, except the optional steps
+// that still give something permanent or lead to it (f: passive points, ascendancy, Spirit, life,
+// resistances; PoE2's speed route keeps them too). PoE1's route has no such step: the rush hides
+// every side quest.
+function shown(s, mode) {
+  if (!s || !s.o) return true;
+  if (mode && mode.rush) return !!s.f;
+  return !mode || mode.optional !== false;
+}
+// the step to land on from i: hidden steps are passed, unless you're in that step's own area
+// (then you're doing it anyway)
+function settle(steps, i, mode, area) {
+  let j = i;
+  while (j < steps.length && !shown(steps[j], mode) && !(area && steps[j].in && norm(steps[j].in) === norm(area))) j++;
+  return j;
+}
+// one step on (dir 1) or back (-1), passing hidden steps
+function stepBy(steps, i, dir, mode) {
+  let j = i + (dir > 0 ? 1 : -1);
+  while (j > 0 && j < steps.length && !shown(steps[j], mode)) j += dir > 0 ? 1 : -1;
+  return Math.max(0, Math.min(steps.length, j));
+}
+
 // what the steps you've done have given you: passive points, ascendancy (trials and labs), the
 // resistance changes, Spirit (PoE2)
 function totals(steps, upTo) {
@@ -152,4 +176,4 @@ function defaultLogPaths(game) {
   ];
 }
 
-module.exports = { load, flatten, isTown, parseLine, advance, decide, totals, defaultLogPaths, AHEAD, TOWN };
+module.exports = { load, flatten, isTown, parseLine, advance, decide, shown, settle, stepBy, totals, defaultLogPaths, AHEAD, TOWN };

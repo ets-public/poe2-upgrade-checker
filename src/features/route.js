@@ -19,7 +19,8 @@ const TAIL = 256 * 1024; // when following starts: the end of the log, for the a
 
 module.exports = function (C) {
   const game = () => (C.tg() === 'poe1' ? 'poe1' : 'poe2');
-  const opts = () => ({ follow: false, logPath: {}, overlay: false, hotkey: DEFAULT_OVERLAY_HOTKEY, optional: true, ...(C.store.settings.route || {}) });
+  const opts = () => ({ follow: false, logPath: {}, overlay: false, hotkey: DEFAULT_OVERLAY_HOTKEY, optional: true, rush: false, ...(C.store.settings.route || {}) });
+  const mode = () => { const o = opts(); return { optional: o.optional !== false, rush: !!o.rush }; };
   const setOpts = (patch) => C.store.setSetting('route', { ...opts(), ...patch });
   // progress, per game: { current (step index), area, areaLevel, character, level, at }
   const progressAll = () => C.store.settings.routeProgress || {};
@@ -52,12 +53,12 @@ module.exports = function (C) {
     return {
       game: g, for: route.for, checked: route.checked, note: route.note, sources: route.sources, totalsOf: route.totals,
       acts: route.acts.map((a) => ({ name: a.name, levels: a.levels || null, count: a.steps.length })),
-      steps: steps.map(({ t, h, r, p: pts, k, l, o: opt, act, i }) => ({ t, h, r, p: pts, k, l, o: opt, act, i })),
+      steps: steps.map((s) => ({ t: s.t, h: s.h, r: s.r, p: s.p, k: s.k, l: s.l, o: s.o, f: s.f, act: s.act, i: s.i, hide: !routeLib.shown(s, mode()) })),
       endgame: route.endgame, current: cur, done: cur >= steps.length,
       totals: routeLib.totals(steps, cur),
       area: p.area || null, areaLevel: p.areaLevel || null, character: p.character || null, level: p.level || null,
       follow: !!o.follow, logPath: (o.logPath || {})[g] || null, found: findLog(g), status: status[g] || null,
-      overlay: !!o.overlay, hotkey: o.hotkey || '', hotkeyOk, optional: o.optional !== false,
+      overlay: !!o.overlay, hotkey: o.hotkey || '', hotkeyOk, optional: o.optional !== false, rush: !!o.rush,
     };
   }
 
@@ -94,7 +95,8 @@ module.exports = function (C) {
       const p = progress(g);
       // catching up on the end of the log: where you are now, not every area you went through
       const d = replay ? { index: p.current, why: 'catch-up' } : routeLib.decide(route, steps, p.current, e.area, p.area);
-      const next = d.index;
+      // a step the rush (or Show optional steps off) hides is passed, unless you went into its area
+      const next = replay || d.index === p.current ? d.index : routeLib.settle(steps, d.index, mode(), e.area);
       if (next !== p.current) C.log(`route ${g}: entered ${e.area}, step ${p.current} -> ${next} (${d.why})`);
       if (!replay) {
         const now = Date.now();
@@ -201,6 +203,15 @@ module.exports = function (C) {
       if (p.follow) startFollowing(); else stopFollowing();
     }
     if ('optional' in p) { setOpts({ optional: !!p.optional }); trace('optional', { on: !!p.optional }); }
+    if ('rush' in p) {
+      setOpts({ rush: !!p.rush });
+      trace('rush', { on: !!p.rush });
+      C.log(`route: endgame rush ${p.rush ? 'on' : 'off'}`);
+      // on a step the rush hides: on to the next one it shows
+      const g = game(); const steps = routeLib.flatten(routeLib.load(g)); const cur = progress(g).current || 0;
+      const to = routeLib.settle(steps, cur, mode(), null);
+      if (to !== cur) setProgress(g, { current: to });
+    }
     if ('overlay' in p) setOverlay(!!p.overlay, 'tab');
     if ('hotkey' in p) { setOpts({ hotkey: typeof p.hotkey === 'string' ? p.hotkey.slice(0, 40) : '' }); registerHotkey(); }
     push();
@@ -222,7 +233,7 @@ module.exports = function (C) {
     const steps = routeLib.flatten(routeLib.load(g));
     const n = steps.length;
     const was = progress(g).current || 0;
-    const to = Math.max(0, Math.min(n, was + (Number(delta) > 0 ? 1 : -1)));
+    const to = routeLib.stepBy(steps, Math.min(was, n), Number(delta) > 0 ? 1 : -1, mode()); // passing steps that aren't shown
     trace('manual', { how: Number(delta) > 0 ? 'next' : 'back', source: source === 'overlay' ? 'overlay' : 'tab', from: stepInfo(steps, was), to: stepInfo(steps, to), area: progress(g).area || null, sinceArea: lastAreaAt ? Date.now() - lastAreaAt : null });
     setProgress(g, { current: to });
     push();
