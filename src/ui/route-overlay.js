@@ -4,7 +4,7 @@
 // League start overlay: the current step of the campaign route over the game, and the next one.
 // It moves on by itself when following your zones is on (League start tab); ◀ ▶ step by hand.
 (function () {
-  const { esc, tags, pos } = window.routeUi;
+  const { esc, tags, pos, who } = window.routeUi;
   const box = document.getElementById('rov');
   function render(v) {
     if (!v) return;
@@ -18,7 +18,7 @@
       : `<div class="rov-now">Campaign done. ${esc((v.endgame && v.endgame[0] && v.endgame[0].items[0]) || '')}</div>`;
     const nx = next ? `<div class="rov-next">Next: ${esc(next.t)}</div>` : '';
     const total = v.totalsOf && v.totalsOf.passives;
-    const foot = `<div class="rov-foot"><span>Passives ${v.totals.passives}${total ? ` of ${total}` : ''}</span>${v.level ? `<span>Level ${esc(v.level)}</span>` : ''}${v.areaLevel ? `<span>Area ${esc(v.areaLevel)}</span>` : ''}${v.rush ? '<span>Endgame rush</span>' : ''}${!v.follow ? '<span class="rov-warn">Not following zones</span>' : ''}</div>`;
+    const foot = `<div class="rov-foot"><span>Passives ${v.totals.passives}${total ? ` of ${total}` : ''}</span>${v.level ? `<span>${esc(v.character || 'Level')} ${esc(v.level)}</span>` : ''}${v.areaLevel ? `<span>Area ${esc(v.areaLevel)}</span>` : ''}${v.rush ? '<span>Endgame rush</span>' : ''}${!v.follow ? '<span class="rov-warn">Not following zones</span>' : who(v).state === 'other' ? '<span class="rov-warn">Paused: another character</span>' : who(v).state === 'unknown' ? '<span class="rov-warn">Who is playing?</span>' : ''}</div>`;
     box.innerHTML = head + now + nx + foot;
     document.getElementById('rovBack').addEventListener('click', () => window.api.routeStep(-1, 'overlay'));
     document.getElementById('rovNext').addEventListener('click', () => window.api.routeStep(1, 'overlay'));

@@ -156,3 +156,36 @@ test('route: the endgame rush hides every optional step except the ones with a p
   // Show optional steps off works the same way
   assert.strictEqual(R.stepBy(p1, glyph, 1, { optional: false }), glyph + 2);
 });
+
+test('route: the log lines that say who is playing', () => {
+  const L = (s) => R.parseLine(`2026/10/28 13:22:14 1 abc [INFO Client 16048] ${s}`);
+  assert.deepStrictEqual(L('Async connecting to mel.login.pathofexile2.com:21265'), { kind: 'login', why: 'login' });
+  assert.deepStrictEqual(L('Connected to mel.login.pathofexile2.com in 15ms.'), { kind: 'login', why: 'login' });
+  assert.deepStrictEqual(R.parseLine('2026/10/21 06:56:13 ***** LOG FILE OPENING *****'), { kind: 'login', why: 'game started' });
+  assert.deepStrictEqual(L('Abnormal disconnect: An unexpected disconnection occurred.'), { kind: 'login', why: 'disconnected' });
+  assert.deepStrictEqual(L(': MercyPop has received +10% to [Resistances|Cold Resistance].'), { kind: 'named', character: 'MercyPop', how: 'reward' });
+  assert.deepStrictEqual(L(': MercyPop has been slain.'), { kind: 'named', character: 'MercyPop', how: 'slain' });
+  assert.deepStrictEqual(L(': Lorauktas (Disciple of Varashta) is now level 94'), { kind: 'level', character: 'Lorauktas', className: 'Disciple of Varashta', level: 94 });
+  // chat never counts
+  assert.strictEqual(L('@From Bob: Connected to mel.login.pathofexile2.com in 1ms.'), null);
+  assert.strictEqual(L('#Bob: : MercyPop has been slain.'), null);
+  assert.strictEqual(R.pidOf('2026/10/28 13:22:14 1 abc [DEBUG Client 16048] Generating level 1 area "G1_1" with seed 1'), '16048');
+});
+
+test('route: which character an area says is playing', () => {
+  const route = R.load('poe2'); const steps = R.flatten(route);
+  const beira = steps.findIndex((s) => /Beira/.test(s.t));
+  const me = { level: 3 };
+  assert.strictEqual(R.judgeArea(route, steps, beira, 'G1_2', 2, me), 'owner'); // the zone it's in
+  assert.strictEqual(R.judgeArea(route, steps, beira, 'G1_4', 3, me), 'owner'); // the next one
+  assert.strictEqual(R.judgeArea(route, steps, beira, 'G1_town', 15, me), null); // a town: anyone
+  assert.strictEqual(R.judgeArea(route, steps, beira, 'HideoutCanal', 65, me), null); // a hideout: anyone (always level 65)
+  assert.strictEqual(R.judgeArea(route, steps, beira, 'MapHive', 80, me), 'other'); // a map during the campaign
+  assert.strictEqual(R.judgeArea(route, steps, beira, 'G3_1', 33, me), 'other'); // far above level 3
+  assert.strictEqual(R.judgeArea(route, steps, beira, 'G3_1', 33, null), 'other'); // and far ahead of the route
+  // rushing a little under the area's level is still you
+  const later = steps.findIndex((s) => s.in === 'g1_7');
+  assert.strictEqual(R.judgeArea(route, steps, later - 1, 'G1_7', 12, { level: 5 }), 'owner');
+  // campaign done: maps are yours too
+  assert.strictEqual(R.judgeArea(route, steps, steps.length - 1, 'MapHive', 80, { level: 70 }), null);
+});

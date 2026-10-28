@@ -27,5 +27,23 @@
     v.steps.forEach((x, j) => { if (x.act !== s.act || (x.hide && j !== idx)) return; of++; if (j <= idx) n++; });
     return { n, of };
   }
-  window.routeUi = { esc, tags, rewardLine, pos };
+  // who is playing, in words (League start tab and overlay): { state: 'owner' | 'other' | 'unknown', text }
+  function whereIs(area, level) {
+    const a = String(area || '');
+    const lvl = level ? ` (area level ${level})` : '';
+    if (/^Map/i.test(a)) return `in a map${lvl}`;
+    if (/hideout/i.test(a)) return 'in a hideout';
+    return a ? `in ${a}${lvl}` : '';
+  }
+  function who(v) {
+    const s = v.session || { who: 'unknown' };
+    const me = v.character || 'the route character';
+    if (s.who === 'owner') return { state: 'owner', text: v.character ? `Following ${v.character}${v.level ? ` (level ${v.level})` : ''}` : 'Following the first character to level up in the campaign' };
+    if (s.who === 'other') {
+      const them = s.by === 'name' && s.name ? s.name : 'Another character';
+      return { state: 'other', text: `Paused: ${them} is playing${s.area ? ` ${whereIs(s.area, s.areaLevel)}` : ''}. It carries on when ${me} is back.` };
+    }
+    return { state: 'unknown', text: `Waiting to see who logged in: it carries on when ${me} enters a zone of the route or levels up.` };
+  }
+  window.routeUi = { esc, tags, rewardLine, pos, who };
 }());

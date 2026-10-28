@@ -5,7 +5,7 @@
 // you're on, what you've collected (passive points, ascendancy, resistances, Spirit), following your
 // zones from the game's log (off until you switch it on), the overlay, and the first endgame steps.
 (function () {
-  const { esc, tags, rewardLine, pos } = window.routeUi;
+  const { esc, tags, rewardLine, pos, who } = window.routeUi;
   const body = () => document.getElementById('routeBody');
   let v = null;
   let shownAct = null; // the act whose steps are listed (follows the current step unless you pick one)
@@ -39,6 +39,7 @@
         <label><input type="checkbox" id="routeFollow" ${v.follow ? 'checked' : ''}> <b>Follow my zones</b>: move on by itself as I enter each area</label>
         <div class="help">This reads the game's own log file (<b>Client.txt</b>), only the lines saying which area you entered and your level. Nothing is sent anywhere and nothing is sent to the game. Grinding Gear Games allows tools to read this file as long as you know about it. Off, you move on with <b>Step done</b> or by clicking a step.</div>
         <div class="small">${v.found ? `Log: <span class="path">${esc(v.found)}</span>` : '<span class="warn">Client.txt not found where the game usually puts it.</span>'} <button class="link" id="routeBrowse">${v.found ? 'Use another file' : 'Find Client.txt'}</button>${v.status ? ` <span class="dim">· ${esc(v.status)}</span>` : ''}</div>
+        ${whoHtml()}
         <div class="small route-opts">Overlay over the game: <button class="link" id="routeOverlay2">${v.overlay ? 'Hide it' : 'Show it'}</button> · hotkey <input id="routeHotkey" size="14" value="${esc(v.hotkey)}" title="Shows or hides the overlay, e.g. Ctrl+Shift+L (empty: no hotkey)">${v.hotkeyOk ? '' : ' <span class="warn">that hotkey is taken by another app</span>'}
         · <label title="${v.rush ? 'The endgame rush hides them' : ''}"><input type="checkbox" id="routeOptional" ${v.optional && !v.rush ? 'checked' : ''} ${v.rush ? 'disabled' : ''}> show optional steps</label>
         · <button class="link" id="routeReset">${resetArmed ? 'Sure? Start over' : 'Start over (new character)'}</button></div>
@@ -58,6 +59,17 @@
     bind();
   }
 
+  // the character the route follows, and whether it's the one playing now
+  function whoHtml() {
+    const w = who(v);
+    const names = [...new Set([...(v.character ? [v.character] : []), ...(v.seen || []).map((x) => x.name)])];
+    const label = (n) => { const x = (v.seen || []).find((y) => y.name === n); return `${n}${x && (x.className || x.level) ? ` (${[x.className, x.level ? `level ${x.level}` : ''].filter(Boolean).join(', ')})` : ''}`; };
+    const pick = names.length
+      ? `<select id="routeChar" title="The character this route is for: the app only moves it on for that character">${v.character ? '' : '<option value="" selected>the first to level up in the campaign</option>'}${names.map((n) => `<option value="${esc(n)}" ${n === v.character ? 'selected' : ''}>${esc(label(n))}</option>`).join('')}</select>`
+      : '<span class="dim">the first character to level up in the campaign</span>';
+    const state = v.follow ? `<div class="route-who ${w.state}">${esc(w.text)}${w.state !== 'owner' && v.character ? ` <button class="link" id="routePlaying">I'm on ${esc(v.character)} now</button>` : ''}</div>` : '';
+    return `<div class="small route-char">Route character: ${pick}</div>${state}`;
+  }
   async function set(patch) { v = await window.api.routeSet(patch); render(); }
   function bind() {
     document.getElementById('routeBack').addEventListener('click', async () => { v = await window.api.routeStep(-1, 'tab'); render(); });
@@ -65,6 +77,8 @@
     document.getElementById('routeFollow').addEventListener('change', (e) => set({ follow: e.target.checked }));
     document.getElementById('routeOptional').addEventListener('change', (e) => set({ optional: e.target.checked }));
     document.getElementById('routeRush').addEventListener('change', (e) => set({ rush: e.target.checked }));
+    const rc = document.getElementById('routeChar'); if (rc) rc.addEventListener('change', (e) => { if (e.target.value) set({ character: e.target.value }); });
+    const rp = document.getElementById('routePlaying'); if (rp) rp.addEventListener('click', () => set({ playing: true }));
     document.getElementById('routeOverlay2').addEventListener('click', () => set({ overlay: !v.overlay }));
     document.getElementById('routeBrowse').addEventListener('click', async () => { v = await window.api.routeBrowse(); render(); });
     document.getElementById('routeHotkey').addEventListener('change', (e) => set({ hotkey: e.target.value.trim() }));

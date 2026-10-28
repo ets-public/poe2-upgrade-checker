@@ -53,13 +53,52 @@ function isTown(route, id) {
 // so a message that says "Generating level" or "is now level" can't move the route)
 const GENERATING = /\] Generating level (\d+) area "([^"]+)"/;
 const LEVEL_UP = /\] : (\S+) \(([^)]+)\) is now level (\d+)/;
+// Who is playing. The log never names the character you log in with: it says when the game starts,
+// when it connects to the login server (logging in, or back from the character list) and when it's
+// disconnected; it names your character only when it levels up, gets a quest reward or dies.
+const LOG_OPEN = /\*{5} LOG FILE OPENING \*{5}/;
+const LOGIN = /\] (?:Async connecting to \S*login\S*|Connected to \S*login\S* in )/i;
+const DISCONNECT = /\] Abnormal disconnect/;
+const RECEIVED = /\] : (\S+) has received /;
+const SLAIN = /\] : (\S+) has been slain\./;
+const PID = /\[[A-Z]+ Client (\d+)\]/;
 function parseLine(line) {
   const s = String(line || '');
   let m = s.match(GENERATING);
   if (m) return { kind: 'area', areaLevel: Number(m[1]), area: m[2] };
   m = s.match(LEVEL_UP);
   if (m) return { kind: 'level', character: m[1], className: m[2], level: Number(m[3]) };
+  m = s.match(RECEIVED);
+  if (m) return { kind: 'named', character: m[1], how: 'reward' };
+  m = s.match(SLAIN);
+  if (m) return { kind: 'named', character: m[1], how: 'slain' }; // (a party member's death reads the same)
+  if (LOG_OPEN.test(s)) return { kind: 'login', why: 'game started' };
+  if (LOGIN.test(s)) return { kind: 'login', why: 'login' };
+  if (DISCONNECT.test(s)) return { kind: 'login', why: 'disconnected' };
   return null;
+}
+// the game's process number on a line (a new one: the game was restarted)
+function pidOf(line) { const m = String(line || '').match(PID); return m ? m[1] : null; }
+
+// What an area you entered says about who is playing, for the character the route follows (owner:
+// { level }): 'owner', 'other' or null (can't tell).
+//   null: a town or a hideout (every character goes there; their level is fixed: a hideout is always 65)
+//   other: an area the route doesn't have (maps, the endgame) while the campaign isn't done; an area of
+//     the route far from the step it's on; an area far above the character's level
+//   owner: an area of the route near the step it's on, at a level the character can be in
+const LEVEL_GAP = 15; // rushing, you can be this far under an area's level
+const BEHIND = 40; // going back this many steps (a waypoint to an earlier zone) still counts
+function judgeArea(route, steps, current, area, areaLevel, owner) {
+  const x = norm(area);
+  if (!x) return null;
+  if (isTown(route, x)) return null;
+  const done = (current || 0) >= steps.length - 1;
+  const at = [];
+  steps.forEach((s, i) => { if (norm(s.in) === x || norm(s.to) === x) at.push(i); });
+  if (!at.length) return done ? null : 'other';
+  if (owner && owner.level && areaLevel && areaLevel > owner.level + LEVEL_GAP) return 'other';
+  const from = Math.max(0, (current || 0) - BEHIND); const to = (current || 0) + AHEAD;
+  return at.some((i) => i >= from && i <= to) ? 'owner' : 'other';
 }
 
 // you entered `area`: the new current step index (or the same one if the route doesn't name it soon)
@@ -176,4 +215,4 @@ function defaultLogPaths(game) {
   ];
 }
 
-module.exports = { load, flatten, isTown, parseLine, advance, decide, shown, settle, stepBy, totals, defaultLogPaths, AHEAD, TOWN };
+module.exports = { load, flatten, isTown, parseLine, pidOf, judgeArea, advance, decide, shown, settle, stepBy, totals, defaultLogPaths, AHEAD, TOWN, LEVEL_GAP };

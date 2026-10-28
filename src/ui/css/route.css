@@ -44,3 +44,8 @@ body.route-overlay { background: transparent; overflow: hidden; margin: 0; font-
 .route-rush { display: block; margin-top: 6px; }
 .route-opts { margin-top: 6px; }
 .route-log .warn { color: #e0a060; }
+.route-char { margin-top: 6px; }
+.route-char select { max-width: 320px; }
+.route-who { margin-top: 4px; font-size: 12px; }
+.route-who.owner { color: var(--bronze-text); }
+.route-who.other, .route-who.unknown { color: #e0a060; }

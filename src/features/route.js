@@ -64,6 +64,8 @@ module.exports = function (C) {
       // the area level only for a zone of the route: a town's or hideout's level says nothing about the
       // campaign, and a hideout or map at level 65 is usually another character of yours
       area: p.area || null, areaLevel: onRoute(route, steps, p.area) ? p.areaLevel || null : null, character: p.character || null, level: p.level || null,
+      className: p.character ? p.className || null : null, session: session(g),
+      seen: Object.entries((C.store.settings.routeChars || {})[g] || {}).map(([name, x]) => ({ name, className: x.className || null, level: x.level || null })),
       follow: !!o.follow, logPath: (o.logPath || {})[g] || null, found: findLog(g), status: status[g] || null,
       overlay: !!o.overlay, hotkey: o.hotkey || '', hotkeyOk, optional: o.optional !== false, rush: !!o.rush,
     };
@@ -86,6 +88,34 @@ module.exports = function (C) {
     try { const buf = Buffer.alloc(len); fs.readSync(fd, buf, 0, len, from); return buf.toString('utf8'); } finally { fs.closeSync(fd); }
   }
 
+  // ---------- who is playing ----------
+  // The route follows one character (progress.character: its name, class and level, from the log). The
+  // log never names the character you log in with, so every login (game start, connecting to the
+  // login server, a disconnect) makes it "not sure" until the log shows who it is: that character
+  // levelling up or getting a quest reward (by name), or an area only that character would be in (a
+  // zone of the route near its step, at its level). Maps, a zone far from the step, an area far above
+  // its level, or another name levelling up: another character is playing, and the route doesn't move.
+  // session: { who: 'owner' | 'other' | 'unknown', by: 'name' | 'area' | 'login' | 'you' | 'reset', name, area, areaLevel, why, at }
+  const session = (g = game()) => progress(g).session || { who: 'unknown', by: 'start' };
+  function setSession(g, next, replay) {
+    const was = session(g);
+    const s = { ...next, at: Date.now() };
+    setProgress(g, { session: s });
+    if (was.who !== s.who || was.by !== s.by || was.name !== s.name) {
+      if (!replay) trace('session', { who: s.who, by: s.by, name: s.name || undefined, area: s.area || undefined, areaLevel: s.areaLevel || undefined, why: s.why || undefined, character: progress(g).character || null, was: was.who });
+      C.log(`route ${g}: ${s.who === 'owner' ? `playing ${progress(g).character || 'the route character'}` : s.who === 'other' ? `another character (${s.name || s.area || '?'})` : 'not sure who is playing'} (${s.by}${s.why ? `: ${s.why}` : ''})`);
+    }
+  }
+  // every character the log has named, for picking the route's one: { name: { className, level, at } }
+  function noteSeen(g, e) {
+    const all = C.store.settings.routeChars || {};
+    const mine = { ...(all[g] || {}) };
+    const prev = mine[e.character] || {};
+    mine[e.character] = { className: e.className || prev.className || null, level: e.level || prev.level || null, at: Date.now() };
+    const names = Object.keys(mine).sort((a, b) => mine[b].at - mine[a].at).slice(0, 20);
+    C.store.setSetting('routeChars', { ...all, [g]: Object.fromEntries(names.map((n) => [n, mine[n]])) });
+  }
+
   function onLines(g, text, replay) {
     const route = routeLib.load(g);
     const steps = routeLib.flatten(route);
@@ -93,13 +123,50 @@ module.exports = function (C) {
     let lastArea = null;
     for (const line of text.split(/\r?\n/)) {
       const e = routeLib.parseLine(line);
+      // a new game process: the game was restarted, whoever logs in next
+      const pid = e || /Client \d+\]/.test(line) ? routeLib.pidOf(line) : null;
+      if (pid && pid !== progress(g).pid) {
+        const had = progress(g).pid;
+        setProgress(g, { pid });
+        if (had && (!e || e.kind !== 'login')) { setSession(g, { who: 'unknown', by: 'login', why: 'game restarted' }, replay); changed = true; }
+      }
       if (!e) continue;
-      if (e.kind === 'level') {
-        setProgress(g, { character: e.character, level: e.level }); changed = true;
-        if (!replay) trace('level', { character: e.character, className: e.className, level: e.level, step: progress(g).current });
+      if (e.kind === 'login') { setSession(g, { who: 'unknown', by: 'login', why: e.why }, replay); changed = true; continue; }
+      if (e.kind === 'level' || e.kind === 'named') {
+        noteSeen(g, e);
+        const p = progress(g);
+        const owner = p.character;
+        const sure = e.kind === 'level' || e.how === 'reward'; // a death can be a party member's
+        if (!owner && sure && session(g).who === 'owner') { // (owner by the area: you're in a zone of the route)
+          // a new route (Start over): the first character to level up in the campaign is its one
+          setProgress(g, { character: e.character, className: e.className || null, level: e.level || null });
+          if (!replay) trace('character', { character: e.character, className: e.className || null, level: e.level || null, how: 'first in the campaign' });
+          C.log(`route ${g}: following ${e.character}`);
+        }
+        if (progress(g).character === e.character) {
+          if (e.kind === 'level') setProgress(g, { level: e.level, className: e.className });
+          setSession(g, { who: 'owner', by: 'name', name: e.character, why: e.kind === 'level' ? `level ${e.level}` : e.how }, replay);
+          if (!replay && e.kind === 'level') trace('level', { character: e.character, className: e.className, level: e.level, step: progress(g).current });
+        } else if (sure && progress(g).character) {
+          setSession(g, { who: 'other', by: 'name', name: e.character, areaLevel: null, why: e.kind === 'level' ? `${e.character} level ${e.level}` : `${e.character} ${e.how}` }, replay);
+          if (!replay && e.kind === 'level') trace('other-level', { character: e.character, className: e.className, level: e.level });
+        }
+        changed = true;
         continue;
       }
+      // an area
       const p = progress(g);
+      const verdict = routeLib.judgeArea(route, steps, p.current, e.area, e.areaLevel, { level: p.level });
+      const was = session(g);
+      if (verdict === 'other' && !(was.who === 'other' && was.by === 'name')) setSession(g, { who: 'other', by: 'area', area: e.area, areaLevel: e.areaLevel, why: 'not where the route character would be' }, replay);
+      else if (verdict === 'owner' && !(was.who === 'other' && was.by === 'name')) setSession(g, { who: 'owner', by: 'area', area: e.area, why: 'a zone of the route' }, replay);
+      const who = session(g).who;
+      if (who !== 'owner') {
+        // another character (or not sure yet): the route stays where it is, and the character's area isn't changed
+        if (!replay) { trace('area', { area: e.area, areaLevel: e.areaLevel, ignored: true, who, verdict, from: stepInfo(steps, p.current), line: line.slice(0, 200) }); lastAreaAt = Date.now(); }
+        changed = true;
+        continue;
+      }
       // catching up on the end of the log: where you are now, not every area you went through
       const d = replay ? { index: p.current, why: 'catch-up' } : routeLib.decide(route, steps, p.current, e.area, p.area);
       // a step the rush (or Show optional steps off) hides is passed, unless you went into its area
@@ -108,7 +175,7 @@ module.exports = function (C) {
       if (!replay) {
         const now = Date.now();
         trace('area', {
-          area: e.area, areaLevel: e.areaLevel, prev: p.area || null, town: routeLib.isTown(route, e.area), why: d.why, matched: d.at != null ? stepInfo(steps, d.at) : undefined,
+          area: e.area, areaLevel: e.areaLevel, prev: p.area || null, town: routeLib.isTown(route, e.area), why: d.why, verdict, matched: d.at != null ? stepInfo(steps, d.at) : undefined,
           from: stepInfo(steps, p.current), to: next !== p.current ? stepInfo(steps, next) : undefined, moved: next - p.current,
           msInPrev: lastAreaAt ? now - lastAreaAt : null, charLevel: p.level || null, line: line.slice(0, 200),
         });
@@ -117,7 +184,7 @@ module.exports = function (C) {
       setProgress(g, { current: next, area: e.area, areaLevel: e.areaLevel });
       changed = true;
     }
-    if (replay && lastArea) trace('catch-up', { area: lastArea.area, areaLevel: lastArea.areaLevel, step: stepInfo(steps, progress(g).current), level: progress(g).level || null });
+    if (replay) trace('catch-up', { area: lastArea && lastArea.area, areaLevel: lastArea && lastArea.areaLevel, step: stepInfo(steps, progress(g).current), level: progress(g).level || null, character: progress(g).character || null, session: session(g) });
     if (changed) push();
   }
 
@@ -209,6 +276,18 @@ module.exports = function (C) {
       trace('follow', { on: !!p.follow, file: findLog(game()) });
       if (p.follow) startFollowing(); else stopFollowing();
     }
+    if ('character' in p && typeof p.character === 'string') {
+      // you picked the character the route follows (one the log has named)
+      const g = game();
+      const x = ((C.store.settings.routeChars || {})[g] || {})[p.character];
+      if (x) {
+        setProgress(g, { character: p.character, className: x.className || null, level: x.level || null });
+        trace('character', { character: p.character, className: x.className || null, level: x.level || null, how: 'picked' });
+        C.log(`route ${g}: following ${p.character} (picked)`);
+        setSession(g, { who: 'owner', by: 'you', name: p.character, why: 'picked' });
+      }
+    }
+    if (p.playing === true) setSession(game(), { who: 'owner', by: 'you', name: progress().character || undefined, why: 'you said so' });
     if ('optional' in p) { setOpts({ optional: !!p.optional }); trace('optional', { on: !!p.optional }); }
     if ('rush' in p) {
       setOpts({ rush: !!p.rush });
@@ -250,7 +329,7 @@ module.exports = function (C) {
   function reset(why) {
     const g = game();
     trace('reset', { from: progress(g).current || 0, level: progress(g).level || null, why: why || 'start over' });
-    setProgress(g, { current: 0, area: null, areaLevel: null, character: null, level: null });
+    setProgress(g, { current: 0, area: null, areaLevel: null, character: null, className: null, level: null, session: { who: 'unknown', by: 'reset', at: Date.now() } });
     C.log(`route ${g}: reset${why ? ` (${why})` : ''}`);
     push();
   }

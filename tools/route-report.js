@@ -28,9 +28,10 @@ const step = (s) => (s ? `${s.act || ''} #${s.n || ''} "${s.t}"` : '?');
 console.log(`Route run: ${ev[0].at} → ${ev[ev.length - 1].at} (${ev.length} events, ${ev[0].game})`);
 const areas = ev.filter((e) => e.ev === 'area');
 const byWhy = {};
-for (const a of areas) byWhy[a.why] = (byWhy[a.why] || 0) + 1;
+for (const a of areas) { const k = a.ignored ? 'other character' : a.why; byWhy[k] = (byWhy[k] || 0) + 1; }
 console.log(`Zones entered: ${areas.length}  (${Object.entries(byWhy).map(([k, v]) => `${k} ${v}`).join(', ')})`);
-const levels = ev.filter((e) => e.ev === 'level');
+const lastChar = (ev.filter((e) => e.ev === 'level').pop() || {}).character;
+const levels = ev.filter((e) => e.ev === 'level' && e.character === lastChar);
 if (levels.length) console.log(`Character: ${levels[levels.length - 1].character} (${levels[levels.length - 1].className}), level ${levels[0].level} → ${levels[levels.length - 1].level}`);
 
 // time per act: from the first zone in it to the first zone of the next
@@ -65,7 +66,7 @@ for (let i = 0; i < ev.length; i++) {
 if (!issues) console.log('  none: every step moved by itself');
 
 // zones the route didn't know, or knew only elsewhere
-const odd = areas.filter((a) => ['not-ahead', 'known-elsewhere'].includes(a.why) && !a.town);
+const odd = areas.filter((a) => !a.ignored && ['not-ahead', 'known-elsewhere'].includes(a.why) && !a.town);
 if (odd.length) {
   console.log('\nZones not on the route ahead (the route stayed where it was):');
   const seen = new Map();
@@ -77,6 +78,17 @@ if (big.length) {
   console.log('\nBig jumps forward (more than 8 steps at once):');
   for (const a of big) console.log(`  ${t(a)} ${a.area} (${a.why}) moved ${a.moved}: ${step(a.from)} → ${step(a.to)}`);
 }
+// who was playing: every switch between the route's character and another one, and the areas left alone
+const sess = ev.filter((e) => e.ev === 'session' || e.ev === 'character');
+if (sess.length) {
+  console.log('\nWho was playing (the route moves only for its own character):');
+  for (const e of sess) {
+    if (e.ev === 'character') console.log(`  ${t(e)} route character: ${e.character}${e.className ? ` (${e.className}${e.level ? `, level ${e.level}` : ''})` : ''} (${e.how})`);
+    else console.log(`  ${t(e)} ${e.who === 'owner' ? `playing ${e.character || 'the route character'}` : e.who === 'other' ? `another character${e.name ? `: ${e.name}` : ''}${e.area ? ` in ${e.area}${e.areaLevel ? ` (level ${e.areaLevel})` : ''}` : ''}` : 'not sure who'}  [${e.by}${e.why ? `: ${e.why}` : ''}]`);
+  }
+  const ign = areas.filter((a) => a.ignored);
+  if (ign.length) console.log(`  ${ign.length} areas entered by another character (or before it was sure) were left alone`);
+}
 const other = ev.filter((e) => ['log-missing', 'log-restarted', 'hotkey-failed', 'game', 'follow', 'log-picked'].includes(e.ev));
 if (other.length) {
   console.log('\nOther events:');
@@ -84,5 +96,5 @@ if (other.length) {
 }
 if (all) {
   console.log('\nEvery zone line:');
-  for (const a of areas) console.log(`  ${t(a)} ${a.area.padEnd(14)} lvl ${String(a.areaLevel).padEnd(3)} ${a.why.padEnd(15)} ${a.moved ? `+${a.moved}` : '  '} ${step(a.to || a.from)}  (${mins(a.msInPrev)} in the previous zone)`);
+  for (const a of areas) console.log(`  ${t(a)} ${a.area.padEnd(14)} lvl ${String(a.areaLevel).padEnd(3)} ${(a.ignored ? 'other char' : a.why || '').padEnd(15)} ${a.moved ? `+${a.moved}` : '  '} ${step(a.to || a.from)}  (${mins(a.msInPrev)} in the previous zone)`);
 }
