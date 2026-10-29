@@ -96,6 +96,7 @@ module.exports = function (C) {
     if (key === 'startWithWindows') C.applyLoginItem();
     if (key === 'build' || key === 'colorblind' || key === 'popupDetail' || key === 'buildTweaks' || key === 'pobDamageWeight') { if (key === 'pobDamageWeight') C.pobQueries.clear(); refreshAll(); }
     if (key === 'resultsHotkey') C.registerResultsHotkey();
+    if (key === 'autoSwitchChar') { C.log(`characters: switch by the game's log ${value ? 'on' : 'off'}`); if (C.routeLogNeedChanged) C.routeLogNeedChanged(); }
     // a guide build that follows your levelling level: its stage moves with it (a moment later, once typing stops)
     if (key === 'leveling') {
       const src = C.store.buildSource();
@@ -153,6 +154,39 @@ module.exports = function (C) {
     C.gameChanged();
     return r.id;
   });
+  // the in-game name of one of your characters (the game's log), so the app can switch to it by itself
+  ipcMain.handle('profiles:link', (_e, id, name) => {
+    const ok = C.store.linkProfile(id, name);
+    if (ok) C.log(`characters: ${id} is ${name ? `"${String(name).slice(0, 40)}" in game` : 'not linked to an in-game name'}`);
+    C.notifySettings('route:update', C.routeView ? C.routeView() : null);
+    return ok;
+  });
+  // The game's log named the character playing (levelled up, got a quest reward, entered a zone only
+  // the route's character would be in). With "switch by itself" on, the app's character linked to
+  // that name becomes the one you're on. name null: "someone other than notName", which is used only
+  // when exactly one other character of the game is linked.
+  let lastLogSwitch = 0;
+  function characterFromLog(game, name, why, notName) {
+    if (!C.store.settings.autoSwitchChar || game !== C.store.activeGame()) return false;
+    let id = null;
+    if (name) id = C.store.profileForGameChar(game, name);
+    else {
+      const others = C.store.listProfiles().filter((p) => p.game === game && p.gameChar && (!notName || p.gameChar.toLowerCase() !== String(notName).toLowerCase()));
+      if (others.length === 1) id = others[0].id;
+    }
+    if (!id || id === C.store.data.activeProfile) return false;
+    // not in the middle of a price check or item check: the next log line does it
+    if (C.hotkeyBusy) return false;
+    // not twice in a few seconds (a zone and a level-up line together)
+    if (Date.now() - lastLogSwitch < 3000) return false;
+    lastLogSwitch = Date.now();
+    C.store.switchProfile(id);
+    const p = C.store.profileOf(id);
+    C.log(`characters: switched to "${p.name}" (${p.gameChar} in game, ${why || 'the game\'s log'})`);
+    C.gameChanged();
+    C.notifySettings('game:changed', { game, from: game, character: id });
+    return true;
+  }
   ipcMain.handle('profiles:rename', (_e, id, name) => { C.store.renameProfile(id, name); C.buildTrayMenu(); return true; });
   ipcMain.handle('profiles:delete', (_e, id) => {
     const ok = C.store.deleteProfile(id);
@@ -180,6 +214,7 @@ module.exports = function (C) {
   });
 
   return {
+    characterFromLog,
     notifySettings,
     resolveItem,
     resolveSlotOf,

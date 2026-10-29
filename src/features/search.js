@@ -261,8 +261,12 @@ module.exports = function (C) {
   // callers decide (so a search with 0 results can be loosened first).
   const statusBroken = {}; // per game: set if that trade site rejects 'available'
   // o.game: which game's trade site (default: the game you're playing; a saved search keeps its own)
+  // when a search last went out (the follow-ups wait until you've stopped searching for a while)
+  let lastSearchAt = 0;
+  const searchIdleMs = () => Date.now() - lastSearchAt;
   async function runSearch(league, body, label, o = {}) {
     const game = o.game || C.tg();
+    if (!o.background) lastSearchAt = Date.now();
     // a search for the game you just left (alerts excepted: they run for both games)
     if (!o.anyGame && game !== C.store.activeGame()) { C.log(`search ${label || ''}: stopped, you changed game`); return C.SWITCHED(); }
     trade.adaptQuery(body, game);
@@ -330,6 +334,7 @@ module.exports = function (C) {
   }
 
   return {
+    searchIdleMs,
     UA,
     POE_PARTITION,
     getJson,

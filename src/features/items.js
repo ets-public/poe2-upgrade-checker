@@ -66,6 +66,8 @@ module.exports = function (C) {
   let shownGame = null;
   function gameChanged() {
     const game = C.tg();
+    // the League start tab and overlay: the character's build (its PoE1 quest gems), its linked name
+    try { if (C.routePush) setTimeout(() => C.routePush(), 0); } catch (_) { /* not started yet */ }
     C.watchBuildFile();
     if (game === shownGame) { C.pobSync(); C.refreshAll(); C.buildTrayMenu(); return; }
     const from = shownGame; shownGame = game;

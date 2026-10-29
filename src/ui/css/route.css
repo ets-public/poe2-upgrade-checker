@@ -49,3 +49,23 @@ body.route-overlay { background: transparent; overflow: hidden; margin: 0; font-
 .route-who { margin-top: 4px; font-size: 12px; }
 .route-who.owner { color: var(--bronze-text); }
 .route-who.other, .route-who.unknown { color: #e0a060; }
+
+/* XP penalty, act timer, quest gems, characters linked to their in-game names */
+.route-xp.ok { color: var(--bronze-text); }
+.route-xp.warn { color: #e0a060; }
+.route-timer { margin-top: 6px; color: var(--bronze-text); }
+.route-timer details { margin-top: 4px; }
+.route-timer summary { cursor: pointer; color: var(--dim); }
+.route-live { color: #7fc77f; font-size: 10px; }
+.route-times { border-collapse: collapse; margin: 4px 0; font-size: 12px; }
+.route-times th, .route-times td { text-align: left; padding: 2px 14px 2px 0; white-space: nowrap; }
+.route-times th { color: var(--dim); font-weight: normal; }
+.route-gems { color: #8fd18f; }
+.route-steps .rh.route-gems { color: #8fd18f; }
+.route-link { margin-top: 8px; border-top: 1px solid var(--iron-lo); padding-top: 6px; }
+.route-link-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12px; margin-top: 4px; }
+.route-link-name { width: 170px; flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--bone); }
+.route-link-row input { width: 160px; }
+.rov-gems { margin-top: 3px; color: #8fd18f; font-size: 12px; }
+.rov-foot { flex-wrap: wrap; row-gap: 2px; }
+.rov-foot .rov-ok { color: var(--bronze-text); }

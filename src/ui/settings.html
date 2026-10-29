@@ -298,6 +298,12 @@
         <div class="col"><div class="card-p">
           <textarea id="testText" rows="14" placeholder="Item Class: Helmets&#10;Rarity: Rare&#10;..."></textarea>
           <div class="row"><button id="testBtn" class="primary">Check item</button></div>
+        </div>
+        <div class="card-p sold-card">
+          <h3>What sold</h3>
+          <label class="small"><input type="checkbox" id="soldOn"> Search my price checks again a few hours later to see what sold</label>
+          <div class="help">After a trade site price check, the app searches the same thing again about 3 hours later (when you haven't searched for a minute, inside the trade site's limit) and compares. Only instant buyout listings count, because they stay up while their seller is offline: a gone one was bought, or taken down. Checking the item again shows it.</div>
+          <div id="soldList"></div>
         </div></div>
         <div class="col"><div id="testResult"></div></div>
       </div>
@@ -442,6 +448,7 @@
   <script src="spend.js"></script>
   <script src="route-common.js"></script>
   <script src="settings-route.js"></script>
+  <script src="settings-sold.js"></script>
   <script src="picker.js"></script>
 </body>
 </html>

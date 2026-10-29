@@ -181,6 +181,63 @@ function stepBy(steps, i, dir, mode) {
   return Math.max(0, Math.min(steps.length, j));
 }
 
+// ---------- experience ----------
+// No penalty while the area is within 3 + level/16 (rounded down) of your level, either way: the band
+// Path of Exile uses, and the one PoE2's campaign guides give (Splitstone: "no penalty within 3 + 1
+// per 16 character levels"). Outside it, PoE1 multiplies experience by
+// ((level + 5) / (level + 5 + excess^2.5))^1.5 (excess: the levels past the band); PoE2's exact curve
+// isn't published, so for PoE2 only how far past the band you are is said.
+// -> null, or { band, gap (your level - the area's: + over it), past (levels past the band), side:
+//    'over' | 'under' | null, xp (PoE1: the multiplier, 0-1; PoE2: null) }
+function xpPenalty(game, level, areaLevel) {
+  const lv = Number(level); const al = Number(areaLevel);
+  if (!(lv > 0) || !(al > 0)) return null;
+  const band = 3 + Math.floor(lv / 16);
+  const gap = lv - al;
+  const past = Math.max(0, Math.abs(gap) - band);
+  const side = past ? (gap > 0 ? 'over' : 'under') : null;
+  const xp = game === 'poe1' ? (past ? Math.pow((lv + 5) / (lv + 5 + Math.pow(past, 2.5)), 1.5) : 1) : null;
+  return { band, gap, past, side, xp };
+}
+
+// ---------- the act timer ----------
+// A run: the time you spent in each act, counted only while the route's character is playing (the
+// time between two of its log lines, up to IDLE: a break, a trip to another character or the game
+// closed doesn't count). run: { acts: [{ ms, done, rush }], act, lastAt, startedAt }
+const IDLE = 10 * 60 * 1000;
+function newRun(now, character) { return { id: Math.round(now).toString(36), character: character || null, startedAt: now, lastAt: null, act: 0, acts: [] }; }
+// the route's character did something at `now` while on act `act` (after the move): the time since
+// its last line counts for the act it was in. how: 'zone' (you got there) or 'manual' (you moved the
+// route by hand: an act skipped that way never counts as done, so it can't set a best time)
+function runTick(run, now, act, how, rush) {
+  const r = run;
+  const was = r.act || 0;
+  const live = r.lastAt && now >= r.lastAt && now - r.lastAt <= IDLE;
+  if (live && now > r.lastAt) {
+    const a = r.acts[was] = r.acts[was] || { ms: 0 };
+    a.ms += now - r.lastAt;
+  }
+  if (act !== was) {
+    if (act > was && how === 'zone' && r.acts[was] && r.acts[was].ms > 0) { r.acts[was].done = true; r.acts[was].rush = !!rush; }
+    r.act = act;
+  }
+  // a zone starts (or keeps) the clock; a click only moves it on while it's running, so the time
+  // isn't counted twice and a click after a break doesn't start it
+  r.lastAt = how === 'zone' || live ? now : null;
+  return r;
+}
+// the best finished time for each act over earlier runs (the same kind: with or without the rush)
+function bestTimes(runs, rush) {
+  const best = [];
+  for (const r of runs || []) (r.acts || []).forEach((a, i) => { if (a && a.done && !!a.rush === !!rush && a.ms > 0 && (best[i] == null || a.ms < best[i])) best[i] = a.ms; });
+  return best;
+}
+function fmtTime(ms) {
+  if (ms == null) return '';
+  const s = Math.round(ms / 1000); const h = Math.floor(s / 3600); const m = Math.floor((s % 3600) / 60); const x = s % 60;
+  return h ? `${h}:${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}` : `${m}:${String(x).padStart(2, '0')}`;
+}
+
 // what the steps you've done have given you: passive points, ascendancy (trials and labs), the
 // resistance changes, Spirit (PoE2)
 function totals(steps, upTo) {
@@ -215,4 +272,4 @@ function defaultLogPaths(game) {
   ];
 }
 
-module.exports = { load, flatten, isTown, parseLine, pidOf, judgeArea, advance, decide, shown, settle, stepBy, totals, defaultLogPaths, AHEAD, TOWN, LEVEL_GAP };
+module.exports = { load, flatten, isTown, parseLine, pidOf, judgeArea, xpPenalty, newRun, runTick, bestTimes, fmtTime, IDLE, advance, decide, shown, settle, stepBy, totals, defaultLogPaths, AHEAD, TOWN, LEVEL_GAP };

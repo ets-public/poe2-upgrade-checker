@@ -109,7 +109,7 @@
     const c = el.querySelector('#closeBtn');
     if (c) c.addEventListener('click', () => window.api.close());
   };
-  const ago = (t) => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'just now' : m === 1 ? '1 min ago' : `${m} min ago`; };
+  const ago = (t) => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'just now' : m === 1 ? '1 min ago' : m < 120 ? `${m} min ago` : m < 48 * 60 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} days ago`; };
   // "What's it worth?" on a waystone, map or tablet card: the trade site's price
   window.bindTradeWorth = function (el, it, opts) {
     const b = el.querySelector('#tradeWorth');
@@ -130,6 +130,11 @@
     if (!c || !CONF[c.grade]) return '';
     const [t, cls] = CONF[c.grade];
     return ` <span class="conf ${cls}" title="${R.esc(c.grade === 'solid' ? 'Plenty of recent listings close to this item, at similar prices' : `Treat it as ${c.grade === 'rough' ? 'a rough figure' : 'a guess'}: ${c.why}`)}">${t}</span>`;
+  };
+  // an earlier check of the same search, searched again hours later: what went (sold or taken down)
+  window.soldHtml = function (sold) {
+    if (!sold || !sold.text) return '';
+    return `<div class="sold-line small" title="The instant buyout listings from your check of this item ${R.esc(ago(sold.at))}, searched again later. A gone one was bought, or its seller took it down, so this is an estimate."><b>What sold</b> (your check ${R.esc(ago(sold.at))}): ${R.esc(sold.text)}</div>`;
   };
   // your verdict on a price: saved with the check, to measure the pricing against what you know
   window.priceFeedbackHtml = function (caseId) {
@@ -171,7 +176,7 @@
     else if (p) body = `<div class="price-answer"><b>${ninjaPrice(p)}</b></div><div class="dim small">${p.stack > 1 ? `stack: ${ninjaPrice(p, true)} · ` : ''}poe.ninja${p.league ? `, ${R.esc(p.league)}` : ''}</div>`;
     else if (t) body = `<div class="price-answer">≈ <b>${R.esc(t.typical)}</b>${window.confHtml(t.confidence)}</div><div class="dim small">${t.range ? `most ${R.esc(t.range)} · ` : ''}${R.esc(t.sellers || t.total)} seller${(t.sellers || t.total) === 1 ? '' : 's'}${t.baits ? ` (${R.esc(t.baits)} far cheaper left out as likely baits)` : ''} · ${R.esc(r.source || 'trade site')}${r.checkedAt ? ` · checked ${R.esc(ago(r.checkedAt))} <button class="link" id="qpRefresh">refresh</button>` : ''}</div>`;
     else body = `<div class="dim">${R.esc(r.error || 'No price found.')}</div>`;
-    if (!r.pending && !p) body += window.priceFeedbackHtml((t && t.caseId) || r.caseId);
+    if (!r.pending && !p) body += window.soldHtml((t && t.sold) || r.sold) + window.priceFeedbackHtml((t && t.caseId) || r.caseId);
     el.innerHTML = `<div class="card price-card quick-price">
         <div class="name ${R.esc((it.rarity || '').toLowerCase())}">${R.esc(it.name || '')}</div>
         ${base ? `<div class="meta">${R.esc(base)}</div>` : ''}

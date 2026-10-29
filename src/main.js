@@ -151,6 +151,10 @@ const C = {
   get pobErrorOf() { return M.pob.pobErrorOf; },
   get pobFile() { return M.pob.pobFile; },
   get routeReset() { return routeFeature.reset; },
+  get routeView() { return routeFeature.view; },
+  get routePush() { return routeFeature.push; },
+  get routeLogNeedChanged() { return routeFeature.logNeedChanged; },
+  get characterFromLog() { return M.gear.characterFromLog; },
   get pobJudge() { return M.pob.pobJudge; },
   get pobLastSummary() { return M.build.pobLastSummary; },
   get pobListings() { return M.results.pobListings; },
@@ -199,6 +203,10 @@ const C = {
   get savedList() { return savedList; },
   get scoreListing() { return M.results.scoreListing; },
   get searchKey() { return M.search.searchKey; },
+  get searchIdleMs() { return M.search.searchIdleMs; },
+  get soldRecord() { return M.sold.record; },
+  get soldFor() { return M.sold.forKey; },
+  get fmtEx() { return M.worth.fmtEx; },
   get searchLog() { return M.search.searchLog; },
   get searchWait() { return M.search.searchWait; },
   get serialise() { return M.popup.serialise; },
@@ -244,6 +252,7 @@ M.results = require('./features/results')(C);
 M.budget = require('./features/budget')(C);
 M.worth = require('./features/worth')(C);
 M.account = require('./features/account')(C);
+M.sold = require('./features/sold')(C);
 
 const ninjaLib = require('./core/ninja');
 const prices = require('./features/prices')(C);
@@ -380,6 +389,7 @@ app.whenReady().then(() => {
   C.registerResultsHotkey();
   C.registerPriceHotkey();
   routeFeature.start();
+  M.sold.start();
   buildTrayMenu();
   setInterval(C.pollClipboard, 250);
   setInterval(C.watchCursor, 200);

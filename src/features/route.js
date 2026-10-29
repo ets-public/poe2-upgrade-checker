@@ -11,6 +11,7 @@ const fs = require('fs');
 const path = require('path');
 const { app, BrowserWindow, ipcMain, globalShortcut, screen, dialog } = require('electron');
 const routeLib = require('../core/route');
+const gemLib = require('../core/gemroute');
 const ROOT = path.join(__dirname, '..'); // src
 
 const DEFAULT_OVERLAY_HOTKEY = 'Ctrl+Shift+L';
@@ -49,24 +50,86 @@ module.exports = function (C) {
     const x = String(area).toLowerCase();
     return steps.some((st) => String(st.in || '').toLowerCase() === x || String(st.to || '').toLowerCase() === x);
   };
+  // ---------- the act timer ----------
+  // the run going on (the route's character since the last Start over) and the earlier ones, per game
+  const runsAll = () => C.store.settings.routeRuns || {};
+  function runs(g) { const r = runsAll()[g] || {}; return { current: r.current || null, past: Array.isArray(r.past) ? r.past : [] }; }
+  function saveRuns(g, r) { C.store.setSetting('routeRuns', { ...runsAll(), [g]: { current: r.current, past: r.past.slice(0, 10) } }); }
+  function tickRun(g, act, how) {
+    const r = runs(g);
+    if (!r.current) { if (how !== 'zone') return; r.current = routeLib.newRun(Date.now(), progress(g).character); } // a click doesn't start a run: a zone does
+    routeLib.runTick(r.current, Date.now(), act, how, opts().rush);
+    if (!r.current.character && progress(g).character) r.current.character = progress(g).character;
+    saveRuns(g, r);
+  }
+  // someone else is playing (or the game restarted): the clock stops at this moment
+  function pauseRun(g) {
+    const r = runs(g);
+    if (!r.current || !r.current.lastAt) return;
+    routeLib.runTick(r.current, Date.now(), r.current.act || 0, 'manual', opts().rush);
+    r.current.lastAt = null;
+    saveRuns(g, r);
+  }
+  // Start over: this run goes to the earlier ones (if any time was counted) and a new one starts
+  function newRunFor(g) {
+    const r = runs(g);
+    if (r.current && (r.current.acts || []).some((a) => a && a.ms > 0)) r.past.unshift(r.current);
+    r.current = null;
+    saveRuns(g, r);
+  }
+  const actOf = (route, steps, i) => (i < steps.length ? steps[i].act : route.acts.length);
+  function timerView(g) {
+    const r = runs(g);
+    const run = r.current;
+    const rush = !!opts().rush;
+    const last = r.past[0] || null;
+    return {
+      acts: run ? (run.acts || []).map((a) => (a ? { ms: a.ms || 0, done: !!a.done } : null)) : [],
+      act: run ? run.act || 0 : 0, lastAt: run ? run.lastAt || null : null, idle: routeLib.IDLE, startedAt: run ? run.startedAt : null,
+      best: routeLib.bestTimes(r.past, rush), last: last ? (last.acts || []).map((a) => (a && a.done ? a.ms : null)) : [],
+    };
+  }
+
+  // ---------- PoE1: the quest gems for your build ----------
+  let gemCache = { key: null, plan: null };
+  function gemLines(g, steps) {
+    if (g !== 'poe1' || C.store.activeGame() !== 'poe1') return null;
+    let xml = null; try { xml = C.pobXml(); } catch (_) { /* no build */ }
+    if (!xml) return null;
+    const m = mode();
+    const key = `${xml.length}|${xml.slice(-200)}|${m.rush}|${m.optional}`;
+    if (gemCache.key !== key) {
+      const build = gemLib.buildGems(xml);
+      const plan = gemLib.plan(steps, build, (s) => routeLib.shown(s, m));
+      gemCache = { key, plan, className: build && build.className };
+    }
+    return gemCache;
+  }
+
   function view(g = game()) {
     const route = routeLib.load(g);
     const steps = routeLib.flatten(route);
     const p = progress(g);
     const cur = Math.min(p.current || 0, steps.length);
     const o = opts();
+    const areaLevel = onRoute(route, steps, p.area) ? p.areaLevel || null : null;
+    const gems = gemLines(g, steps);
     return {
       game: g, for: route.for, checked: route.checked, note: route.note, sources: route.sources, totalsOf: route.totals,
       acts: route.acts.map((a) => ({ name: a.name, levels: a.levels || null, count: a.steps.length })),
-      steps: steps.map((s) => ({ t: s.t, h: s.h, r: s.r, p: s.p, k: s.k, l: s.l, o: s.o, f: s.f, act: s.act, i: s.i, hide: !routeLib.shown(s, mode()) })),
+      steps: steps.map((s, idx) => ({ t: s.t, h: s.h, r: s.r, p: s.p, k: s.k, l: s.l, o: s.o, f: s.f, act: s.act, i: s.i, hide: !routeLib.shown(s, mode()), gems: gems && gems.plan.has(idx) ? gemLib.line(gems.plan.get(idx)) : undefined })),
+      gemsFor: gems ? gems.className || null : null,
       endgame: route.endgame, current: cur, done: cur >= steps.length,
       totals: routeLib.totals(steps, cur),
       // the area level only for a zone of the route: a town's or hideout's level says nothing about the
       // campaign, and a hideout or map at level 65 is usually another character of yours
-      area: p.area || null, areaLevel: onRoute(route, steps, p.area) ? p.areaLevel || null : null, character: p.character || null, level: p.level || null,
+      area: p.area || null, areaLevel, character: p.character || null, level: p.level || null,
+      xp: routeLib.xpPenalty(g, p.level, areaLevel), timer: timerView(g), now: Date.now(),
       className: p.character ? p.className || null : null, session: session(g),
       seen: Object.entries((C.store.settings.routeChars || {})[g] || {}).map(([name, x]) => ({ name, className: x.className || null, level: x.level || null })),
-      follow: !!o.follow, logPath: (o.logPath || {})[g] || null, found: findLog(g), status: status[g] || null,
+      follow: !!o.follow, readsLog: readsLog(), autoSwitch: !!C.store.settings.autoSwitchChar,
+      appChars: C.store.listProfiles().filter((x) => x.game === g).map((x) => ({ id: x.id, name: x.name, gameChar: x.gameChar, active: x.active })),
+      logPath: (o.logPath || {})[g] || null, found: findLog(g), status: status[g] || null,
       overlay: !!o.overlay, hotkey: o.hotkey || '', hotkeyOk, optional: o.optional !== false, rush: !!o.rush,
     };
   }
@@ -98,6 +161,7 @@ module.exports = function (C) {
   // session: { who: 'owner' | 'other' | 'unknown', by: 'name' | 'area' | 'login' | 'you' | 'reset', name, area, areaLevel, why, at }
   const session = (g = game()) => progress(g).session || { who: 'unknown', by: 'start' };
   function setSession(g, next, replay) {
+    if (!replay && next.who !== 'owner') pauseRun(g);
     const was = session(g);
     const s = { ...next, at: Date.now() };
     setProgress(g, { session: s });
@@ -116,9 +180,15 @@ module.exports = function (C) {
     C.store.setSetting('routeChars', { ...all, [g]: Object.fromEntries(names.map((n) => [n, mine[n]])) });
   }
 
+  // the log is read while following your zones, or to switch the app's character for you
+  const readsLog = () => !!opts().follow || !!C.store.settings.autoSwitchChar;
+  // a line named the character playing (levelled up, got a quest reward): the app's character for it
+  function named(g, name, why, replay, notName) { if (!replay && C.characterFromLog) { try { C.characterFromLog(g, name, why, notName); } catch (err) { C.log('characters: ' + err.message); } } }
+
   function onLines(g, text, replay) {
     const route = routeLib.load(g);
     const steps = routeLib.flatten(route);
+    const following = !!opts().follow;
     let changed = false;
     let lastArea = null;
     for (const line of text.split(/\r?\n/)) {
@@ -131,6 +201,11 @@ module.exports = function (C) {
         if (had && (!e || e.kind !== 'login')) { setSession(g, { who: 'unknown', by: 'login', why: 'game restarted' }, replay); changed = true; }
       }
       if (!e) continue;
+      if (!following) {
+        // only reading the log to switch the app's character: the names, nothing about the route
+        if (e.kind === 'level' || (e.kind === 'named' && e.how === 'reward')) { noteSeen(g, e); named(g, e.character, e.kind === 'level' ? `level ${e.level}` : e.how, replay); changed = true; }
+        continue;
+      }
       if (e.kind === 'login') { setSession(g, { who: 'unknown', by: 'login', why: e.why }, replay); changed = true; continue; }
       if (e.kind === 'level' || e.kind === 'named') {
         noteSeen(g, e);
@@ -147,10 +222,12 @@ module.exports = function (C) {
           if (e.kind === 'level') setProgress(g, { level: e.level, className: e.className });
           setSession(g, { who: 'owner', by: 'name', name: e.character, why: e.kind === 'level' ? `level ${e.level}` : e.how }, replay);
           if (!replay && e.kind === 'level') trace('level', { character: e.character, className: e.className, level: e.level, step: progress(g).current });
+          if (!replay) tickRun(g, actOf(route, steps, progress(g).current), 'zone');
         } else if (sure && progress(g).character) {
           setSession(g, { who: 'other', by: 'name', name: e.character, areaLevel: null, why: e.kind === 'level' ? `${e.character} level ${e.level}` : `${e.character} ${e.how}` }, replay);
           if (!replay && e.kind === 'level') trace('other-level', { character: e.character, className: e.className, level: e.level });
         }
+        if (sure) named(g, e.character, e.kind === 'level' ? `level ${e.level}` : e.how, replay);
         changed = true;
         continue;
       }
@@ -158,8 +235,16 @@ module.exports = function (C) {
       const p = progress(g);
       const verdict = routeLib.judgeArea(route, steps, p.current, e.area, e.areaLevel, { level: p.level });
       const was = session(g);
-      if (verdict === 'other' && !(was.who === 'other' && was.by === 'name')) setSession(g, { who: 'other', by: 'area', area: e.area, areaLevel: e.areaLevel, why: 'not where the route character would be' }, replay);
-      else if (verdict === 'owner' && !(was.who === 'other' && was.by === 'name')) setSession(g, { who: 'owner', by: 'area', area: e.area, why: 'a zone of the route' }, replay);
+      if (verdict === 'other' && !(was.who === 'other' && was.by === 'name')) {
+        setSession(g, { who: 'other', by: 'area', area: e.area, areaLevel: e.areaLevel, why: 'not where the route character would be' }, replay);
+        // someone else than the route's character: if only one other character is linked, that one
+        if (was.who !== 'other') named(g, null, `area level ${e.areaLevel || '?'}`, replay, progress(g).character);
+      }
+      else if (verdict === 'owner' && !(was.who === 'other' && was.by === 'name')) {
+        setSession(g, { who: 'owner', by: 'area', area: e.area, why: 'a zone of the route' }, replay);
+        // back on the route's character: the app's character for it too
+        if (was.who !== 'owner' && progress(g).character) named(g, progress(g).character, 'a zone of the route', replay);
+      }
       const who = session(g).who;
       if (who !== 'owner') {
         // another character (or not sure yet): the route stays where it is, and the character's area isn't changed
@@ -182,6 +267,7 @@ module.exports = function (C) {
         lastAreaAt = now;
       } else lastArea = { area: e.area, areaLevel: e.areaLevel };
       setProgress(g, { current: next, area: e.area, areaLevel: e.areaLevel });
+      if (!replay) tickRun(g, actOf(route, steps, next), 'zone');
       changed = true;
     }
     if (replay) trace('catch-up', { area: lastArea && lastArea.area, areaLevel: lastArea && lastArea.areaLevel, step: stepInfo(steps, progress(g).current), level: progress(g).level || null, character: progress(g).character || null, session: session(g) });
@@ -191,7 +277,7 @@ module.exports = function (C) {
   function poll() {
     const o = opts();
     const g = game();
-    if (!o.follow) { stopFollowing(); return; }
+    if (!readsLog()) { stopFollowing(); return; }
     const file = findLog(g);
     if (!file) {
       if (status[g] !== 'Client.txt not found: pick it below.') trace('log-missing', { own: (o.logPath || {})[g] || null, looked: routeLib.defaultLogPaths(g) });
@@ -274,7 +360,7 @@ module.exports = function (C) {
       setOpts({ follow: !!p.follow });
       C.log(`route: following the game's log ${p.follow ? 'on' : 'off'}`);
       trace('follow', { on: !!p.follow, file: findLog(game()) });
-      if (p.follow) startFollowing(); else stopFollowing();
+      if (readsLog()) startFollowing(); else stopFollowing();
     }
     if ('character' in p && typeof p.character === 'string') {
       // you picked the character the route follows (one the log has named)
@@ -311,6 +397,7 @@ module.exports = function (C) {
     const i = Math.max(0, Math.min(n, Math.floor(Number(index) || 0)));
     trace('manual', { how: 'jump', from: stepInfo(steps, progress(g).current), to: stepInfo(steps, i), moved: i - (progress(g).current || 0), area: progress(g).area || null, sinceArea: lastAreaAt ? Date.now() - lastAreaAt : null });
     setProgress(g, { current: i });
+    tickRun(g, actOf(routeLib.load(g), steps, i), 'manual');
     push();
     return view();
   });
@@ -322,6 +409,7 @@ module.exports = function (C) {
     const to = routeLib.stepBy(steps, Math.min(was, n), Number(delta) > 0 ? 1 : -1, mode()); // passing steps that aren't shown
     trace('manual', { how: Number(delta) > 0 ? 'next' : 'back', source: source === 'overlay' ? 'overlay' : 'tab', from: stepInfo(steps, was), to: stepInfo(steps, to), area: progress(g).area || null, sinceArea: lastAreaAt ? Date.now() - lastAreaAt : null });
     setProgress(g, { current: to });
+    tickRun(g, actOf(routeLib.load(g), steps, to), 'manual');
     push();
     return view();
   });
@@ -330,6 +418,7 @@ module.exports = function (C) {
     const g = game();
     trace('reset', { from: progress(g).current || 0, level: progress(g).level || null, why: why || 'start over' });
     setProgress(g, { current: 0, area: null, areaLevel: null, character: null, className: null, level: null, session: { who: 'unknown', by: 'reset', at: Date.now() } });
+    newRunFor(g);
     C.log(`route ${g}: reset${why ? ` (${why})` : ''}`);
     push();
   }
@@ -342,7 +431,7 @@ module.exports = function (C) {
     setOpts({ logPath: { ...(opts().logPath || {}), [g]: pick.filePaths[0] } });
     trace('log-picked', { file: pick.filePaths[0] });
     tail = null;
-    if (opts().follow) startFollowing();
+    if (readsLog()) startFollowing();
     push();
     return view();
   });
@@ -365,9 +454,12 @@ module.exports = function (C) {
     const r = routeLib.load(lastGame);
     trace('app-start', { version: app.getVersion(), route: r.for, steps: routeLib.flatten(r).length, step: progress().current || 0, follow: opts().follow, overlay: opts().overlay, hotkey: opts().hotkey, file: findLog(lastGame) });
     registerHotkey();
-    if (opts().follow) startFollowing();
+    if (readsLog()) startFollowing();
     if (opts().overlay) showOverlay();
   }
 
-  return { start, view, reset, DEFAULT_OVERLAY_HOTKEY };
+  // the switch to read the log for the app's character went on or off
+  function logNeedChanged() { if (readsLog()) startFollowing(); else stopFollowing(); push(); }
+
+  return { start, view, reset, logNeedChanged, push, DEFAULT_OVERLAY_HOTKEY };
 };

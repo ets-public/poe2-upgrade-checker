@@ -120,6 +120,8 @@ module.exports = function (C) {
         out.sell = ninjaLib.sellNote({ total: s.cheapestEx, totalDiv: rate ? s.cheapestEx / rate : null, unit: C.G().baseShort, stack: 1 });
       }
     }
+    // the listings the price came from (for the search again later, sold.js): not sent to the windows
+    Object.defineProperty(out, 'usedIds', { value: (listings || []).filter(Boolean).map((x) => x.id), enumerable: false });
     return out;
   }
 
@@ -213,6 +215,16 @@ module.exports = function (C) {
   }));
   // the trade site's price for an item. opts.window: show the listings in the results window;
   // without it (Alt+E's quick price) the listings are only read for the price
+  // what sold since an earlier check of the same search, and this check to search again later
+  function soldFollowUp(summary, q, r, league, item, caseId, listings) {
+    if (!summary || !C.soldFor) return;
+    try {
+      const key = C.searchKey(q.body);
+      const sold = C.soldFor(key);
+      if (sold) summary.sold = sold;
+      if (summary.typicalEx != null || summary.range) C.soldRecord({ caseId, game: C.tg(), league, item, body: q.body, total: r.total, listings, used: summary.usedIds });
+    } catch (err) { C.log('sold: ' + err.message); }
+  }
   async function tradePrice(item, picks, opts0 = {}) {
     let d;
     try { d = await C.loadTradeData(false); } catch (err) { return { ok: false, error: 'Could not load trade site data: ' + (err.message || err) }; }
@@ -289,6 +301,7 @@ module.exports = function (C) {
       logPrices(listings, summary);
       const caseId = saveCase(item, league, steps, listings, summary);
       if (summary) summary.caseId = caseId;
+      soldFollowUp(summary, q, r, league, item, caseId, listings);
       if (summary && summary.typicalEx != null && item.id) C.lastWorth.set(item.id, summary.typicalEx);
       return { ok: true, mode: 'price', total: r.total, league, item: item.name, url: r.url, summary, levelLabel: q.levelLabel, level: q.level };
     }
@@ -303,6 +316,7 @@ module.exports = function (C) {
       logPrices(C.resultsState.listings, summary);
       const caseId = saveCase(item, league, steps, C.resultsState.listings, summary);
       if (summary) summary.caseId = caseId;
+      soldFollowUp(summary, q, r, league, item, caseId, C.resultsState.listings);
       C.resultsState.ctx.priceSummary = summary;
       C.resultsState.ctx.priceLeague = league;
       C.resultsState.ctx.priceLevel = q.level || 0;
@@ -317,6 +331,7 @@ module.exports = function (C) {
 
   return {
     chaosRate,
+    fmtEx,
     priceSummary,
     tradePrice,
   };

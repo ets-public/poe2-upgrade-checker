@@ -189,3 +189,95 @@ test('route: which character an area says is playing', () => {
   // campaign done: maps are yours too
   assert.strictEqual(R.judgeArea(route, steps, steps.length - 1, 'MapHive', 80, { level: 70 }), null);
 });
+
+test('route: XP penalty band and the PoE1 multiplier', () => {
+  // band: 3 + level/16 rounded down, either way
+  assert.deepStrictEqual(R.xpPenalty('poe1', 20, 18), { band: 4, gap: 2, past: 0, side: null, xp: 1 });
+  const over = R.xpPenalty('poe1', 20, 14); // 6 over, 2 past the band: ((25)/(25 + 2^2.5))^1.5
+  assert.strictEqual(over.side, 'over'); assert.strictEqual(over.past, 2);
+  assert.ok(Math.abs(over.xp - Math.pow(25 / (25 + Math.pow(2, 2.5)), 1.5)) < 1e-9 && Math.abs(over.xp - 0.7364) < 0.001);
+  const under = R.xpPenalty('poe1', 20, 28);
+  assert.strictEqual(under.side, 'under'); assert.strictEqual(under.past, 4); assert.ok(under.xp < 0.3);
+  // PoE2: the same band, no published curve
+  assert.deepStrictEqual(R.xpPenalty('poe2', 20, 28), { band: 4, gap: -8, past: 4, side: 'under', xp: null });
+  assert.strictEqual(R.xpPenalty('poe2', 64, 57).band, 7);
+  assert.strictEqual(R.xpPenalty('poe1', null, 10), null);
+  assert.strictEqual(R.xpPenalty('poe1', 10, 0), null);
+});
+
+test('route: the act timer counts play time, not breaks, and best times only from acts finished in the game', () => {
+  const t0 = 1e12; const min = 60000;
+  const run = R.newRun(t0, 'LeagueMerc');
+  R.runTick(run, t0, 0, 'zone');
+  R.runTick(run, t0 + 5 * min, 0, 'zone');
+  R.runTick(run, t0 + 9 * min, 0, 'zone');
+  assert.strictEqual(run.acts[0].ms, 9 * min);
+  R.runTick(run, t0 + 69 * min, 0, 'zone'); // an hour's break: not counted
+  assert.strictEqual(run.acts[0].ms, 9 * min);
+  R.runTick(run, t0 + 70 * min, 1, 'zone'); // into Act 2: Act 1 is done at 10 min
+  assert.strictEqual(run.acts[0].ms, 10 * min); assert.ok(run.acts[0].done); assert.strictEqual(run.act, 1);
+  R.runTick(run, t0 + 75 * min, 3, 'manual'); // skipped ahead by hand: Act 2 isn't "done"
+  assert.ok(!run.acts[1] || !run.acts[1].done);
+  const best = R.bestTimes([run, { acts: [{ ms: 12 * min, done: true }, { ms: 30 * min, done: true }] }]);
+  assert.deepStrictEqual(best, [10 * min, 30 * min]);
+  assert.deepStrictEqual(R.bestTimes([run], true), []); // rush runs compare with rush runs
+  assert.strictEqual(R.fmtTime(10 * min + 5000), '10:05'); assert.strictEqual(R.fmtTime(3725000), '1:02:05');
+});
+
+test('route: a step clicked by hand moves the clock on without counting the time twice', () => {
+  const t0 = 1e12; const min = 60000;
+  const run = R.newRun(t0, 'LeagueMerc');
+  R.runTick(run, t0, 0, 'zone');
+  R.runTick(run, t0 + 4 * min, 1, 'manual'); // 4 min in Act 1, then Act 2 by hand
+  R.runTick(run, t0 + 6 * min, 1, 'zone'); // 2 more in Act 2
+  assert.strictEqual(run.acts[0].ms, 4 * min);
+  assert.strictEqual(run.acts[1].ms, 2 * min);
+  // a click after a long break doesn't start the clock: the next zone does
+  R.runTick(run, t0 + 100 * min, 1, 'manual');
+  assert.strictEqual(run.lastAt, null);
+  R.runTick(run, t0 + 101 * min, 1, 'zone');
+  assert.strictEqual(run.acts[1].ms, 2 * min);
+  R.runTick(run, t0 + 103 * min, 1, 'zone');
+  assert.strictEqual(run.acts[1].ms, 4 * min);
+});
+
+test('route: PoE1 quest gems for your build', () => {
+  const G = require('../src/core/gemroute');
+  const fs = require('fs'); const path = require('path');
+  const b = G.buildGems(fs.readFileSync(path.join(__dirname, 'fixtures', 'pob1', 'berserker-3_29.xml'), 'utf8'));
+  assert.strictEqual(b.className, 'Marauder');
+  assert.ok(b.gems.length > 10 && b.gems.includes('Perforate'));
+  const steps = R.flatten(R.load('poe1'));
+  const p = G.plan(steps, b);
+  const at = (q) => { const i = steps.findIndex((s) => G.questOf(s.t) === q); return p.get(i); };
+  assert.strictEqual(at('Intruders in Black').take.gem, 'Molten Shell'); assert.strictEqual(at('Intruders in Black').take.npc, 'Greust');
+  assert.strictEqual(at('Lost in Love').take.gem, "General's Cry");
+  assert.ok(at('Lost in Love').buy.some((x) => x.gem === 'Pride'));
+  assert.ok(at('Enemy at the Gate').buy.some((x) => x.gem === 'Perforate' && x.npc === 'Nessa'));
+  // each gem once
+  const all = [...p.values()].flatMap((x) => [x.take && x.take.gem, ...x.buy.map((y) => y.gem)]).filter(Boolean);
+  assert.strictEqual(new Set(all).size, all.length);
+  // the optional library's gems move on when the rush hides it
+  const shown = (s) => R.shown(s, { rush: true });
+  const pr = G.plan(steps, b, shown);
+  assert.ok(![...pr.keys()].some((i) => /Fixture of Fate/.test(steps[i].t)));
+  assert.match(G.line(at('Lost in Love')), /^Take General's Cry\. Buy from Clarissa: /);
+  assert.strictEqual(G.questOf('Waypoint to The Library, hand in A Fixture of Fate to Siosa'), 'A Fixture of Fate');
+  assert.strictEqual(G.questOf('Hand in Queen of the Sands, take Bottled Storm'), 'Queen of the Sands');
+  assert.strictEqual(G.buildGems('<PathOfBuilding/>'), null);
+});
+
+test('sold: listings gone a few hours later', () => {
+  const S = require('../src/core/sold');
+  const f = { at: 0, listings: [{ id: 'a', priceEx: 100 }, { id: 'b', priceEx: 120 }, { id: 'c', priceEx: 150 }, { id: 'd', priceEx: 400 }] };
+  const r = S.compare(f, ['b', 'd', 'x', 'y'], 4, 6 * 3600000);
+  assert.deepStrictEqual(r, { considered: 4, gone: 2, goneEx: [100, 150], stayedEx: [120, 400], newTotal: 4, hours: 6 });
+  const fmt = (v) => `${v} ex`;
+  assert.strictEqual(S.text(r, fmt), '6 h later, 2 of 4 listings were gone (sold or taken down), asking 100 ex – 150 ex.');
+  // more than 100 listed now: only our cheapest 40 count
+  const many = { at: 0, listings: Array.from({ length: 80 }, (_, i) => ({ id: 'L' + i, priceEx: i + 1 })) };
+  const r2 = S.compare(many, Array.from({ length: 100 }, (_, i) => 'L' + i).filter((x) => x !== 'L3'), 150, 3600000);
+  assert.strictEqual(r2.considered, 40); assert.strictEqual(r2.gone, 1);
+  assert.match(S.text(S.compare(f, ['a', 'b', 'c', 'd'], 4, 1800000), fmt), /^30 min later, all 4 listings were still up/);
+  assert.match(S.text({ ...r, goneEx: [100, 120, 150] }, fmt), /middle 120 ex/);
+});

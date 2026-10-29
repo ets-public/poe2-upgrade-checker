@@ -160,7 +160,27 @@ class Store {
   }
 
   listProfiles() {
-    return Object.entries(this.data.profiles).map(([id, p]) => ({ id, name: p.name, game: p.game || games.DEFAULT_GAME, active: id === this.data.activeProfile }));
+    return Object.entries(this.data.profiles).map(([id, p]) => ({ id, name: p.name, game: p.game || games.DEFAULT_GAME, active: id === this.data.activeProfile, gameChar: p.gameChar || null }));
+  }
+
+  // the in-game name of a character (what the game's log calls it), so the app can switch to it
+  // by itself. One name belongs to one character of a game: linking it here unlinks it elsewhere.
+  linkProfile(id, name) {
+    const p = this.profileOf(id);
+    if (!p) return false;
+    const n = typeof name === 'string' ? name.trim().slice(0, 40) : '';
+    const g = p.game || games.DEFAULT_GAME;
+    if (n) for (const q of Object.values(this.data.profiles)) if (q !== p && (q.game || games.DEFAULT_GAME) === g && q.gameChar && q.gameChar.toLowerCase() === n.toLowerCase()) delete q.gameChar;
+    if (n) p.gameChar = n; else delete p.gameChar;
+    this.save();
+    return true;
+  }
+  // the character of this game linked to an in-game name
+  profileForGameChar(game, name) {
+    if (!name) return null;
+    const n = String(name).toLowerCase();
+    for (const [id, p] of Object.entries(this.data.profiles)) if ((p.game || games.DEFAULT_GAME) === game && p.gameChar && p.gameChar.toLowerCase() === n) return id;
+    return null;
   }
 
   // a character by id: only the store's own entries (never e.g. "__proto__")

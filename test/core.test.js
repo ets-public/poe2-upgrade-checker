@@ -492,3 +492,25 @@ test('a new empty character has nothing of the one you were on; Start again clea
   s2.deleteProfile('main');
   assert.ok(!('main' in (s2.settings.pobCI || {})));
 });
+
+test('store: a character linked to its in-game name, one name per game', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'poe2uc-'));
+  const s = new Store(dir);
+  const main = s.data.activeProfile;
+  const lev = s.createProfile('Leveller', false);
+  assert.ok(s.linkProfile(main, '  MainGuy '));
+  assert.ok(s.linkProfile(lev, 'LeagueMerc'));
+  assert.equal(s.profileForGameChar(s.activeGame(), 'mainguy'), main);
+  assert.equal(s.profileForGameChar(s.activeGame(), 'LeagueMerc'), lev);
+  assert.equal(s.profileForGameChar('poe1', 'LeagueMerc'), null);
+  // the same name on another character: it moves there
+  s.linkProfile(main, 'LeagueMerc');
+  assert.equal(s.profileForGameChar(s.activeGame(), 'LeagueMerc'), main);
+  assert.equal(s.listProfiles().find((p) => p.id === lev).gameChar, null);
+  // kept when switching and saved
+  s.switchProfile(main); s.switchProfile(lev);
+  const s2 = new Store(dir);
+  assert.equal(s2.listProfiles().find((p) => p.id === main).gameChar, 'LeagueMerc');
+  s2.linkProfile(main, '');
+  assert.equal(s2.profileForGameChar(s2.activeGame(), 'LeagueMerc'), null);
+});

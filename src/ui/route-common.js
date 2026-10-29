@@ -45,5 +45,39 @@
     }
     return { state: 'unknown', text: `Waiting to see who logged in: it carries on when ${me} enters a zone of the route or levels up.` };
   }
-  window.routeUi = { esc, tags, rewardLine, pos, who };
+  // The experience penalty in the zone you're in: { cls: 'ok' | 'warn', short, long } or null.
+  // PoE1: the penalty itself (the formula is known). PoE2: how far past the safe range (its curve
+  // isn't published).
+  function xpText(v) {
+    const x = v.xp;
+    if (!x) return null;
+    const range = `within ${x.band} level${x.band === 1 ? '' : 's'} of the area (level ${v.areaLevel})`;
+    if (!x.past) return { cls: 'ok', short: 'XP full', long: `No experience penalty: you're ${range}.` };
+    const lv = `${x.past} level${x.past === 1 ? '' : 's'}`;
+    const tip = x.side === 'over'
+      ? 'You out-level this zone: move on, skip optional steps.'
+      : 'This zone is well above your level: the experience comes back as you catch up.';
+    if (v.game === 'poe1' && x.xp != null) {
+      const pct = Math.round((1 - x.xp) * 100);
+      return { cls: pct >= 10 ? 'warn' : 'ok', short: `XP −${pct}%`, long: `${pct}% less experience: ${lv} ${x.side === 'over' ? 'over' : 'under'} the safe range (±${x.band} of area level ${v.areaLevel}). ${tip}` };
+    }
+    return { cls: 'warn', short: `XP penalty (${x.side === 'over' ? '+' : '−'}${x.past})`, long: `Less experience: ${lv} ${x.side === 'over' ? 'over' : 'under'} the safe range (±${x.band} of area level ${v.areaLevel}). ${tip}` };
+  }
+  // the act timer: m:ss or h:mm:ss
+  function fmtTime(ms) {
+    if (ms == null) return '–';
+    const s = Math.round(ms / 1000); const h = Math.floor(s / 3600); const m = Math.floor((s % 3600) / 60); const x = s % 60;
+    return h ? `${h}:${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}` : `${m}:${String(x).padStart(2, '0')}`;
+  }
+  // the time in the act you're in now, counting on while you play it: { ms, running }
+  function actClock(v, now) {
+    const t = v.timer || {};
+    const a = (t.acts || [])[t.act || 0];
+    let ms = a ? a.ms : 0;
+    const playing = v.follow && v.session && v.session.who === 'owner';
+    const running = !!(playing && t.lastAt && now - t.lastAt <= t.idle);
+    if (running) ms += Math.max(0, now - t.lastAt);
+    return { ms, running, act: t.act || 0, any: !!(t.startedAt || ms) };
+  }
+  window.routeUi = { esc, tags, rewardLine, pos, who, xpText, fmtTime, actClock };
 }());

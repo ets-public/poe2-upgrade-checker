@@ -44,12 +44,12 @@ module.exports = function (C) {
         else if (t.fallback || t.total == null) r.error = "The trade site didn't answer. Try again in a moment.";
         else if (!t.total) r.error = 'Nothing like it is listed right now.';
         else if (t.summary && t.summary.typical) {
-          r.trade = { typical: t.summary.typical, range: t.summary.range, sellers: t.summary.sellers, total: t.total, confidence: t.summary.confidence, baits: t.summary.baits || 0, caseId: t.summary.caseId || null };
+          r.trade = { typical: t.summary.typical, range: t.summary.range, sellers: t.summary.sellers, total: t.total, confidence: t.summary.confidence, baits: t.summary.baits || 0, caseId: t.summary.caseId || null, sold: t.summary.sold || null };
           r.source = `trade site, ${t.league}`;
           quickCache.set(key, { at: Date.now(), r: { trade: r.trade, source: r.source } });
           if (quickCache.size > 300) quickCache.delete(quickCache.keys().next().value);
         }
-        else { r.error = (t.summary && t.summary.verdict) || 'Not enough listings to judge.'; r.caseId = (t.summary && t.summary.caseId) || null; }
+        else { r.error = (t.summary && t.summary.verdict) || 'Not enough listings to judge.'; r.caseId = (t.summary && t.summary.caseId) || null; r.sold = (t.summary && t.summary.sold) || null; }
       } else if (!r.ninja) r.error = "poe.ninja doesn't list a price for this.";
     } catch (err) { r.error = err.message || String(err); C.log('quick price: ' + (err.stack || err)); }
     if (r.error) C.log(`quick price: "${item.name}" shown: ${r.error}`);

@@ -90,3 +90,9 @@ button.link.spend-pick.b { font-weight: 700; color: var(--stone); }
 .price-fb { margin-top: 4px; }
 .price-fb .link.on { color: var(--text, inherit); text-decoration: underline; font-weight: 600; }
 .price-fb .fb-actual { width: 6em; padding: 1px 4px; font: inherit; }
+.sold-line { margin-top: 4px; color: var(--bronze-text, #c8b48a); line-height: 1.35; }
+.sold-line b { color: var(--gold, #e7b478); font-weight: 600; }
+.sold-card { margin-top: 10px; }
+.sold-items { list-style: none; margin: 6px 0 0; padding: 0; max-height: 340px; overflow-y: auto; }
+.sold-items li { padding: 5px 0; border-bottom: 1px solid var(--iron-lo, #2a2622); }
+.sold-items li > div:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

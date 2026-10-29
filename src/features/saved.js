@@ -76,7 +76,7 @@ module.exports = function (C) {
         // this game's rates, copied now: switching game swaps the settings object's contents
         const gs0 = here ? C.store.settings : (((C.store.data.gameSettings || {})[sg]) || {});
         const gs = { divineRate: gs0.divineRate, currencyRates: { ...(gs0.currencyRates || {}) } };
-        const r = await C.runSearch(s.league, JSON.parse(JSON.stringify(s.body)), `alert ${s.name}`, { maxWait: 0, game: sg, anyGame: true });
+        const r = await C.runSearch(s.league, JSON.parse(JSON.stringify(s.body)), `alert ${s.name}`, { maxWait: 0, game: sg, anyGame: true, background: true });
         if (!r.ok) { C.log(`alert ${s.name}: ${r.error}`); if (r.rateLimited) break; continue; }
         if (!Array.isArray(r.ids)) { C.log(`alert ${s.name}: the trade site search couldn't be read in the app`); continue; }
         const prev = Array.isArray(s.lastIds) ? s.lastIds : null;
