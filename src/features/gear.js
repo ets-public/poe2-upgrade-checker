@@ -64,6 +64,14 @@ module.exports = function (C) {
     if (C.resultsWin && !C.resultsWin.isDestroyed()) C.resultsWin.webContents.send('settings:changed');
   }
 
+  // save an item as the one you wear in a slot (your resistances move with it, Path of Building gets it)
+  function saveEquipped(slot, item) {
+    const before = C.store.equipped[slot];
+    if (C.store.settings.resists) C.store.setSetting('resists', resLib.rebase(C.store.settings.resists, before, item));
+    C.store.setEquipped(slot, item);
+    C.store.noteStats(item);
+    C.pobSync();
+  }
   ipcMain.handle('equip', (_e, slot, ref) => {
     let item = null;
     if (ref && typeof ref === 'object' && ref.itemId) item = C.itemById(ref.itemId);
@@ -71,16 +79,24 @@ module.exports = function (C) {
     else item = C.lastItem;
     if (!item || !SLOTS.includes(slot)) return false;
     C.log(`equip ${slot}: "${item.name}"`);
-    const before = C.store.equipped[slot];
-    if (C.store.settings.resists) C.store.setSetting('resists', resLib.rebase(C.store.settings.resists, before, item));
-    C.store.setEquipped(slot, item);
-    C.store.noteStats(item);
     // Path of Building gets the new gear before the popup is judged again (it was a tick later, so the
     // refreshed verdict was still against your old item)
-    C.pobSync();
+    saveEquipped(slot, item);
     refreshAll();
     return true;
   });
+  // You copied one of your saved items again and it changed (you crafted on it): it's saved as it is
+  // now, once the popup has been judged against how it was. The popup isn't judged again (it would
+  // only say "this is your equipped item"); My gear and the trade windows show the new one.
+  function autoSaveEquipped(slot, item, why) {
+    if (!SLOTS.includes(slot) || !C.store.equipped[slot]) return false;
+    C.log(`equip ${slot}: "${item.name}" saved by itself (${why})`);
+    saveEquipped(slot, item);
+    if (C.settingsWin && !C.settingsWin.isDestroyed()) C.settingsWin.webContents.send('settings:changed');
+    if (C.resultsWin && !C.resultsWin.isDestroyed()) C.resultsWin.webContents.send('settings:changed');
+    C.buildTrayMenu();
+    return true;
+  }
 
   ipcMain.handle('weights:set', (_e, key, value) => { C.store.setWeight(key, value); refreshAll(); return true; });
   ipcMain.handle('weights:replace', (_e, obj) => { C.store.replaceWeights(obj); refreshAll(); return true; });
@@ -214,6 +230,7 @@ module.exports = function (C) {
   });
 
   return {
+    autoSaveEquipped,
     characterFromLog,
     notifySettings,
     resolveItem,

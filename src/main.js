@@ -155,6 +155,7 @@ const C = {
   get routePush() { return routeFeature.push; },
   get routeLogNeedChanged() { return routeFeature.logNeedChanged; },
   get characterFromLog() { return M.gear.characterFromLog; },
+  get autoSaveEquipped() { return M.gear.autoSaveEquipped; },
   get pobJudge() { return M.pob.pobJudge; },
   get pobLastSummary() { return M.build.pobLastSummary; },
   get pobListings() { return M.results.pobListings; },

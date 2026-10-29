@@ -193,7 +193,8 @@ module.exports = function (C) {
           row.total = r.total || 0; row.url = r.url;
           row.search = { r, ctx: sr.ctx }; row.searched = true; // also for "Alert me" when nothing is listed yet
           if (!r.ids || !r.ids.length) { row.none = true; continue; }
-          const raw = await C.fetchListings(league, r.searchId, r.ids.slice(0, 10), game);
+          // the best 20, as Path of Building reads (each one judged with your build below)
+          const raw = await C.fetchListings(league, r.searchId, r.ids.slice(0, 20), game);
           const list = raw.map((x) => C.listingLib.summarise(x, item && item.itemClass, rates, C.G(game).base)).map((x) => { if (x.item) C.rememberListing(x.item); return C.scoreListing(x); });
           if (mode === 'pob') await C.pobListings(list);
           // the gain: Path of Building's % for your build, or gear score points

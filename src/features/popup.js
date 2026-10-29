@@ -173,9 +173,10 @@ module.exports = function (C) {
     const send = () => C.popup && C.popup.webContents.send('popup:result', serialise(result));
     if (C.popup.webContents.isLoading()) C.popup.webContents.once('did-finish-load', send);
     else send();
+    let judged = Promise.resolve();
     if (withPob) {
       const item = popupItem;
-      C.pobJudge([{ item: result.item.raw ? result.item : (item || result.item), slot: result.targetSlot }]).then((res) => {
+      judged = C.pobJudge([{ item: result.item.raw ? result.item : (item || result.item), slot: result.targetSlot }]).then((res) => {
         const j = res[0];
         result.pobPending = false;
         if (!j) result.pobError = C.pobErrorOf(res, 0);
@@ -201,6 +202,7 @@ module.exports = function (C) {
     // Renderer replies with its height via popup:resize; show anyway if it doesn't.
     clearTimeout(showFallback);
     showFallback = setTimeout(() => { if (pendingShow) revealPopup(null); }, 400);
+    return judged; // settles once Path of Building's verdict is in (or straight away without one)
   }
 
   // the league searches and prices are for, as far as the app knows without waiting: the one you

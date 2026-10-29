@@ -292,6 +292,57 @@ module.exports = function (C) {
     pobQueries.set(ck, { at: Date.now(), r });
     return r;
   }
+  const ck = (slot, item) => `${C.store.data.activeProfile}|${slot}|${slot === 'Jewel' && item && isRadiusJewel(item) ? 'r' : ''}`;
+  // the minimum score a slot's search ended on (it starts there next time: fewer searches)
+  const learnedMin = new Map(); // ck -> { min, base, at }
+  const scoreOf = (raw) => {
+    const pm = raw && raw.item && raw.item.pseudoMods;
+    const line = Array.isArray(pm) && pm.length ? String(pm[0].description || pm[0]) : '';
+    const m = line.match(/Sum:\s*([\d.]+)/);
+    return m ? Number(m[1]) : null;
+  };
+  async function narrowWeighted(league, body0, r0, slot, key) {
+    const CAP = 10000; const WANT = 20; const MAX = 4;
+    let body = body0; let r = r0; let rounds = 0; let widened = false;
+    const wOf = (b) => b.query.stats.find((x) => x.type === 'weight');
+    const base = wOf(body0).value.min || 0;
+    // start from where this slot's last search ended (same build, same budget, last 30 minutes)
+    const learned = learnedMin.get(key);
+    if (r.ok && r.total >= CAP && learned && learned.base === base && learned.budget === JSON.stringify(body0.query.filters && body0.query.filters.trade_filters) && Date.now() - learned.at < 30 * 60000 && learned.min > base) {
+      const b2 = JSON.parse(JSON.stringify(body)); wOf(b2).value.min = learned.min;
+      const r2 = await C.runSearch(league, b2, `pob ${slot} min ${Math.round(learned.min)}`, { maxWait: 15000 });
+      if (r2 && r2.ok && r2.total >= WANT) { body = b2; r = r2; rounds++; }
+    }
+    while (r && r.ok && r.total >= CAP && rounds < MAX && r.ids && r.ids.length) {
+      let top = null;
+      try { const raw = await C.fetchListings(league, r.searchId, r.ids.slice(0, 1), r.game || C.tg()); top = scoreOf(raw[0]); } catch (err) { C.log(`pob search: could not read the best listing's score: ${err.message}`); }
+      const min = wOf(body).value.min || 0;
+      if (!(top > min)) break;
+      const b2 = JSON.parse(JSON.stringify(body)); wOf(b2).value.min = (top + min) / 2;
+      const r2 = await C.runSearch(league, b2, `pob ${slot} min ${Math.round(wOf(b2).value.min)}`, { maxWait: 15000 });
+      if (!r2 || !r2.ok) break;
+      C.log(`pob search: ${slot} over the 10,000 cap, minimum score ${Math.round(min)} -> ${Math.round(wOf(b2).value.min)} (best ${Math.round(top)}): ${r2.total} listed`);
+      if (r2.total < WANT) {
+        // too far: halfway back
+        const b3 = JSON.parse(JSON.stringify(body)); wOf(b3).value.min = (min + wOf(b2).value.min) / 2;
+        const r3 = await C.runSearch(league, b3, `pob ${slot} min ${Math.round(wOf(b3).value.min)}`, { maxWait: 15000 });
+        if (r3 && r3.ok && r3.total >= WANT) { body = b3; r = r3; rounds++; } else if (r2.total > 0) { body = b2; r = r2; rounds++; }
+        break;
+      }
+      body = b2; r = r2; rounds++;
+    }
+    // too few listings at your item's half: lower the bar (twice at most), as Path of Building does
+    let w = 0;
+    while (r && r.ok && !rounds && r.total < WANT && w < 2 && (wOf(body).value.min || 0) > 0) {
+      const b2 = JSON.parse(JSON.stringify(body)); wOf(b2).value.min = (wOf(body).value.min || 0) / 2;
+      const r2 = await C.runSearch(league, b2, `pob ${slot} min ${Math.round(wOf(b2).value.min)}`, { maxWait: 15000 });
+      if (!r2 || !r2.ok) break;
+      C.log(`pob search: ${slot} only ${r.total} listed, minimum score ${Math.round(wOf(body).value.min)} -> ${Math.round(wOf(b2).value.min)}: ${r2.total} listed`);
+      body = b2; r = r2; w++; widened = true;
+    }
+    if (rounds) learnedMin.set(key, { min: wOf(body).value.min, base, budget: JSON.stringify(body0.query.filters && body0.query.filters.trade_filters), at: Date.now() });
+    return { r, body, rounds, widened };
+  }
   async function pobSearch(item, slot, league, budget, opts) {
     const pq = await pobQueryFor(slot, item);
     const all = JSON.parse(JSON.stringify(pq.query));
@@ -328,70 +379,45 @@ module.exports = function (C) {
       }
     }
     wg.filters.sort((a, b) => Math.abs(b.value.weight) - Math.abs(a.value.weight));
-    // "never lose damage": the weighted sum alone happily trades your damage mods for one big
-    // resistance roll (PoB values filling a resistance highly), so a listing must also have as many of
-    // the build's damage mods as the item you wear in this slot (up to 2)
-    let dmgGroup = null;
-    if (pr.keepDmg && opts.statIndex) {
-      const text = new Map((opts.statIndex.all || []).map((e) => [e.id, e.text]));
-      const norm = (t) => String(t || '').replace(/^\+/, '').toLowerCase();
-      const isDmg = (t) => /damage|critical|attack speed|cast speed|cooldown|level of|minions? (deal|have)/i.test(t) && !/resistances?$|energy shield|armour|evasion|life|mana/i.test(t);
-      const dmg = wg.filters.filter((f) => f.value.weight > 0 && isDmg(text.get(f.id))).slice(0, 8);
-      // for jewels: the jewel in the socket the search is for (as saved on My gear, matched by name)
-      const sockJewel = slot === 'Jewel' && pobJewelSocket(item) ? pobJewelSocket(item).jewel : null;
-      const worn = slot === 'Jewel' ? Object.entries(C.store.equipped).filter(([k]) => /^Jewel /.test(k)).map(([, v]) => v).find((v) => v && v.name === sockJewel) || null : C.store.equipped[slot];
-      const have = new Set(Object.keys((worn && worn.stats) || {}).map(norm));
-      const own = new Set(dmg.filter((f) => have.has(norm(text.get(f.id)))).map((f) => norm(text.get(f.id)))).size;
-      if (own > 0 && dmg.length) {
-        dmgGroup = { type: 'count', value: { min: Math.min(2, own) }, filters: dmg.map((f) => ({ id: f.id, disabled: false })) };
-        C.log(`pob search: never lose damage – needs ${dmgGroup.value.min} of ${dmg.length} damage stats (your ${slot} has ${own})`);
-      }
-    }
-    // "keep my movement speed": boots must be about as fast as yours (PoB weighs movement speed lightly)
-    let speedGroup = null;
-    if (pr.speed && slot === 'Boots') {
-      const worn = C.store.equipped.Boots;
-      const ms = worn && worn.stats ? Number(worn.stats['#% increased Movement Speed']) || 0 : 0;
-      if (ms >= 5) {
-        speedGroup = { type: 'and', filters: [{ id: 'pseudo.pseudo_increased_movement_speed', value: { min: Math.max(1, ms - 2) }, disabled: false }] };
-        C.log(`pob search: keep movement speed – boots with at least ${ms - 2}% (yours ${ms}%)`);
-      }
-    }
+    // "never lose damage" and "keep my movement speed" aren't filters on the search any more: they
+    // hid listings Path of Building ranks high (a ring with one huge stat, boots a little slower but
+    // far better). Every listing is judged with your build instead, and one that loses damage or
+    // movement speed is marked and goes to the bottom, as Path of Building's own trader ranks them.
     // the site's complexity limit is lower when you're not signed in: start at the size it took last time
     const SIZES = [30, 15, 10, 7, 5, 3];
     const sizeKey = (await C.signedIn()) ? 'signed' : 'anon';
-    let size = Math.min((C.store.settings.pobSearchSize || {})[sizeKey] || 0, SIZES.length - 1);
+    // what size the site took last time, for a day (it was kept for good, so one refused search left
+    // every later one at 3 stats)
+    const kept = (C.store.settings.pobSearchSize || {})[sizeKey];
+    const fresh = kept && typeof kept === 'object' && Date.now() - (kept.at || 0) < 24 * 3600 * 1000;
+    let size = Math.min(fresh ? kept.size || 0 : 0, SIZES.length - 1);
     let r = null; let body = null;
     for (;;) {
       body = JSON.parse(JSON.stringify(all));
       const g = body.query.stats.find((x) => x.type === 'weight');
       g.filters = g.filters.slice(0, SIZES[size]);
-      if (dmgGroup) body.query.stats.push({ ...dmgGroup, filters: dmgGroup.filters.slice(0, Math.max(3, Math.min(8, SIZES[size] / 2))) });
-      if (speedGroup) body.query.stats.push(speedGroup);
       body.query.status = { option: trade.statusOpt(opts.status) };
       delete body.engine;
       trade.applyBudget(body, budget, tg());
       r = await C.runSearch(league, body, `pob ${slot}${size ? ` size${size}` : ''}`);
       if (!(r && r.tooComplex) || size >= SIZES.length - 1) break;
       size++;
-      setGameSetting('pobSearchSize', { ...(C.store.settings.pobSearchSize || {}), [sizeKey]: size });
+      setGameSetting('pobSearchSize', { ...(C.store.settings.pobSearchSize || {}), [sizeKey]: { size, at: Date.now() } });
     }
     if (r && r.tooComplex) return { ok: false, error: `The trade site says this search has too many filters.${(await C.signedIn()) ? '' : ' Signing in to pathofexile.com (Settings → Trade site account) raises the limit.'}` };
     if (!r || !r.ok) return r;
-    let droppedDmg = false;
-    if (!r.total && dmgGroup) {
-      // nothing with your damage mods in this budget: show the best without that rule (marked LOSES DAMAGE)
-      body.query.stats = body.query.stats.filter((x) => x.type !== 'count');
-      const r2 = await C.runSearch(league, body, `pob ${slot} no-dmg-rule`);
-      if (r2 && r2.ok) { r = r2; dmgGroup = null; droppedDmg = true; }
-    }
+    // Path of Building's own way past the trade site's 10,000 cap: the site stops counting there and
+    // its "best first" order only covers what it counted, so the best listings can be missing.
+    // Raise the minimum score halfway to the best listing's and search again, until it's under the
+    // cap; with too few listings, halve it (TradeQueryRequests.lua, SearchWithQueryWeightAdjusted).
+    const tuned = await narrowWeighted(league, body, r, slot, ck(slot, item));
+    r = tuned.r; body = tuned.body;
     const used = body.query.stats.find((x) => x.type === 'weight').filters.length;
-    const needDmg = dmgGroup ? `; every listing has at least ${dmgGroup.value.min} of your damage mods` : droppedDmg ? '; nothing in your budget has your damage mods, so these may lose damage' : '';
-    const needSpeed = speedGroup ? `; boots at least ${speedGroup.filters[0].value.min}% movement speed` : '';
+    const narrowed = tuned.rounds ? `; the trade site counted over 10,000, so the minimum score was raised ${tuned.rounds === 1 ? 'once' : `${tuned.rounds} times`} to rank the best of all of them` : tuned.widened ? '; few listings scored high enough, so the minimum score was lowered' : '';
     const ctx = {
       item, mode: 'pob', body, searchKey: C.searchKey(body),
       title: `Best for your build: ${item.slot === 'Ring' ? 'rings' : slot === 'Jewel' ? (tg() !== 'poe1' && isRadiusJewel(item) ? 'radius jewels' : item.abyss ? 'abyss jewels' : 'jewels') : slot}`,
-      note: `Path of Building weighted this search by what each stat does to your build (${used} stats${used < wg.filters.length ? `, the trade site allowed ${used} of ${wg.filters.length}` : ''})${boosted.length ? ', with extra weight on the resistances you still need' : ''}${needDmg}${needSpeed}. Every listing below is then checked with your build: items that lose resistance or damage are marked and go to the bottom.`,
+      note: `Path of Building weighted this search by what each stat does to your build (${used} stats${used < wg.filters.length ? `, the trade site allowed ${used} of ${wg.filters.length}` : ''})${boosted.length ? ', with extra weight on the resistances you still need' : ''}${narrowed}. Every listing below is then checked with your build: items that lose resistance, damage or movement speed are marked and go to the bottom.`,
     };
     if (opts.noOpen) return { ok: true, r, body, ctx, filters: used }; // "where to spend" looks at the listings itself
     const res = await C.openIfAny(r, ctx);

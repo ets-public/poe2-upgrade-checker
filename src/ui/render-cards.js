@@ -132,6 +132,7 @@
           ${r.isEquipped || emptySlot || checking ? '' : R.scoreHtml(R.pointsLabel(r))}
           ${r.isEquipped ? '' : r.replacing.length ? `<span class="dim">vs ${R.esc(r.replacing.join(' + '))}</span>` : r.verdict === 'unjudged' ? '' : it.slot === 'Flask' ? (r.pobPending ? '<span class="dim">trying it in your flask slots</span>' : '') : `<span class="dim">${R.esc(r.targetSlot)} slot is empty</span>`}
         </div>`}
+        ${r.autoSaved ? `<div class="auto-saved small" title="It's the item you have saved as your ${R.esc(r.autoSaved.slot)} (same base, item level${rarity === 'rare' || unique ? ' and name' : ' and mods'}), changed since. The verdict above is against your gear before this change.">✓ Saved as your ${R.esc(r.autoSaved.slot)}: it changed since you last saved it</div>` : ''}
         ${lossBanner}
         ${r.ninja ? window.ninjaLine(r.ninja, advWord) : ''}
         ${adviceBlock}

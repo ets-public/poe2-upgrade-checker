@@ -60,6 +60,7 @@ async function load() {
   $('#openSettingsOnStart').checked = state.settings.openSettingsOnStart !== false;
   $('#advancedCopy').checked = !!state.settings.advancedCopy;
   $('#watchClipboard').checked = state.settings.watchClipboard !== false;
+  $('#autoUpdateGear').checked = state.settings.autoUpdateGear !== false;
   const hs = state.hotkeyStatus || {};
   if (document.activeElement !== $('#hotkey')) $('#hotkey').value = state.settings.hotkey || 'F2';
   if (document.activeElement !== $('#priceHotkey')) $('#priceHotkey').value = priceKeyNow() || '';

@@ -98,6 +98,7 @@ $('#priceHotkeySave').addEventListener('click', () => savePriceKey($('#priceHotk
 $('#priceHotkeyOff').addEventListener('click', () => savePriceKey(''));
 $('#advancedCopy').addEventListener('change', () => window.api.setSetting('advancedCopy', $('#advancedCopy').checked));
 $('#watchClipboard').addEventListener('change', () => window.api.setSetting('watchClipboard', $('#watchClipboard').checked));
+$('#autoUpdateGear').addEventListener('change', () => window.api.setSetting('autoUpdateGear', $('#autoUpdateGear').checked));
 $('#testPopup').addEventListener('click', () => window.api.testPopup());
 $('#openLog').addEventListener('click', () => window.api.openLog());
 

@@ -8,6 +8,7 @@ const gamesLib = require('../core/games');
 const gearLib = require('../core/gearscore');
 const { parseItem } = require('../core/parser');
 const mapLib = require('../core/mapcheck');
+const equipMatch = require('../core/equipmatch');
 
 module.exports = function (C) {
   // ---------- reading items ----------
@@ -119,12 +120,25 @@ module.exports = function (C) {
     C.store.noteStats(item);
     C.log(`${source}: ${item.itemClass} "${item.name}" (${item.rarity}) -> slot ${item.slot}, ${Object.keys(item.stats).length} stats`);
     C.notifySettings('item:copied', { id: item.id, name: item.name });
-    if (mode === 'price') { C.showQuickPrice(item).catch((err) => C.log('quick price: ' + (err.stack || err))); return true; }
+    // one of your saved items, changed since (you crafted on it): saved as it is now
+    const saved = item.slot && C.store.settings.autoUpdateGear !== false ? equipMatch.findSaved(C.store.equipped, item) : null;
+    const autoSave = saved && saved.changed ? saved.slot : null;
+    if (mode === 'price') {
+      if (autoSave) C.autoSaveEquipped(autoSave, item, 'it changed');
+      C.showQuickPrice(item).catch((err) => C.log('quick price: ' + (err.stack || err)));
+      return true;
+    }
     // a map or waystone: what its mods mean for your build
     if (mapLib.isMap(item)) { try { C.showMapCard(item); } catch (err) { C.log('popup failed: ' + err.stack); } return true; }
     // not gear (currency, a gem, a divination card...): its price
     if (!item.slot) { try { C.showPriceCard(item); } catch (err) { C.log('popup failed: ' + err.stack); } return true; }
-    try { C.showResult(C.evaluate(item)); } catch (err) { C.log('popup failed: ' + err.stack); }
+    try {
+      const r = C.evaluate(item);
+      // judged against how it was, then saved
+      if (autoSave && r && r.ok) r.autoSaved = { slot: autoSave, was: C.store.equipped[autoSave] && C.store.equipped[autoSave].name };
+      const judged = C.showResult(r);
+      if (autoSave) Promise.resolve(judged).catch(() => {}).then(() => C.autoSaveEquipped(autoSave, item, 'it changed'));
+    } catch (err) { C.log('popup failed: ' + err.stack); }
     return true;
   }
 

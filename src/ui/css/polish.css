@@ -96,3 +96,4 @@ button.link.spend-pick.b { font-weight: 700; color: var(--stone); }
 .sold-items { list-style: none; margin: 6px 0 0; padding: 0; max-height: 340px; overflow-y: auto; }
 .sold-items li { padding: 5px 0; border-bottom: 1px solid var(--iron-lo, #2a2622); }
 .sold-items li > div:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.auto-saved { margin-top: 4px; color: #8fd18f; }

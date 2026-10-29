@@ -514,3 +514,32 @@ test('store: a character linked to its in-game name, one name per game', () => {
   s2.linkProfile(main, '');
   assert.equal(s2.profileForGameChar(s2.activeGame(), 'LeagueMerc'), null);
 });
+
+test('equipped gear: a crafted-on copy of a saved item is recognised, other items are not', () => {
+  const M = require('../src/core/equipmatch');
+  const base = (rarity, name, mods, ilvl = 40) => parseItem(`Item Class: Rings\nRarity: ${rarity}\n${rarity === 'Magic' || rarity === 'Normal' ? '' : name + '\n'}${rarity === 'Magic' ? name : 'Lazuli Ring'}\n--------\nItem Level: ${ilvl}\n--------\n${mods.join('\n')}`);
+  const rare = base('Rare', 'Pain Grasp', ['+22 to maximum Mana', '+11 to maximum Life']);
+  const exalted = base('Rare', 'Pain Grasp', ['+22 to maximum Mana', '+11 to maximum Life', '+15% to Fire Resistance']);
+  assert.ok(M.sameItem(rare, exalted));
+  assert.deepEqual(M.findSaved({ 'Ring 1': rare }, exalted), { slot: 'Ring 1', changed: true });
+  assert.deepEqual(M.findSaved({ 'Ring 1': rare }, rare), { slot: 'Ring 1', changed: false });
+  // another rare ring of the same base and item level: not yours
+  assert.ok(!M.sameItem(rare, base('Rare', 'Doom Loop', ['+22 to maximum Mana', '+11 to maximum Life'])));
+  // a different item level: not yours
+  assert.ok(!M.sameItem(rare, base('Rare', 'Pain Grasp', ['+22 to maximum Mana'], 41)));
+  // magic -> regal -> rare keeps the old mods: yours; a magic ring with other mods: not
+  const magic = base('Magic', 'Hale Lazuli Ring of the Whale', ['+11 to maximum Life', '+22 to maximum Mana']);
+  assert.ok(M.sameItem(magic, base('Rare', 'Storm Coil', ['+11 to maximum Life', '+22 to maximum Mana', '+5% to Cold Resistance'])));
+  assert.ok(!M.sameItem(magic, base('Magic', 'Burning Lazuli Ring of Ice', ['+15% to Fire Resistance', '+12% to Cold Resistance'])));
+  // rarity never goes down by crafting
+  assert.ok(!M.sameItem(rare, magic));
+  assert.equal(M.findSaved({}, rare), null);
+});
+
+test('equipped gear: magic items (no base in the copy) are matched by class, item level and mods', () => {
+  const M = require('../src/core/equipmatch');
+  const mk = (txt) => parseItem(`Item Class: Rings\nRarity: Magic\n${txt[0]}\n--------\nItem Level: 40\n--------\n${txt.slice(1).join('\n')}`);
+  const a = mk(['Hale Lazuli Ring', '+11 to maximum Life']);
+  assert.ok(M.sameItem(a, mk(['Hale Lazuli Ring of the Whale', '+11 to maximum Life', '+22 to maximum Mana']))); // augmented
+  assert.ok(!M.sameItem(a, mk(['Burning Lazuli Ring', '+15% to Fire Resistance'])));
+});
