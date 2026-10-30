@@ -87,7 +87,7 @@ module.exports = function (C) {
   }
   function pobOn() { return C.store.settings.usePob !== false && pobEngine().available() && !!pobXml(); }
   let pobSheetGen = 0; // bumped whenever build or gear changes, so the Character page recalculates
-  function pobSync() { pobQueries.clear(); pobSheetGen++; if (pobOn()) pobEngine().setBuild(pobXml(), pobOverrides()); else if (pobEngine().available()) pobEngine().setBuild(null); } // no build: never keep the last character's
+  function pobSync() { pobQueries.clear(); pobSheetGen++; if (pobOn()) pobEngine().setBuild(pobXml(), pobOverrides(), C.store.pobMain()); else if (pobEngine().available()) pobEngine().setBuild(null); } // no build: never keep the last character's
   // each game has its own priorities (store GAME_KEYS); in PoE1 chaos resistance counts by default
   const pobPriorities = () => ({ ...pobVerdict.DEFAULT_PRIORITIES, ...(tg() === 'poe1' ? { chaos: true } : {}), ...(C.store.settings.priorities || {}) });
   // Chaos Inoculation (seen in your PoB build) makes chaos resistance irrelevant

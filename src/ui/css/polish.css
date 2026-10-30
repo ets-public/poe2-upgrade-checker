@@ -116,3 +116,8 @@ button.link.spend-pick.b { font-weight: 700; color: var(--stone); }
 /* page header text wraps instead of running past the window's edge */
 .page-head > div:first-child { flex: 1 1 320px; min-width: 0; }
 .page-head .sub { overflow-wrap: anywhere; }
+
+/* Character page: the main skill picker */
+.char-tags .main-pick { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--dim); }
+.char-tags .main-pick select { max-width: 340px; font-size: 12.5px; padding: 2px 6px; }
+#mainSkillMsg { align-self: center; }

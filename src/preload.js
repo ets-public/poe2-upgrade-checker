@@ -73,6 +73,8 @@ contextBridge.exposeInMainWorld('api', {
   hideout: (id) => ipcRenderer.invoke('trade:hideout', id),
   pobStatus: (load) => ipcRenderer.invoke('pob:status', load),
   pobSheet: (refresh) => ipcRenderer.invoke('pob:sheet', refresh),
+  pobMainSkills: () => ipcRenderer.invoke('pob:mainSkills'),
+  setPobMainSkill: (pick) => ipcRenderer.invoke('pob:setMainSkill', pick),
   bossCheck: () => ipcRenderer.invoke('pob:bosscheck'),
   stringsGet: () => ipcRenderer.invoke('strings:get'),
   stringsVendor: (opts) => ipcRenderer.invoke('strings:vendor', opts),

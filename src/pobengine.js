@@ -132,7 +132,7 @@ function createEngine({ log = () => {}, appPath, resourcesPath, packaged, game =
     await start();
     touch();
     // after a restart or a gear/build change: (re)load first, until the loaded build is the current one
-    if (obj.cmd !== 'load' && obj.cmd !== 'equip') {
+    if (obj.cmd !== 'load' && obj.cmd !== 'equip' && obj.cmd !== 'setmain') {
       for (let i = 0; i < 3 && buildXml && (!buildInfo || infoGen !== gen); i++) await (loading || loadBuild(buildXml));
     }
     if (!proc) throw new Error('The Path of Building engine stopped.');
@@ -153,6 +153,8 @@ function createEngine({ log = () => {}, appPath, resourcesPath, packaged, game =
 
   // overrides: [{ slot, text }] items you copied in game, put into PoB's build after loading it
   let overrides = [];
+  // the skill you picked as the main one ({ name, slot }), made main after each load; null: as in PoB
+  let mainPick = null;
   let gen = 0; let infoGen = -1; // which build/gear version is loaded
   function loadBuild(xml, over) {
     if (xml !== buildXml) failedAt = 0;
@@ -168,6 +170,10 @@ function createEngine({ log = () => {}, appPath, resourcesPath, packaged, game =
         const e = await request({ cmd: 'equip', items: overrides }, 60000);
         if (e.ok) { e.pobGear = r.gear; e.pobStats = r.stats; r = e; }
       }
+      if (mainPick) {
+        const m = await request({ cmd: 'setmain', pick: mainPick }, 60000);
+        if (m.ok) { m.pobGear = r.pobGear; m.pobStats = r.pobStats || r.stats; m.equipped = r.equipped; m.treeConverted = r.treeConverted; m.timelessRemoved = r.timelessRemoved; r = m; }
+      }
       if (myGen === gen) { buildInfo = r; infoGen = myGen; } // a newer build came in meanwhile: that one wins
       return r;
     }).finally(() => { if (loading === p) loading = null; });
@@ -175,7 +181,14 @@ function createEngine({ log = () => {}, appPath, resourcesPath, packaged, game =
     return p;
   }
   // remember a build without starting the engine yet (it loads on first use)
-  function setBuild(xml, over) { if (xml !== buildXml) failedAt = 0; buildXml = xml; overrides = over || []; buildInfo = null; gen++; }
+  function setBuild(xml, over, main) { if (xml !== buildXml) failedAt = 0; buildXml = xml; overrides = over || []; mainPick = main && main.name ? { name: String(main.name), slot: main.slot || null } : null; buildInfo = null; gen++; }
+  // the skills that can be the main one: [{ group, skill, name, default, item, slot, main, full }]
+  async function skills(dps) {
+    if (!buildXml) throw new Error('No Path of Building build loaded.');
+    const r = await request({ cmd: 'skills', dps: !!dps }, 150000);
+    if (!r.ok) throw new Error(r.error || 'Path of Building could not list the skills.');
+    return r.skills || [];
+  }
   function kill() { if (proc) { try { proc.kill(); } catch (_) {} } }
 
   async function evalItems(items) {
@@ -272,7 +285,7 @@ function createEngine({ log = () => {}, appPath, resourcesPath, packaged, game =
   }
 
   return {
-    available, start, stop, resetFailure, loadBuild, setBuild, evalItems, evalPairs, mapCheck, affixes, gemCheck, bossCheck, anointCheck, makeQuery, bestUniques, skillDps, runeCheck, runeApply, betterBases,
+    available, start, stop, resetFailure, loadBuild, setBuild, skills, mainPick: () => mainPick, evalItems, evalPairs, mapCheck, affixes, gemCheck, bossCheck, anointCheck, makeQuery, bestUniques, skillDps, runeCheck, runeApply, betterBases,
     kill, sheet: async () => { if (!buildXml) return null; const r = await request({ cmd: "sheet" }, 60000); if (!r.ok) throw new Error(r.error || "Path of Building could not read the character."); return r; },
     ensureLoaded: async () => {
       if (!buildXml) return null;

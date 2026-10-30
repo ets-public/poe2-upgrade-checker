@@ -195,6 +195,16 @@ class Store {
     this.save();
   }
 
+  // the skill you picked as this character's main one on the Character page ({ name, slot }), or null:
+  // Path of Building's own main skill
+  pobMain() { const p = this.profileOf(this.data.activeProfile); return (p && p.pobMain) || null; }
+  setPobMain(v) {
+    const p = this.profileOf(this.data.activeProfile);
+    if (!p) return;
+    if (v && typeof v.name === 'string' && v.name) p.pobMain = { name: v.name.slice(0, 120), slot: typeof v.slot === 'string' ? v.slot.slice(0, 40) : null }; else delete p.pobMain;
+    this.save();
+  }
+
   // the loot filter the app last wrote for this character: { file, source, at, sig } (to say when it's out of date)
   lootFilter() { const p = this.profileOf(this.data.activeProfile); return (p && p.lootFilter) || null; }
   setLootFilter(v) {
@@ -235,6 +245,7 @@ class Store {
     if (copyCurrent && g !== this.activeGame()) base.build = build;
     const from = this.profileOf(this.data.activeProfile);
     if (copyCurrent && from && from.buildSource) base.buildSource = JSON.parse(JSON.stringify(from.buildSource));
+    if (copyCurrent && from && from.pobMain) base.pobMain = { ...from.pobMain };
     this.data.profiles[id] = { name: name || 'New character', game: g, ...base };
     if (copyCurrent) {
       const ci = this.data.settings.pobCI;

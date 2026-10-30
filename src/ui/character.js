@@ -37,6 +37,7 @@
       // widths set here: the page's security policy doesn't allow inline styles
       body.querySelectorAll('[data-w]').forEach((e) => { e.style.width = `${Number(e.dataset.w) || 0}%`; });
       renderStrings();
+      if (d.sheet) fillMainSkills();
       body.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => document.querySelector(`.tabs button[data-tab="${b.dataset.goto}"]`).click()));
     } catch (err) {
       body.innerHTML = `<div class="card-p">Couldn't load your character: ${esc(err.message || err)}</div>`;
@@ -44,6 +45,32 @@
       busy = false;
       if (again !== null) { const r = again; again = null; render(r); }
     }
+  }
+
+  // the main skill picker: every active skill of the build and the weapon's default attack, with
+  // each one's damage as the main skill (Path of Building works them out, so they come a moment later)
+  async function fillMainSkills() {
+    const sel = $('#mainSkillSel'); const msg = $('#mainSkillMsg');
+    if (!sel) return;
+    sel.disabled = true;
+    msg.textContent = 'working out each skill\'s damage…';
+    const r = await window.api.pobMainSkills().catch((err) => ({ ok: false, error: err.message }));
+    if (!document.body.contains(sel)) return;
+    if (!r || !r.ok) { msg.textContent = (r && r.error) || ''; return; }
+    const pobMain = r.list.find((c) => c.main && !r.pick) || null;
+    const label = (c) => `${c.name}${c.default ? " (weapon's default attack)" : ''}${c.dps != null ? ` – ${c.dps >= 1e4 ? `${(c.dps / 1e3).toFixed(1)}k` : Math.round(c.dps).toLocaleString('en')} ${c.minion ? 'minion ' : ''}DPS` : ''}`;
+    sel.innerHTML = `<option value="">As in Path of Building${pobMain ? ` (${esc(pobMain.name)})` : ''}</option>`
+      + r.list.map((c, i) => `<option value="${i}" ${r.pick && !r.missing && c.name === r.pick.name && (!r.pick.slot || c.slot === r.pick.slot) ? 'selected' : ''}>${esc(label(c))}</option>`).join('');
+    if (!r.pick || r.missing) sel.value = '';
+    sel.disabled = false;
+    msg.textContent = r.missing ? `${r.pick.name} isn't in this build any more, so Path of Building's own main skill is used.` : '';
+    sel.onchange = async () => {
+      const c = sel.value === '' ? null : r.list[Number(sel.value)];
+      sel.disabled = true; msg.textContent = 'recalculating…';
+      const res = await window.api.setPobMainSkill(c ? { name: c.name, slot: c.slot } : null).catch((err) => ({ ok: false, error: err.message }));
+      if (!res || !res.ok) { msg.textContent = (res && res.error) || 'Could not change the main skill.'; sel.disabled = false; return; }
+      render(false);
+    };
   }
 
   function resBars(list, ci) {
@@ -62,7 +89,7 @@
     const minionMain = m && isNum(m.CombinedDPS) && m.CombinedDPS > 0;
     const playerDps = Math.max(p.FullDPS || 0, p.CombinedDPS || 0, p.TotalDPS || 0);
     const tags = [
-      s.mainSkill ? `<span class="char-tag">Main skill: ${esc(s.mainSkill)}</span>` : '',
+      `<label class="main-pick">Main skill <select id="mainSkillSel" title="The skill Path of Building judges your damage with. Pick another to see its numbers and have items judged for it."><option>${esc(s.mainSkill || '…')}</option></select></label><span class="dim small" id="mainSkillMsg" role="status"></span>`,
       ci ? '<span class="char-tag good">Chaos Inoculation</span>' : '',
       ...(s.tree && s.tree.keystones ? s.tree.keystones.filter((k) => k !== 'Chaos Inoculation').map((k) => `<span class="char-tag">${esc(k)}</span>`) : []),
     ].join('');
@@ -154,7 +181,7 @@
       .sort((a, b) => (b.main ? 1 : 0) - (a.main ? 1 : 0));
     const skills = groups.length ? card(`Skills (${groups.length})`, groups.map((g) => {
       const act = g.gems.filter((x) => !x.support); const sup = g.gems.filter((x) => x.support);
-      return `<div class="skill-group ${g.main ? 'main' : ''} ${g.enabled ? '' : 'off'}"><div class="sk">${act.map((x) => `${esc(x.name)} <small class="dim">${x.level ? `lvl ${x.level}` : ''}${x.quality ? ` · ${x.quality}%` : ''}</small>`).join(' + ') || esc(g.label)}${g.main ? ' <span class="char-tag">main</span>' : ''}${g.enabled ? '' : ' <small class="dim">(disabled)</small>'}</div>${sup.length ? `<div class="gems">${sup.map((x) => `<span class="sup">${esc(x.name)}</span>`).join(' · ')}</div>` : ''}</div>`;
+      return `<div class="skill-group ${g.main ? 'main' : ''} ${g.enabled ? '' : 'off'}"><div class="sk">${act.map((x) => `${esc(x.name)} <small class="dim">${x.level ? `lvl ${x.level}` : ''}${x.quality ? ` · ${x.quality}%` : ''}</small>`).join(' + ') || esc(g.label)}${g.main ? ' <span class="char-tag">main</span>' : ''}${g.default ? ' <small class="dim">weapon\'s default attack</small>' : ''}${g.enabled ? '' : ' <small class="dim">(disabled)</small>'}</div>${sup.length ? `<div class="gems">${sup.map((x) => `<span class="sup">${esc(x.name)}</span>`).join(' · ')}</div>` : ''}</div>`;
     }).join('')) : '';
 
     const t = s.tree || {};

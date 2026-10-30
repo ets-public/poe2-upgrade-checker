@@ -308,6 +308,17 @@ local function skillKind()
     projectile = not not (t[SkillType.Projectile] or t[SkillType.RangedAttack]), minion = not not (ms and ms.minion) }
 end
 
+-- the main skill's name: the group's label, or its picked active skill when the group has several
+-- ("Load Fragmentation Rounds" in the Fragmentation Rounds group)
+local function mainSkillName(g)
+  if not g then return nil end
+  local list = g.displaySkillList or {}
+  local s = #list > 1 and list[g.mainActiveSkill or 1]
+  local e = s and s.activeEffect
+  local n = e and ((e.grantedEffect and e.grantedEffect.name) or (e.srcInstance and e.srcInstance.nameSpec))
+  return n or g.displayLabel or nil
+end
+
 local function summary()
   local o = build.calcsTab.mainOutput
   local okk, kind = pcall(skillKind)
@@ -319,7 +330,7 @@ local function summary()
     ok = true, game = GAME, treeVersion = build.spec and build.spec.treeVersion,
     className = build.spec and build.spec.curClassName, ascendancy = build.spec and build.spec.curAscendClassName,
     level = build.characterLevel,
-    mainSkill = skill and skill.displayLabel or nil,
+    mainSkill = mainSkillName(skill),
     stats = pick(o),
     gear = gearNames(),
     sockets = jewelSockets(),
@@ -359,6 +370,122 @@ local MINION_KEYS = {
   "Life", "EnergyShield", "Armour", "Evasion", "TotalEHP", "PhysicalDamageReduction", "BlockChance",
   "FireResist", "ColdResist", "LightningResist", "ChaosResist", "AreaOfEffectRadiusMetres",
 }
+-- PoE2: the weapon's default attack (Crossbow Shot, Mace Strike, Bow Shot...). The game always gives
+-- you one, but this Path of Building version doesn't add it by itself (newer ones do, as "Default
+-- Attack" groups: then nothing is added here). It's added as a skill group of its own, for the main
+-- weapon set, at the level your character level allows, after loading and after gear changes.
+-- Which skill goes with which weapons is the game's (Path of Building 2's CharacterMeleeSkills data);
+-- a weapon whose default skill this PoB version doesn't know gets none.
+local DEFAULT_ATTACK = {
+  ["Bow|Unarmed"] = { "Bow" }, ["Crossbow|Unarmed"] = { "Crossbow" }, ["Warstaff|Unarmed"] = { "Quarterstaff" },
+  ["Spear|Unarmed"] = { "Spear", "SpearThrow" }, ["Spear|Buckler"] = { "SpearOffHand", "SpearThrow" },
+  ["One Hand Mace|Unarmed"] = { "1HMace" }, ["One Hand Mace|One Hand Mace"] = { "MaceMace" }, ["One Hand Mace|Two Hand Mace"] = { "MaceMace" },
+  ["Two Hand Mace|Unarmed"] = { "2HMace" }, ["Two Hand Mace|One Hand Mace"] = { "MaceMace" }, ["Two Hand Mace|Two Hand Mace"] = { "MaceMace" },
+  ["Unarmed|One Hand Mace"] = { "1HMace" }, ["Unarmed|Two Hand Mace"] = { "1HMace" },
+  ["One Hand Sword|Unarmed"] = { "1HSword" }, ["One Hand Sword|One Hand Sword"] = { "SwordSword" }, ["One Hand Sword|Two Hand Sword"] = { "SwordSword" },
+  ["Two Hand Sword|Unarmed"] = { "2HSword" }, ["Two Hand Sword|One Hand Sword"] = { "SwordSword" }, ["Two Hand Sword|Two Hand Sword"] = { "SwordSword" },
+  ["One Hand Axe|Unarmed"] = { "1HAxe" }, ["One Hand Axe|One Hand Axe"] = { "AxeAxe" }, ["One Hand Axe|Two Hand Axe"] = { "AxeAxe" },
+  ["Two Hand Axe|Unarmed"] = { "2HAxe" }, ["Two Hand Axe|One Hand Axe"] = { "AxeAxe" }, ["Two Hand Axe|Two Hand Axe"] = { "AxeAxe" },
+  ["Claw|Unarmed"] = { "Claw" }, ["Claw|Claw"] = { "ClawClaw" }, ["Unarmed|Claw"] = { "Claw" },
+  ["Dagger|Unarmed"] = { "Dagger" }, ["Dagger|Dagger"] = { "DaggerDagger" }, ["Unarmed|Dagger"] = { "Dagger" },
+  ["Flail|Unarmed"] = { "Flail" }, ["Talisman|Unarmed"] = { "Unarmed" }, ["Unarmed|Unarmed"] = { "Unarmed" },
+}
+local function weaponClass(item)
+  local b = item and item.base
+  if not b then return "Unarmed" end
+  if b.tags and b.tags.buckler then return "Buckler" end
+  if b.subType == "Warstaff" then return "Warstaff" end
+  if b.weapon then return b.type end
+  return "Unarmed"
+end
+local function addDefaultAttack()
+  if GAME ~= "poe2" or not build then return end
+  local list = build.skillsTab.socketGroupList
+  local i = 1
+  while list[i] do if list[i].ucDefault then table.remove(list, i) else i = i + 1 end end
+  for _, g in ipairs(list) do if g.source == "Default Attack" then return end end
+  local function itemIn(name) local s = build.itemsTab.slots[name]; return s and s.selItemId and build.itemsTab.items[s.selItemId] end
+  local names = DEFAULT_ATTACK[weaponClass(itemIn("Weapon 1")) .. "|" .. weaponClass(itemIn("Weapon 2"))] or {}
+  local added = false
+  for _, n in ipairs(names) do
+    local gd = build.data.gems["Metadata/Items/Gems/SkillGemPlayerDefault" .. n]
+    local ge = gd and gd.grantedEffect
+    if ge and ge.levels then
+      local lvl = 1
+      for l = (gd.naturalMaxLevel or #ge.levels), 1, -1 do
+        local ld = ge.levels[l]
+        if ld and (ld.levelRequirement or 0) <= (build.characterLevel or 1) then lvl = l; break end
+      end
+      local g = { label = "", enabled = true, ucDefault = true, includeInFullDPS = false, mainActiveSkill = 1, mainActiveSkillCalcs = 1,
+        gemList = { { nameSpec = gd.name, gemId = gd.id, skillId = gd.grantedEffectId, level = lvl, quality = 0, enabled = true, enableGlobal1 = true, enableGlobal2 = false, count = 1, statSet = { index = 1 }, statSetCalcs = { index = 1 } } } }
+      build.skillsTab:ProcessSocketGroup(g)
+      table.insert(list, g)
+      added = true
+    end
+  end
+  if added then build.buildFlag = true; runCallback("OnFrame") end
+end
+
+-- The skills you can make the main one: each active skill of each enabled skill group, the weapons'
+-- default attacks too (Path of Building adds those as groups of their own). The main one is marked.
+local function skillName(s)
+  local e = s and s.activeEffect
+  return e and ((e.grantedEffect and e.grantedEffect.name) or (e.srcInstance and e.srcInstance.nameSpec)) or nil
+end
+local function skillChoices(withDps)
+  local out = {}
+  for i, g in ipairs(build.skillsTab.socketGroupList or {}) do
+    if g.enabled ~= false then
+      for k, s in ipairs(g.displaySkillList or {}) do
+        local name = skillName(s)
+        if name and name ~= "" then
+          out[#out + 1] = { group = i, skill = k, name = name, default = (g.source == "Default Attack" or g.ucDefault) or nil,
+            item = (g.sourceItem and (g.sourceItem.title or g.sourceItem.name)) or nil, slot = g.slot,
+            main = (i == build.mainSocketGroup and k == (g.mainActiveSkill or 1)) or nil, full = g.includeInFullDPS and true or nil }
+        end
+      end
+    end
+  end
+  -- each one's damage as the main skill (what Path of Building shows when you pick it); the main
+  -- skill is put back afterwards
+  if withDps then
+    local list = build.skillsTab.socketGroupList
+    local was, wasSkill = build.mainSocketGroup, {}
+    for i, g in ipairs(list) do wasSkill[i] = g.mainActiveSkill end
+    local function recalc() build.buildFlag = true; runCallback("OnFrame") end
+    for _, c in ipairs(out) do
+      build.mainSocketGroup = c.group
+      list[c.group].mainActiveSkill = c.skill
+      if pcall(recalc) then
+        local o = build.calcsTab.mainOutput or {}
+        local own = num(o.CombinedDPS) or num(o.TotalDPS) or 0
+        local minion = num(o.Minion and (o.Minion.CombinedDPS or o.Minion.TotalDPS)) or 0
+        c.dps = math.max(own, minion); c.minion = (minion > own) or nil
+      end
+    end
+    build.mainSocketGroup = was
+    for i, g in ipairs(list) do g.mainActiveSkill = wasSkill[i] end
+    pcall(recalc)
+  end
+  return out
+end
+-- Make a skill the main one, by name (and its weapon slot when two have the same name, e.g. the
+-- default attack of each weapon set). Path of Building's "Include in Full DPS" ticks are taken off
+-- in this loaded copy, so damage is judged with that skill. pick: { name, slot } -> found
+local function setMain(pick)
+  if type(pick) ~= "table" or not pick.name then return false end
+  local list = skillChoices()
+  local hit
+  for _, c in ipairs(list) do if c.name == pick.name and (not pick.slot or c.slot == pick.slot) then hit = c; break end end
+  if not hit then for _, c in ipairs(list) do if c.name == pick.name then hit = c; break end end end
+  if not hit then return false end
+  for _, g in ipairs(build.skillsTab.socketGroupList or {}) do g.includeInFullDPS = false end
+  build.mainSocketGroup = hit.group
+  build.skillsTab.socketGroupList[hit.group].mainActiveSkill = hit.skill
+  build.buildFlag = true; runCallback("OnFrame")
+  return true
+end
+
 local function sheet()
   local o = build.calcsTab.mainOutput or {}
   local r = summary()
@@ -385,7 +512,7 @@ local function sheet()
         if name and name ~= "" then gems[#gems + 1] = { name = name, level = num(gem.level), quality = num(gem.quality), enabled = gem.enabled ~= false, support = not not ((gem.grantedEffect and gem.grantedEffect.support) or (gem.gemData and gem.gemData.grantedEffect and gem.gemData.grantedEffect.support) or (gem.gemData and gem.gemData.tags and gem.gemData.tags.support)) } end
       end
       if #gems > 0 then
-        r.skills[#r.skills + 1] = { label = g.displayLabel or g.label, enabled = g.enabled ~= false, main = (i == build.mainSocketGroup), slot = g.slot, gems = gems }
+        r.skills[#r.skills + 1] = { label = g.displayLabel or g.label, enabled = g.enabled ~= false, main = (i == build.mainSocketGroup), slot = g.slot, gems = gems, default = (g.ucDefault or g.source == "Default Attack") or nil }
       end
     end
   end)
@@ -661,7 +788,7 @@ local gemCheck, anointCheck, bossCheck, affixNames, skillDps = checks.gemCheck, 
 local runeCheck, runeApply, betterBases, genQuery, bestUniques = checks.runeCheck, checks.runeApply, checks.betterBases, checks.genQuery, checks.bestUniques
 
 
-local HEAVY = { load = true, equip = true, pairs = true, runeapply = true, skilldps = true, query = true, anoints = true, bosscheck = true, uniques = true }
+local HEAVY = { setmain = true, load = true, equip = true, pairs = true, runeapply = true, skilldps = true, query = true, anoints = true, bosscheck = true, uniques = true }
 
 reply(enc({ ready = true, version = pobVersion() }))
 
@@ -718,12 +845,14 @@ while true do
         return { ok = false, error = "Path of Building couldn't load this build: " .. msg }
       end
       if not (build and build.spec and build.calcsTab and build.calcsTab.mainOutput) then return { ok = false, error = "Path of Building couldn't load this build." } end
+      pcall(addDefaultAttack)
       local r = summary()
       if converted then r.treeConverted = { from = converted, to = latestTreeVersion, newer = newer or nil } end
       if timeless then r.timelessRemoved = timeless end
       return r
     elseif req.cmd == "equip" then
       local done = equip(req.items)
+      pcall(addDefaultAttack) -- a new weapon has its own default attack
       local r = summary(); r.equipped = done
       return r
     elseif req.cmd == "query" then
@@ -754,6 +883,12 @@ while true do
       return runeApply(req)
     elseif req.cmd == "skilldps" then
       return skillDps()
+    elseif req.cmd == "skills" then
+      return { ok = true, skills = skillChoices(req.dps) }
+    elseif req.cmd == "setmain" then
+      local found = setMain(req.pick)
+      local r = summary(); r.mainPick = found and req.pick or nil; r.mainPickMissing = (req.pick and not found) or nil
+      return r
     elseif req.cmd == "sheet" then
       return sheet()
     elseif req.cmd == "quit" then

@@ -341,7 +341,7 @@ module.exports = function (C) {
     if (info.treeConverted && info.treeConverted.newer) mismatch.push(`your build was made with a newer Path of Building (passive tree ${tv(info.treeConverted.from)}) than the one in this app (${tv(info.treeConverted.to)}), so new passives may be missing from the verdicts – the app's Path of Building is updated with the app`);
     else if (info.treeConverted) mismatch.push(`your build is on an old passive tree (${tv(info.treeConverted.from)}); it was moved to ${tv(info.treeConverted.to)}, which can drop passives – update the build in Path of Building and import it again`);
     if (info.timelessRemoved) mismatch.push(`${info.timelessRemoved === 1 ? 'your timeless jewel was' : `your ${info.timelessRemoved} timeless jewels were`} left out of the calculations (the data it needs doesn't come with the app), so verdicts don't include ${info.timelessRemoved === 1 ? 'its' : 'their'} passive changes`);
-    if (!(pobVerdict.dpsOf(st, dk) > 0)) mismatch.push(`your main skill in Path of Building${info.mainSkill ? ` (${info.mainSkill})` : ''} deals no damage, so damage changes can't be judged – set your damage skill as the main skill in PoB (or tick "Include in Full DPS" on your damage skills) and import again`);
+    if (!(pobVerdict.dpsOf(st, dk) > 0)) mismatch.push(`your main skill in Path of Building${info.mainSkill ? ` (${info.mainSkill})` : ''} deals no damage, so damage changes can't be judged – pick your damage skill as the main skill on the Character page (or in PoB, or tick "Include in Full DPS" on your damage skills there and import again)`);
     return {
       ok: true, className: info.className, ascendancy: info.ascendancy, level: info.level, mainSkill: info.mainSkill,
       dps: pobVerdict.dpsOf(st, dk), dpsKey: dk, ehp: st.TotalEHP, es: st.EnergyShield, life: st.Life, spirit: st.Spirit, spiritFree: st.SpiritUnreserved,
@@ -350,6 +350,33 @@ module.exports = function (C) {
       ci: pobVerdict.hasCI(st),
     };
   }
+  // Character page: which skill is the main one (judged for damage). The list has every active skill
+  // of the build, the weapon's default attack too, each with its damage as the main skill.
+  const mainSkillCache = new Map();
+  ipcMain.handle('pob:mainSkills', async () => {
+    if (!C.pobOn()) return { ok: false, error: 'Load your Path of Building build first (My gear).' };
+    const key = `${C.store.data.activeProfile}|${C.pobSheetGen()}`;
+    if (mainSkillCache.has(key)) return mainSkillCache.get(key);
+    try {
+      const info = await C.pobEngine().ensureLoaded();
+      const list = await C.pobEngine().skills(true);
+      const pick = C.store.pobMain();
+      const r = { ok: true, pick, missing: !!(pick && info && info.mainPickMissing), list: list.map((c) => ({ name: c.name, slot: c.slot || null, default: !!c.default, main: !!c.main, dps: c.dps == null ? null : c.dps, minion: !!c.minion })) };
+      mainSkillCache.clear(); mainSkillCache.set(key, r);
+      return r;
+    } catch (err) { return { ok: false, error: err.message }; }
+  });
+  // pick: { name, slot } or null (Path of Building's own main skill)
+  ipcMain.handle('pob:setMainSkill', async (_e, pick) => {
+    if (!C.pobOn()) return { ok: false, error: 'Load your Path of Building build first (My gear).' };
+    C.store.setPobMain(pick && typeof pick === 'object' ? pick : null);
+    C.log(`pob: main skill ${pick && pick.name ? `set to ${pick.name}` : 'back to Path of Building\'s'}`);
+    C.pobSync();
+    if (C.refreshAll) C.refreshAll();
+    C.notifySettings('settings:changed');
+    try { const info = await C.pobEngine().ensureLoaded(); return { ok: true, mainSkill: info && info.mainSkill, missing: !!(info && info.mainPickMissing) }; } catch (err) { return { ok: false, error: err.message }; }
+  });
+
   const pobLastSummary = new Map();
   // Character page: everything Path of Building calculates for your character (with the gear you
   // copied in game), plus what the app itself knows. Kept per character so it shows instantly next time.
