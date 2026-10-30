@@ -256,6 +256,13 @@ function createEngine({ log = () => {}, appPath, resourcesPath, packaged, game =
     return r;
   }
 
+  // every unique from PoB's item database that fits a slot, tried in your build
+  async function bestUniques(opts) {
+    if (!buildXml) throw new Error('No Path of Building build loaded.');
+    const r = await request({ cmd: 'uniques', ...opts }, 180000);
+    if (!r.ok) throw new Error(r.error || 'Path of Building could not try the uniques.');
+    return r;
+  }
   // PoB's own weighted trade search for a slot
   async function makeQuery(opts) {
     if (!buildXml) throw new Error('No Path of Building build loaded.');
@@ -265,7 +272,7 @@ function createEngine({ log = () => {}, appPath, resourcesPath, packaged, game =
   }
 
   return {
-    available, start, stop, resetFailure, loadBuild, setBuild, evalItems, evalPairs, mapCheck, affixes, gemCheck, bossCheck, anointCheck, makeQuery, skillDps, runeCheck, runeApply, betterBases,
+    available, start, stop, resetFailure, loadBuild, setBuild, evalItems, evalPairs, mapCheck, affixes, gemCheck, bossCheck, anointCheck, makeQuery, bestUniques, skillDps, runeCheck, runeApply, betterBases,
     kill, sheet: async () => { if (!buildXml) return null; const r = await request({ cmd: "sheet" }, 60000); if (!r.ok) throw new Error(r.error || "Path of Building could not read the character."); return r; },
     ensureLoaded: async () => {
       if (!buildXml) return null;

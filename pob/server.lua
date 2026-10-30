@@ -649,10 +649,10 @@ end
 local checksFile = ((debug.getinfo(1, "S").source or ""):match("^@(.*[/\\])") or "") .. "server-checks.lua"
 local checks = assert(loadfile(checksFile))({ GAME = GAME, num = num, pick = pick, makeItem = makeItem, pobSlot = pobSlot })
 local gemCheck, anointCheck, bossCheck, affixNames, skillDps = checks.gemCheck, checks.anointCheck, checks.bossCheck, checks.affixNames, checks.skillDps
-local runeCheck, runeApply, betterBases, genQuery = checks.runeCheck, checks.runeApply, checks.betterBases, checks.genQuery
+local runeCheck, runeApply, betterBases, genQuery, bestUniques = checks.runeCheck, checks.runeApply, checks.betterBases, checks.genQuery, checks.bestUniques
 
 
-local HEAVY = { load = true, equip = true, pairs = true, runeapply = true, skilldps = true, query = true, anoints = true, bosscheck = true }
+local HEAVY = { load = true, equip = true, pairs = true, runeapply = true, skilldps = true, query = true, anoints = true, bosscheck = true, uniques = true }
 
 reply(enc({ ready = true, version = pobVersion() }))
 
@@ -737,6 +737,8 @@ while true do
       return { ok = true, results = evalItems(req.items or {}) }
     elseif req.cmd == "bases" then
       return betterBases(req)
+    elseif req.cmd == "uniques" then
+      return bestUniques(req)
     elseif req.cmd == "runes" then
       return runeCheck(req)
     elseif req.cmd == "runeapply" then

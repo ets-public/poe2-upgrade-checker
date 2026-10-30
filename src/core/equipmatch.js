@@ -51,4 +51,19 @@ function findSaved(equipped, item) {
   return null;
 }
 
-module.exports = { sameItem, findSaved };
+// "Save as equipped" with one key: which slot an item goes in, without asking. The slot that holds
+// this very item (crafted on since), else the item's only slot; rings and charms go in an empty one
+// of theirs; a weapon or offhand in the main set (not the swap). null: it can't tell (both rings
+// full with other rings, a jewel's socket): the popup asks.
+function slotToSave(equipped, item, groups) {
+  if (!item || !item.slot) return null;
+  const saved = findSaved(equipped, item);
+  if (saved) return saved.slot;
+  const group = (groups && groups[item.slot]) || [item.slot];
+  if (item.slot === 'Weapon' || item.slot === 'Offhand') return group[0];
+  if (group.length === 1) return group[0];
+  if (item.slot === 'Jewel') return null;
+  return group.find((s) => !(equipped || {})[s]) || null;
+}
+
+module.exports = { sameItem, findSaved, slotToSave };

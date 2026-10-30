@@ -7,6 +7,15 @@ const fs = require('fs');
 const path = require('path');
 const { app, ipcMain } = require('electron');
 
+// Path of Building ranks listings by value as gain - 0.1 x log10(price in divines), its gain being a
+// ratio (1.05 = 5% better). Ours is in points (about %), so: points - 10 x log10(divines). A price
+// under 0.01 div counts as 0.01; no price (or rate): last.
+function valueRank(gain, priceDiv) {
+  if (!(gain > 0)) return -1e9;
+  if (!(priceDiv > 0)) return gain - 1e6;
+  return gain - 10 * Math.log10(Math.max(priceDiv, 0.01));
+}
+
 module.exports = function (C) {
   // For every slot: Path of Building's weighted search within your budget, the first listings
   // checked with your build, and the best one's gain per divine. Then, if resistances are short,
@@ -209,7 +218,11 @@ module.exports = function (C) {
             perDiv: div ? gainOf(x) / Math.max(priceDiv(x), 0.05) : null, listingId: x.id, text: x.item.raw || x.item.listingText || null, itemSlot: x.compare.targetSlot,
             socket: target === 'Jewel' && x.compare.pob && x.compare.pob.socket ? { label: x.compare.pob.socket.label, replacing: x.compare.pob.socket.replacing || null } : null,
           }));
-          cand.sort((a, b) => (b.perDiv || 0) - (a.perDiv || 0) || b.gain - a.gain);
+          // best value, Path of Building's way (TradeQuery.lua, "Stat Value / Price"): the gain minus a
+          // little for each tenfold of the price, so a good item a few divines dearer still beats a
+          // barely better cheap one (gain per divine put every 1-ex listing on top)
+          for (const c of cand) c.value = valueRank(c.gain, c.priceDiv);
+          cand.sort((a, b) => (b.value - a.value) || b.gain - a.gain);
           row.best = cand[0] || null;
           row.biggest = cand.slice().sort((a, b) => b.gain - a.gain)[0] || null;
           row.candidates = cand.slice(0, 6);
@@ -225,7 +238,7 @@ module.exports = function (C) {
       if (mode === 'pob' && short.length && !stopped) {
         try { pairs = await resistPairs(rows, short); } catch (err) { C.log('spend pairs: ' + err.message); }
       }
-      rows.sort((a, b) => ((b.best && b.best.perDiv) || -1) - ((a.best && a.best.perDiv) || -1));
+      rows.sort((a, b) => ((b.best ? b.best.value : -1e9) - (a.best ? a.best.value : -1e9)));
       const run = { at: Date.now(), mode, league, budget: C.trade.budgetLabel(budget, game), unit: C.G(game).baseShort, divineRate: div, rows, pairs, short: mode === 'pob' ? short : [], stopped };
       if (spendRuns[key] && !spendRuns[key].partial) prevRuns[key] = slimRun(spendRuns[key]);
       spendRuns[key] = run;

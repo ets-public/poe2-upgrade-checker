@@ -85,6 +85,26 @@ module.exports = function (C) {
     refreshAll();
     return true;
   });
+  // "Save as equipped" key: saved straight away; the one it replaced is kept for Undo
+  let lastEquip = null;
+  function equipNow(slot, item) {
+    if (!SLOTS.includes(slot)) return false;
+    lastEquip = { slot, was: C.store.equipped[slot] || null, item };
+    C.log(`equip ${slot}: "${item.name}" (save as equipped key)`);
+    saveEquipped(slot, item);
+    if (C.settingsWin && !C.settingsWin.isDestroyed()) C.settingsWin.webContents.send('settings:changed');
+    if (C.resultsWin && !C.resultsWin.isDestroyed()) C.resultsWin.webContents.send('settings:changed');
+    C.buildTrayMenu();
+    return true;
+  }
+  ipcMain.handle('equip:undo', () => {
+    if (!lastEquip) return false;
+    const { slot, was } = lastEquip; lastEquip = null;
+    if (was) saveEquipped(slot, was); else { C.store.setEquipped(slot, null); C.pobSync(); }
+    C.log(`equip ${slot}: undone${was ? ` (back to "${was.name}")` : ' (empty again)'}`);
+    refreshAll();
+    return true;
+  });
   // You copied one of your saved items again and it changed (you crafted on it): it's saved as it is
   // now, once the popup has been judged against how it was. The popup isn't judged again (it would
   // only say "this is your equipped item"); My gear and the trade windows show the new one.
@@ -231,6 +251,7 @@ module.exports = function (C) {
 
   return {
     autoSaveEquipped,
+    equipNow,
     characterFromLog,
     notifySettings,
     resolveItem,

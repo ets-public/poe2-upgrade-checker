@@ -9,6 +9,7 @@ const gearLib = require('../core/gearscore');
 const { parseItem } = require('../core/parser');
 const mapLib = require('../core/mapcheck');
 const equipMatch = require('../core/equipmatch');
+const { SLOT_GROUPS } = require('../core/slots');
 
 module.exports = function (C) {
   // ---------- reading items ----------
@@ -124,6 +125,24 @@ module.exports = function (C) {
     const saved = item.slot && C.store.settings.autoUpdateGear !== false ? equipMatch.findSaved(C.store.equipped, item) : null;
     const autoSave = saved && saved.changed ? saved.slot : null;
     if (C.usage) C.usage.count(mode === 'price' ? 'prices' : 'checks');
+    // the "save as equipped" key: straight into its slot (the popup asks only when it can't tell)
+    if (mode === 'equip') {
+      if (!item.slot) { C.showResult({ ok: false, reason: `That's not gear you wear (${item.itemClass || 'unknown'}): nothing to save.` }); return true; }
+      const slot = equipMatch.slotToSave(C.store.equipped, item, SLOT_GROUPS);
+      if (!slot) {
+        const r = C.evaluate(item);
+        if (r && r.ok) r.savePick = true; // "which one? click Set as …"
+        C.showResult(r);
+        return true;
+      }
+      const was = C.store.equipped[slot];
+      const same = was && JSON.stringify((was.lines || []).map((l) => l.text)) === JSON.stringify((item.lines || []).map((l) => l.text));
+      if (!same) C.equipNow(slot, item);
+      const r = C.evaluate(item);
+      if (r && r.ok) r.savedAs = { slot, was: !same && was ? was.name : null, same: !!same, canUndo: !same };
+      C.showResult(r);
+      return true;
+    }
     if (mode === 'price') {
       if (autoSave) C.autoSaveEquipped(autoSave, item, 'it changed');
       C.showQuickPrice(item).catch((err) => C.log('quick price: ' + (err.stack || err)));

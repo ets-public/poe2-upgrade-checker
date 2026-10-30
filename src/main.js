@@ -186,6 +186,8 @@ const C = {
   get refreshDivineRate() { return M.budget.refreshDivineRate; },
   get registerHotkey() { return M.hotkeys.registerHotkey; },
   get registerPriceHotkey() { return M.hotkeys.registerPriceHotkey; },
+  get registerEquipHotkey() { return M.hotkeys.registerEquipHotkey; },
+  get equipNow() { return M.gear.equipNow; },
   get registerResultsHotkey() { return M.results.registerResultsHotkey; },
   get remember() { return remember; },
   get rememberListing() { return rememberListing; },
@@ -389,6 +391,7 @@ app.whenReady().then(() => {
   C.registerHotkey();
   C.registerResultsHotkey();
   C.registerPriceHotkey();
+  C.registerEquipHotkey();
   routeFeature.start();
   M.sold.start();
   buildTrayMenu();

@@ -183,9 +183,11 @@
               <button id="findQuick" title="Anything that scores higher with your stat weights, even with different stats">By my weights</button>
               <button id="findCraft" title="Bases with this slot's key stats and an open affix you can craft">Craftable bases</button>
               <button id="findPrice" title="What items like this sell for">What's it worth?</button>
+              <button id="findUniques" title="Every unique that fits this slot, tried in your Path of Building build, best first (the trade searches above leave uniques out)">Best uniques</button>
             </div>
             <div class="row"><span id="findMsg" class="note"></span></div>
           </div>
+          <div class="card-p hidden" id="uniqueCard"></div>
           <div class="card-p">
             <h3>Custom search</h3>
           <div class="help">Untick stats you don't care about, change the minimums, add stats you want instead, then search.</div>
@@ -324,6 +326,9 @@
           <span class="k">Price only</span>
           <span class="v"><input id="priceHotkey" class="hotkey" readonly placeholder="click, then press keys" aria-label="Price only hotkey"><button id="priceHotkeySave">Save</button><button class="link" id="priceHotkeyOff" title="No price-only hotkey">Turn off</button></span>
           <span id="priceHotkeyMsg" class="note"></span>
+          <span class="k" title="Hover an item you wear (character screen, C) and press it: saved in its slot, no popup click">Save as equipped</span>
+          <span class="v"><input id="equipHotkey" class="hotkey" readonly placeholder="off: click, then press keys" aria-label="Save as equipped hotkey"><button id="equipHotkeySave">Save</button><button class="link" id="equipHotkeyOff" title="No save-as-equipped hotkey">Turn off</button></span>
+          <span id="equipHotkeyMsg" class="note"></span>
           <span class="k">Results window</span>
           <span class="v"><input id="resultsHotkey" class="hotkey" readonly placeholder="click, then press keys" aria-label="Show or hide the results window"><button id="resultsHotkeySave">Save</button></span>
           <span id="resultsHotkeyMsg" class="note"></span>
@@ -450,6 +455,7 @@
   <script src="route-common.js"></script>
   <script src="settings-route.js"></script>
   <script src="settings-sold.js"></script>
+  <script src="settings-uniques.js"></script>
   <script src="picker.js"></script>
 </body>
 </html>

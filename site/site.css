@@ -174,3 +174,10 @@ footer p { margin: 4px 0; }
 .plain { padding-left: 22px; font-size: 18px; }
 .plain li { margin-bottom: 8px; }
 .prose a, .faq-list a { overflow-wrap: anywhere; }
+
+/* next leagues, under the download buttons */
+.leagues { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.league { display: flex; flex-direction: column; padding: 8px 14px; background: var(--panel); border: 1px solid var(--line-hi); min-width: 170px; }
+.league .lg-name { font: 500 14px var(--f-head); color: var(--label); }
+.league .lg-when { font: 700 20px var(--f-head); color: var(--title); }
+.league.live .lg-when { color: var(--up, #8fd18f); }

@@ -97,3 +97,8 @@ button.link.spend-pick.b { font-weight: 700; color: var(--stone); }
 .sold-items li { padding: 5px 0; border-bottom: 1px solid var(--iron-lo, #2a2622); }
 .sold-items li > div:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .auto-saved { margin-top: 4px; color: #8fd18f; }
+#uniqueCard table.uniques td { vertical-align: top; padding: 6px 8px; }
+#uniqueCard .unique { color: var(--unique, #af6025); }
+#uniqueCard .warn { color: #e0a060; }
+#uniqueCard .verd { font-weight: 700; font-size: 12px; letter-spacing: .03em; }
+#uniqueCard .verd.up { color: #8fd18f; } #uniqueCard .verd.dn { color: #e07a6a; } #uniqueCard .verd.same { color: var(--dim, #8d8a82); } #uniqueCard .verd.warn { color: #e0a060; }

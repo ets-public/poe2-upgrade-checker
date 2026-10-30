@@ -543,3 +543,15 @@ test('equipped gear: magic items (no base in the copy) are matched by class, ite
   assert.ok(M.sameItem(a, mk(['Hale Lazuli Ring of the Whale', '+11 to maximum Life', '+22 to maximum Mana']))); // augmented
   assert.ok(!M.sameItem(a, mk(['Burning Lazuli Ring', '+15% to Fire Resistance'])));
 });
+
+test('save as equipped: which slot an item goes in by itself', () => {
+  const M = require('../src/core/equipmatch');
+  const { SLOT_GROUPS } = require('../src/core/slots');
+  const ring = (name) => parseItem(`Item Class: Rings\nRarity: Rare\n${name}\nLazuli Ring\n--------\nItem Level: 40\n--------\n+22 to maximum Mana`);
+  const helm = parseItem('Item Class: Helmets\nRarity: Rare\nDemon Cowl\nRusted Greathelm\n--------\nItem Level: 20\n--------\n+23 to maximum Life');
+  assert.equal(M.slotToSave({}, helm, SLOT_GROUPS), 'Helmet');
+  assert.equal(M.slotToSave({}, ring('A'), SLOT_GROUPS), 'Ring 1');
+  assert.equal(M.slotToSave({ 'Ring 1': ring('A') }, ring('B'), SLOT_GROUPS), 'Ring 2'); // the empty one
+  assert.equal(M.slotToSave({ 'Ring 1': ring('A'), 'Ring 2': ring('B') }, ring('B'), SLOT_GROUPS), 'Ring 2'); // this very ring
+  assert.equal(M.slotToSave({ 'Ring 1': ring('A'), 'Ring 2': ring('B') }, ring('C'), SLOT_GROUPS), null); // ask
+});

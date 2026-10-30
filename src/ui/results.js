@@ -41,6 +41,12 @@ function dual0(p, priceEx) {
 
 const num = (v) => (v == null || Number.isNaN(Number(v)) ? -1e9 : Number(v)); // 0 is a real value
 
+function valueRank(x) {
+  const g = x.compare && x.compare.delta;
+  if (!(g > 0)) return -1e9;
+  const div = data && data.divineRate > 0 && x.priceEx > 0 ? x.priceEx / data.divineRate : null;
+  return div ? g - 10 * Math.log10(Math.max(div, 0.01)) : g - 1e6;
+}
 function sorted(list) {
   const mode = $('#sort').value;
   const rank = (x) => (x.compare && x.compare.resRank) || 0;
@@ -50,7 +56,9 @@ function sorted(list) {
     // caps a resistance you're short of → adds toward the cap → no change → loses resistance; then best upgrade
     res: (a, b) => (rank(b) - rank(a)) || (num(b.compare && b.compare.delta) - num(a.compare && a.compare.delta)),
     upgrade: (a, b) => (lost(a) - lost(b)) || (num(b.compare && b.compare.delta) - num(a.compare && a.compare.delta)),
-    value: (a, b) => (lost(a) - lost(b)) || ((b.valuePerDiv != null ? b.valuePerDiv : -1e9) - (a.valuePerDiv != null ? a.valuePerDiv : -1e9)),
+    // best value, Path of Building's way: the gain minus 10 points for each tenfold of the price in
+    // divines (gain per divine put every 1-ex listing on top)
+    value: (a, b) => (lost(a) - lost(b)) || (valueRank(b) - valueRank(a)),
     price: (a, b) => ((a.priceEx != null ? a.priceEx : 1e15) - (b.priceEx != null ? b.priceEx : 1e15)),
     gear: (a, b) => ((b.gear && b.gear.score != null ? b.gear.score : -1) - (a.gear && a.gear.score != null ? a.gear.score : -1)),
     site: () => 0,

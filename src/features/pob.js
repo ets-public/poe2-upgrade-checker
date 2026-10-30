@@ -463,6 +463,60 @@ module.exports = function (C) {
     return any ? out : null;
   }
 
+  // ---------- the best uniques for your build, slot by slot ----------
+  // Path of Building tries every unique of its item database that fits the slot in your build (in each
+  // slot it fits, the best kept); each is judged as any item is, best first, with poe.ninja's price.
+  // Uniques are what the weighted trade search leaves out.
+  const UNIQUE_CLASS = { Weapon: 'Bows', Offhand: 'Shields', Helmet: 'Helmets', 'Body Armour': 'Body Armours', Gloves: 'Gloves', Boots: 'Boots', Belt: 'Belts', Amulet: 'Amulets', Ring: 'Rings' };
+  const uniqueCache = new Map(); // profile|slot|level -> { at, list }
+  const loses = (u) => (u.verdict === 'resloss' || u.verdict === 'dmgloss' ? 1 : 0);
+  async function bestUniques(slot) {
+    if (!UNIQUE_CLASS[slot]) return { ok: false, error: 'Pick a gear slot (uniques for jewels and flasks aren\'t listed yet).' };
+    if (!pobOn()) return { ok: false, error: 'Load your Path of Building build first (My gear): the uniques are tried in it.' };
+    const slots = (slot === 'Ring' ? ['Ring 1', 'Ring 2'] : [slot]).map((s) => pobVerdict.SLOT_TO_POB[s]).filter(Boolean);
+    const budget = (C.budgetNow && C.budgetNow()) || {};
+    const maxLevel = Number(budget.maxLevel) > 0 ? Math.round(budget.maxLevel) : 0;
+    const key = `${C.store.data.activeProfile}|${slot}|${maxLevel}|${pobSheetGen}`;
+    const hit = uniqueCache.get(key);
+    if (hit && Date.now() - hit.at < 15 * 60000) return { ok: true, slot, maxLevel, list: hit.list, tried: hit.tried, cached: true };
+    const t0 = Date.now();
+    const r = await pobEngine().bestUniques({ slots, maxLevel });
+    const w = pobWeights();
+    const judged = (r.list || []).map((u) => {
+      const j = pobVerdict.judge(r.before, u.after, w);
+      return j && { name: u.name, base: u.base, level: u.level, slot: Object.keys(pobVerdict.SLOT_TO_POB).find((k) => pobVerdict.SLOT_TO_POB[k] === u.slot) || u.slot,
+        score: j.score, verdict: j.verdict, dps: j.dps && j.dps.pct, ehp: j.ehp && j.ehp.pct, resGain: j.resGain, breaks: (j.breaks || []).slice(0, 2) };
+    }).filter(Boolean).sort((a, b) => (loses(a) - loses(b)) || b.score - a.score); // one that costs a resistance or your damage goes after the rest
+    C.log(`pob: tried ${(r.list || []).length} uniques for ${slot} in ${Date.now() - t0} ms`);
+    const list = judged.slice(0, 20);
+    // poe.ninja's price for the ones shown (a unique not on poe.ninja shows none)
+    await Promise.all(list.map(async (u) => {
+      try { const p = await C.ninjaPrice({ name: u.name, baseType: u.base, rarity: 'Unique', itemClass: UNIQUE_CLASS[slot] }); if (p) { u.price = p.each; u.priceDiv = p.eachDiv; } } catch (_) { /* no price */ }
+    }));
+    uniqueCache.set(key, { at: Date.now(), list, tried: (r.list || []).length });
+    return { ok: true, slot, maxLevel, list, tried: (r.list || []).length };
+  }
+  const { ipcMain } = require('electron');
+  // a unique from that list on the trade site: every listing of it, cheapest first, judged with your build
+  ipcMain.handle('trade:unique', async (_e, name, base) => {
+    const nm = String(name || '').slice(0, 80); const bt = String(base || '').slice(0, 80);
+    if (!nm) return { ok: false, error: 'No unique.' };
+    let d; try { d = await C.loadTradeData(false); } catch (err) { return { ok: false, error: 'Could not load trade site data: ' + (err.message || err) }; }
+    const league = C.pickLeague(d);
+    const body = { query: { status: { option: trade.statusOpt(C.store.settings.status) }, name: nm, ...(bt ? { type: bt } : {}), stats: [{ type: 'and', filters: [] }],
+      filters: { type_filters: { filters: { rarity: { option: 'unique' } } } } }, sort: { price: 'asc' } };
+    trade.applyBudget(body, C.budgetNow(), tg());
+    const item = { name: nm, baseType: bt, rarity: 'Unique', itemClass: null };
+    return C.openIfAny(await C.runSearch(league, body, 'unique ' + nm), { item, mode: 'similar', body, searchKey: C.searchKey(body),
+      title: `${nm}${bt ? ` (${bt})` : ''}`, note: 'Every listing of this unique in your price range, cheapest first. Each one is judged with your build.' });
+  });
+  ipcMain.handle('pob:uniques', async (_e, sel) => {
+    // the Find upgrades item: a saved slot ("Ring 1", "Weapon 2") or an item you copied ("item:<id>")
+    let slot = String(sel || '');
+    if (/^item:/.test(slot)) { const it = C.itemById(slot.slice(5)); slot = (it && it.slot) || ''; }
+    slot = /^Ring [12]$/.test(slot) ? 'Ring' : slot.replace(/ 2$/, '');
+    try { return await bestUniques(slot); } catch (err) { C.log('pob uniques: ' + err.message); return { ok: false, error: err.message }; } });
+
   return {
     gameCtx,
     tg,

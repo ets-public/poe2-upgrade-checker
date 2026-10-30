@@ -393,5 +393,50 @@ local function genQuery(req)
   return { ok = true, query = result, error = err, modWeights = mw, seconds = os.clock() - t0 }
 end
 
+-- Every unique in Path of Building's item database that fits a slot, tried in your build there (in
+-- each slot it fits, the best kept), like PoB's own unique list sorted by what an item does for you.
+-- Uniques are the one kind of item the weighted trade search leaves out.
+--   req: { slots = { "Ring 1", "Ring 2" }, maxLevel = 0 } -> { before, list = { {name, base, level, slot, text, after} } }
+local function bestUniques(req)
+  local calcFunc, base = build.calcsTab:GetMiscCalculator()
+  local maxLevel = tonumber(req.maxLevel) or 0
+  local slots = {}
+  for _, s in ipairs(req.slots or {}) do
+    local slot = build.itemsTab.slots[pobSlot(s)]
+    if slot then slots[#slots + 1] = { name = s, pob = slot.slotName } end
+  end
+  if #slots == 0 then return { ok = false, error = "unknown slot" } end
+  local out, seen = {}, {}
+  for _, list in pairs(data.uniques or {}) do
+    for _, raw in pairs(list) do
+      local item = makeItem(raw)
+      local name = item and (item.title or item.name)
+      if item and item.base and name and not seen[name] then
+        local lvl = item.requirements and tonumber(item.requirements.level) or 0
+        if maxLevel <= 0 or lvl <= maxLevel then
+          local best
+          for _, s in ipairs(slots) do
+            if build.itemsTab:IsItemValidForSlot(item, s.pob) then
+              local ok, new_ = pcall(calcFunc, { repSlotName = s.pob, repItem = item })
+              if ok and new_ then
+                local after = pick(new_)
+                local z = function(v) return num(v) or 0 end
+                local dps = math.max(z(new_.FullDPS), z(new_.CombinedDPS), z(new_.Minion and new_.Minion.CombinedDPS))
+                local key = dps / math.max(1, z(base.FullDPS) + z(base.CombinedDPS) + z(base.Minion and base.Minion.CombinedDPS)) + z(new_.TotalEHP) / math.max(1, z(base.TotalEHP)) * 0.5
+                if not best or key > best.key then best = { slot = s.name, after = after, key = key } end
+              end
+            end
+          end
+          if best then
+            seen[name] = true
+            out[#out + 1] = { name = name, base = item.baseName, level = lvl, slot = best.slot, text = raw, after = best.after }
+          end
+        end
+      end
+    end
+  end
+  return { ok = true, before = pick(base), list = out }
+end
+
 return { gemCheck = gemCheck, anointCheck = anointCheck, bossCheck = bossCheck, affixNames = affixNames, skillDps = skillDps,
-  runeCheck = runeCheck, runeApply = runeApply, betterBases = betterBases, genQuery = genQuery }
+  runeCheck = runeCheck, runeApply = runeApply, betterBases = betterBases, genQuery = genQuery, bestUniques = bestUniques }

@@ -64,6 +64,7 @@ async function load() {
   const hs = state.hotkeyStatus || {};
   if (document.activeElement !== $('#hotkey')) $('#hotkey').value = state.settings.hotkey || 'F2';
   if (document.activeElement !== $('#priceHotkey')) $('#priceHotkey').value = priceKeyNow() || '';
+  if (document.activeElement !== $('#equipHotkey')) $('#equipHotkey').value = state.settings.equipHotkey || '';
   $('#hotkeyMsg').textContent = hs.ok ? `Active: ${hs.accelerator}` : (hs.error || 'Hotkey not registered.');
   $('#hotkeyLine').innerHTML = hs.ok
     ? `In game: hover an item and press <b>${esc(hs.accelerator)}</b>${priceKeyNow() ? ` (<b>${esc(priceKeyNow())}</b> for just its price)` : ''}.<br>You can close this window; the app keeps running in the tray.`

@@ -61,13 +61,36 @@ module.exports = function (C) {
     if (priceHotkey) { try { globalShortcut.unregister(priceHotkey); } catch (_) { /* ignore */ } priceHotkey = null; }
     const want = C.store.settings.priceHotkey === undefined ? DEFAULT_PRICE_HOTKEY : C.store.settings.priceHotkey;
     if (!want) return { ok: true, accelerator: null };
-    if (sameKey(want, C.hotkeyStatus.accelerator || C.store.settings.hotkey || DEFAULT_HOTKEY) || sameKey(want, C.store.settings.resultsHotkey || 'Ctrl+Shift+D')) { C.log(`price hotkey ${want}: already used by another of the app's keys`); return { ok: false, error: `${want} is already one of the app's other keys.` }; }
+    if (sameKey(want, C.hotkeyStatus.accelerator || C.store.settings.hotkey || DEFAULT_HOTKEY) || sameKey(want, C.store.settings.resultsHotkey || 'Ctrl+Shift+D') || (C.store.settings.equipHotkey && sameKey(want, C.store.settings.equipHotkey))) { C.log(`price hotkey ${want}: already used by another of the app's keys`); return { ok: false, error: `${want} is already one of the app's other keys.` }; }
     let ok = false;
     try { ok = globalShortcut.register(want, () => { C.onHotkey('price').catch((e) => C.log('price hotkey error: ' + e.stack)); }); } catch (_) { ok = false; }
     if (ok) priceHotkey = want;
     C.log(`price hotkey ${want}: ${ok ? 'registered' : 'FAILED'}`);
     return ok ? { ok, accelerator: want } : { ok, error: `${want} is already used by another program. Pick a different key.` };
   }
+  // "Save as equipped": hover an item you wear (your character screen, C) and press it: it's saved in
+  // its slot, no popup click. Off until you pick a key (no key is free in every keybinding).
+  let equipHotkey = null;
+  function registerEquipHotkey() {
+    if (equipHotkey) { try { globalShortcut.unregister(equipHotkey); } catch (_) { /* ignore */ } equipHotkey = null; }
+    const want = C.store.settings.equipHotkey || '';
+    if (!want) return { ok: true, accelerator: null };
+    const others = [C.hotkeyStatus.accelerator || C.store.settings.hotkey || DEFAULT_HOTKEY, C.store.settings.resultsHotkey || 'Ctrl+Shift+D', priceHotkey];
+    if (others.some((k) => k && sameKey(want, k))) { C.log(`equip hotkey ${want}: already used by another of the app's keys`); return { ok: false, error: `${want} is already one of the app's other keys.` }; }
+    let ok = false;
+    try { ok = globalShortcut.register(want, () => { C.onHotkey('equip').catch((e) => C.log('equip hotkey error: ' + e.stack)); }); } catch (_) { ok = false; }
+    if (ok) equipHotkey = want;
+    C.log(`equip hotkey ${want}: ${ok ? 'registered' : 'FAILED'}`);
+    return ok ? { ok, accelerator: want } : { ok, error: `${want} is already used by another program. Pick a different key.` };
+  }
+  ipcMain.handle('hotkey:setEquip', (_e, accel) => {
+    const prev = C.store.settings.equipHotkey || '';
+    const want = typeof accel === 'string' ? accel.trim().slice(0, 40) : '';
+    C.store.setSetting('equipHotkey', want);
+    const st = registerEquipHotkey();
+    if (!st.ok) { C.store.setSetting('equipHotkey', prev); registerEquipHotkey(); }
+    return { ...st, accelerator: st.ok ? want : prev, warning: st.ok && want ? gameKeyWarning(want) : null };
+  });
   ipcMain.handle('hotkey:setPrice', (_e, accel) => {
     const prev = C.store.settings.priceHotkey === undefined ? DEFAULT_PRICE_HOTKEY : C.store.settings.priceHotkey;
     const want = typeof accel === 'string' ? accel.trim().slice(0, 40) : '';
@@ -108,6 +131,7 @@ module.exports = function (C) {
     const prev = C.store.settings.hotkey || DEFAULT_HOTKEY;
     if (sameKey(accel, C.store.settings.resultsHotkey || 'Ctrl+Shift+D')) return { ok: false, accelerator: prev, error: `${accel} already opens the results window. Pick a different key.` };
     if (priceHotkey && sameKey(accel, priceHotkey)) return { ok: false, accelerator: prev, error: `${accel} is your price-only hotkey. Pick a different key.` };
+    if (equipHotkey && sameKey(accel, equipHotkey)) return { ok: false, accelerator: prev, error: `${accel} is your save-as-equipped hotkey. Pick a different key.` };
     const st = registerHotkey(accel);
     if (st.ok) C.store.setSetting('hotkey', accel);
     else registerHotkey(prev); // put the old one back
@@ -126,6 +150,7 @@ module.exports = function (C) {
   return {
     showQuickPrice,
     registerPriceHotkey,
+    registerEquipHotkey,
     DEFAULT_HOTKEY,
     registerHotkey,
     sameKey,

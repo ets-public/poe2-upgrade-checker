@@ -11,7 +11,7 @@ function renderSetup() {
   const hk = (state.hotkeyStatus && state.hotkeyStatus.accelerator) || state.settings.hotkey || 'F2';
   box.innerHTML = `<div class="setup-head"><b>Set up your gear: ${have.length} of ${SETUP_SLOTS.length} slots saved</b>
       <div class="progress"><span id="setupBar"></span></div></div>
-    <div class="help">In game, open your character screen (C), hover each item and press <b>${esc(hk)}</b>, then click <b>Set as …</b> in the popup. Or import everything from Path of Building below. After crafting on one of them, just check it again: it's saved as it is now by itself.</div>
+    <div class="help">In game, open your character screen (C), hover each item and press <b>${esc(hk)}</b>, then click <b>Set as …</b> in the popup. Or import everything from Path of Building below. After crafting on one of them, just check it again: it's saved as it is now by itself. Tip: pick a <b>Save as equipped</b> key in Settings, then hover each item you wear and press it: saved, no clicks.</div>
     <div class="slotchips">${SETUP_SLOTS.map((s) => `<span class="chip ${state.equipped[s] ? 'done' : ''}">${state.equipped[s] ? '✓' : '○'} ${esc(s)}</span>`).join('')}</div>
     <div class="row"><button class="link" id="setupHide">Hide this</button></div>`;
   $('#setupBar').style.width = `${Math.round((have.length / SETUP_SLOTS.length) * 100)}%`; // CSSOM is fine under the CSP

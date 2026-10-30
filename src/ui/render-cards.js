@@ -132,6 +132,8 @@
           ${r.isEquipped || emptySlot || checking ? '' : R.scoreHtml(R.pointsLabel(r))}
           ${r.isEquipped ? '' : r.replacing.length ? `<span class="dim">vs ${R.esc(r.replacing.join(' + '))}</span>` : r.verdict === 'unjudged' ? '' : it.slot === 'Flask' ? (r.pobPending ? '<span class="dim">trying it in your flask slots</span>' : '') : `<span class="dim">${R.esc(r.targetSlot)} slot is empty</span>`}
         </div>`}
+        ${r.savedAs ? `<div class="auto-saved small">${r.savedAs.same ? `✓ Already saved as your ${R.esc(r.savedAs.slot)}` : `✓ Saved as your ${R.esc(r.savedAs.slot)}${r.savedAs.was ? ` (was ${R.esc(r.savedAs.was)})` : ''} <button class="link" id="equipUndo">Undo</button>`}</div>` : ''}
+        ${r.savePick ? `<div class="auto-saved small">Which one is it? Click <b>Set as …</b> below (both slots hold other items).</div>` : ''}
         ${r.autoSaved ? `<div class="auto-saved small" title="It's the item you have saved as your ${R.esc(r.autoSaved.slot)} (same base, item level${rarity === 'rare' || unique ? ' and name' : ' and mods'}), changed since. The verdict above is against your gear before this change.">✓ Saved as your ${R.esc(r.autoSaved.slot)}: it changed since you last saved it</div>` : ''}
         ${lossBanner}
         ${r.ninja ? window.ninjaLine(r.ninja, advWord) : ''}
@@ -196,6 +198,8 @@
       resize();
     });
     const ref = it.id ? { itemId: it.id } : '__last';
+    const undo = el.querySelector('#equipUndo');
+    if (undo) undo.addEventListener('click', async () => { undo.disabled = true; const ok = await window.api.equipUndo(); if (ok) { undo.parentElement.textContent = 'Undone: your saved item is back.'; resize(); } });
     run(el.querySelector('#quickFind'), () => window.api.quickFind(target, 'upgrade'), 'Searching the trade site…');
     run(el.querySelector('#sameFind'), () => window.api.quickFind(target, 'similar'), 'Searching the trade site…');
     run(el.querySelector('#weightFind'), () => window.api.quickFind(target, 'weights'), 'Searching the trade site…');

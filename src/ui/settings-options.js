@@ -95,6 +95,21 @@ const savePriceKey = async (k) => {
   $('#priceHotkeyMsg').textContent = res.ok ? (res.accelerator ? `Saved. Active: ${res.accelerator}.` : 'Turned off.') : res.error;
 };
 $('#priceHotkeySave').addEventListener('click', () => savePriceKey($('#priceHotkey').value.trim()));
+// "Save as equipped": hover an item you wear and press it (off until you pick a key)
+const equipKeyNow = () => (state && state.settings.equipHotkey) || '';
+$('#equipHotkey').addEventListener('keydown', (e) => {
+  if (captureKeys(e, $('#equipHotkey'), equipKeyNow, $('#equipHotkeyMsg'))) return;
+  const acc = toAccelerator(e);
+  if (acc) { $('#equipHotkey').value = acc; $('#equipHotkeyMsg').textContent = 'Click Save to use it.'; }
+  else if (!['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) $('#equipHotkeyMsg').textContent = 'Use a modifier (Ctrl/Alt) plus a key, or an F-key.';
+});
+const saveEquipKey = async (k) => {
+  const res = await window.api.setEquipHotkey(k);
+  await load();
+  $('#equipHotkeyMsg').textContent = res.ok ? (res.accelerator ? `Saved. Hover an item you wear and press ${res.accelerator}.${res.warning ? ' ' + res.warning : ''}` : 'Turned off.') : res.error;
+};
+$('#equipHotkeySave').addEventListener('click', () => saveEquipKey($('#equipHotkey').value.trim()));
+$('#equipHotkeyOff').addEventListener('click', () => saveEquipKey(''));
 $('#priceHotkeyOff').addEventListener('click', () => savePriceKey(''));
 $('#advancedCopy').addEventListener('change', () => window.api.setSetting('advancedCopy', $('#advancedCopy').checked));
 $('#watchClipboard').addEventListener('change', () => window.api.setSetting('watchClipboard', $('#watchClipboard').checked));
