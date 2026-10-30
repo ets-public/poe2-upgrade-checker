@@ -111,10 +111,26 @@ async function stats(url, env) {
   const [d1, d7, d30] = await Promise.all([active(1), active(7), active(30)]);
   const daily = (await env.STATS.prepare(`SELECT day, COUNT(*) AS n, SUM(poe1) AS poe1, SUM(poe2) AS poe2, SUM(CASE WHEN first_seen = day THEN 1 ELSE 0 END) AS fresh
       FROM pings WHERE day >= ?1 GROUP BY day ORDER BY day DESC`).bind(since(30)).all()).results || [];
-  const versions = (await env.STATS.prepare('SELECT version, COUNT(DISTINCT install) AS n FROM pings WHERE day >= ?1 GROUP BY version ORDER BY n DESC LIMIT 20').bind(since(7)).all()).results || [];
+  // each install counted once, at the version it was on last (an install that updated was counted under both)
+  const versions = (await env.STATS.prepare(`WITH l AS (SELECT install, MAX(day) AS d FROM pings WHERE day >= ?1 GROUP BY install)
+      SELECT p.version, COUNT(*) AS n FROM pings p JOIN l ON l.install = p.install AND l.d = p.day GROUP BY p.version ORDER BY n DESC LIMIT 20`).bind(since(7)).all()).results || [];
+  // who came back: installs by the day they were first counted, and how many pinged the next day or on any later day
+  const cohorts = (await env.STATS.prepare(`WITH f AS (SELECT install, MIN(day) AS d FROM pings GROUP BY install)
+      SELECT f.d AS day, COUNT(*) AS n, SUM(EXISTS(SELECT 1 FROM pings p WHERE p.install = f.install AND p.day = date(f.d, '+1 day'))) AS next_day,
+      SUM(EXISTS(SELECT 1 FROM pings p WHERE p.install = f.install AND p.day > f.d)) AS later
+      FROM f WHERE f.d >= ?1 GROUP BY f.d ORDER BY f.d DESC`).bind(since(30)).all()).results || [];
+  const started = await env.STATS.prepare('SELECT MIN(day) AS d FROM pings').first();
   const platforms = (await env.STATS.prepare('SELECT platform, COUNT(DISTINCT install) AS n FROM pings WHERE day >= ?1 GROUP BY platform ORDER BY n DESC').bind(since(7)).all()).results || [];
   const total = await env.STATS.prepare('SELECT COUNT(DISTINCT install) AS n FROM pings').first();
-  if (url.searchParams.get('format') === 'json') return json({ today: d1, week: d7, month: d30, daily, versions, platforms, ever: total && total.n });
+  const today = since(1);
+  // came back: of the installs first counted before today, the share seen again on a later day
+  const old = cohorts.filter((c) => c.day < today);
+  const back = { n: old.reduce((a, c) => a + c.n, 0), later: old.reduce((a, c) => a + c.later, 0) };
+  // the next day is only known once it's over: the newest days are "so far"
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const retention = cohorts.map((c) => ({ ...c, pending: c.day >= yesterday }));
+  if (url.searchParams.get('format') === 'json') return json({ today: d1, week: d7, month: d30, daily, versions, platforms, ever: total && total.n, since: started && started.d, cameBack: back, retention });
+  const pct = (a, b) => (b ? `${Math.round((a / b) * 100)}%` : '–');
   const card = (t, o) => `<div class="c"><h2>${t}</h2><b>${esc(o.all_)}</b><span>PoE2 ${esc(o.poe2)} · PoE1 ${esc(o.poe1)}${o.both_ ? ` · both ${esc(o.both_)}` : ''}</span></div>`;
   const rows = (list, cols) => list.map((r) => `<tr>${cols.map((c) => `<td>${esc(r[c])}</td>`).join('')}</tr>`).join('');
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
@@ -122,11 +138,12 @@ async function stats(url, env) {
 :root{color-scheme:dark}body{margin:0;padding:24px 16px;background:#0e1013;color:#d8d2c4;font:15px/1.5 system-ui,sans-serif}main{max-width:900px;margin:auto}
 h1{font-size:20px;margin:0 0 4px}p{color:#8d8a82;margin:0 0 20px}.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px}
 .c{background:#181b20;border:1px solid #2c3038;border-radius:8px;padding:14px}.c h2{font-size:13px;font-weight:600;color:#8d8a82;margin:0}.c b{display:block;font-size:30px;color:#f1e4c2}.c span{color:#8d8a82;font-size:13px}
-table{width:100%;border-collapse:collapse;margin-bottom:24px;font-variant-numeric:tabular-nums}td,th{text-align:left;padding:5px 8px;border-bottom:1px solid #2c3038}th{color:#8d8a82;font-weight:600;font-size:13px}h3{font-size:15px;margin:0 0 6px}
-</style></head><body><main><h1>PoE Upgrade Checker: active users</h1><p>Installs that sent the anonymous daily ping (users who opted out aren't counted). ${esc(total && total.n)} installs ever. Days are UTC.</p>
-<div class="g">${card('Today', d1)}${card('Last 7 days', d7)}${card('Last 30 days', d30)}</div>
+table{width:100%;border-collapse:collapse;margin-bottom:24px;font-variant-numeric:tabular-nums}td,th{text-align:left;padding:5px 8px;border-bottom:1px solid #2c3038}th{color:#8d8a82;font-weight:600;font-size:13px}h3{font-size:15px;margin:0 0 6px}p.n{font-size:13px;margin:-2px 0 8px}
+</style></head><body><main><h1>PoE Upgrade Checker: active users</h1><p>Installs that sent the anonymous daily ping (users who opted out aren't counted). ${esc(total && total.n)} installs since counting started${started && started.d ? ` on ${esc(started.d)}` : ''}: an install is "new" the first day it's counted, so the first days include people who had it already. Days are UTC.</p>
+<div class="g">${card('Today', d1)}${card('Last 7 days', d7)}${card('Last 30 days', d30)}<div class="c"><h2>Came back</h2><b>${pct(back.later, back.n)}</b><span>${esc(back.later)} of ${esc(back.n)} installs used it again on a later day</span></div></div>
 <h3>Each day</h3><table><tr><th>Day</th><th>Active</th><th>PoE2</th><th>PoE1</th><th>New installs</th></tr>${rows(daily, ['day', 'n', 'poe2', 'poe1', 'fresh'])}</table>
-<h3>Versions (last 7 days)</h3><table><tr><th>Version</th><th>Installs</th></tr>${rows(versions, ['version', 'n'])}</table>
+<h3>Came back, by the day they were first counted</h3><p class="n">Of the installs first counted that day, how many used it again the next day, and on any day since. The newest days are still filling up.</p><table><tr><th>First day</th><th>Installs</th><th>Next day</th><th>Any later day</th></tr>${retention.map((c) => `<tr><td>${esc(c.day)}</td><td>${esc(c.n)}</td><td>${c.day >= today ? '–' : `${esc(c.next_day)} (${pct(c.next_day, c.n)})${c.pending ? ' so far' : ''}`}</td><td>${c.day >= today ? '–' : `${esc(c.later)} (${pct(c.later, c.n)})`}</td></tr>`).join('')}</table>
+<h3>Versions (last 7 days, each install at its latest)</h3><table><tr><th>Version</th><th>Installs</th></tr>${rows(versions, ['version', 'n'])}</table>
 <h3>Systems (last 7 days)</h3><table><tr><th>System</th><th>Installs</th></tr>${rows(platforms, ['platform', 'n'])}</table></main></body></html>`;
   return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
 }
