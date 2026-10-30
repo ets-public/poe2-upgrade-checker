@@ -25,7 +25,7 @@ const WIZ = [
     body: () => `<p>Hover any item in game and press your hotkey: a popup tells you if it's an <b>upgrade for your build</b> – worked out by Path of Building with your own build – and finds better items on the trade site in one click.</p>
       <p class="help">This guide takes about a minute. You can run it again from <b>My gear → Setup guide</b>.</p>
       <div class="warnbox">⚠ Set the game to <b>Windowed Fullscreen</b> (Options → Graphics). In fullscreen the popup can't show over the game: it's the most common reason it seems to do nothing.</div>
-      <p class="help"><label><input type="checkbox" id="wizStats" ${state.settings.usageStats !== false ? 'checked' : ''}> Send anonymous usage statistics</label>: a random install number, the app version and which game you play, so we know how many people use it. No account, items or builds. You can change this in Settings.</p>`,
+      <p class="help"><label><input type="checkbox" id="wizStats" ${state.settings.usageStats !== false ? 'checked' : ''}> Send anonymous usage statistics</label>: a random install number, the app version, which game you play and how often you use each part (only counts), so we know how many people use it and what to fix. No account, items or builds. You can change this in Settings.</p>`,
     after: () => { $('#wizStats').addEventListener('change', async () => { await window.api.setSetting('usageStats', $('#wizStats').checked); const u = $('#usageStats'); if (u) u.checked = $('#wizStats').checked; }); },
   },
   {

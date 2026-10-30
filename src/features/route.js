@@ -268,6 +268,7 @@ module.exports = function (C) {
       } else lastArea = { area: e.area, areaLevel: e.areaLevel };
       setProgress(g, { current: next, area: e.area, areaLevel: e.areaLevel });
       if (!replay) tickRun(g, actOf(route, steps, next), 'zone');
+      if (!replay && next !== p.current && C.usage) C.usage.count('route');
       changed = true;
     }
     if (replay) trace('catch-up', { area: lastArea && lastArea.area, areaLevel: lastArea && lastArea.areaLevel, step: stepInfo(steps, progress(g).current), level: progress(g).level || null, character: progress(g).character || null, session: session(g) });
@@ -410,6 +411,7 @@ module.exports = function (C) {
     trace('manual', { how: Number(delta) > 0 ? 'next' : 'back', source: source === 'overlay' ? 'overlay' : 'tab', from: stepInfo(steps, was), to: stepInfo(steps, to), area: progress(g).area || null, sinceArea: lastAreaAt ? Date.now() - lastAreaAt : null });
     setProgress(g, { current: to });
     tickRun(g, actOf(routeLib.load(g), steps, to), 'manual');
+    if (to !== was && C.usage) C.usage.count('route');
     push();
     return view();
   });

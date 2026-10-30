@@ -285,6 +285,7 @@ module.exports = function (C) {
       try {
         const json = await fn(league, body, game);
         C.log(`search via ${name}: id=${json.id} total=${json.total}`);
+        if (!o.background && C.usage) C.usage.count('searches');
         return {
           ok: true, league, game, total: json.total, url: trade.resultsUrl(league, json.id, game), near: !!json._near,
           searchId: json.id, ids: Array.isArray(json.result) ? json.result.slice(0, 100) : [], body,
@@ -304,6 +305,7 @@ module.exports = function (C) {
         if (/rate limit/i.test(msg)) { searchBlockedUntil = Math.max(searchBlockedUntil, Date.now() + 60000); return { ok: false, league, error: msg, rateLimited: true }; }
       }
     }
+    if (!o.background && C.usage) C.usage.problem('trade');
     // the browser link would fail the same way: let the caller make the search smaller
     if (complex) return { ok: false, league, tooComplex: true, error: 'The trade site says this search has too many filters.' };
     // Last resort: a pre-filled search link (we can't know how many results).

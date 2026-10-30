@@ -123,6 +123,7 @@ module.exports = function (C) {
     // one of your saved items, changed since (you crafted on it): saved as it is now
     const saved = item.slot && C.store.settings.autoUpdateGear !== false ? equipMatch.findSaved(C.store.equipped, item) : null;
     const autoSave = saved && saved.changed ? saved.slot : null;
+    if (C.usage) C.usage.count(mode === 'price' ? 'prices' : 'checks');
     if (mode === 'price') {
       if (autoSave) C.autoSaveEquipped(autoSave, item, 'it changed');
       C.showQuickPrice(item).catch((err) => C.log('quick price: ' + (err.stack || err)));

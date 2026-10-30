@@ -16,7 +16,7 @@ const { spawn } = require('child_process');
 
 // game: 'poe2' (Path of Building 2, in pob/) or 'poe1' (Path of Building Community, in pob1/).
 // Both run in the same host and LuaJIT, which live with PoE2's copy (pob/runtime).
-function createEngine({ log = () => {}, appPath, resourcesPath, packaged, game = 'poe2' }) {
+function createEngine({ log = () => {}, appPath, resourcesPath, packaged, game = 'poe2', onFail = () => {} }) {
   const dir = game === 'poe1' ? 'pob1' : 'pob';
   const base = packaged ? path.join(resourcesPath, dir) : path.join(appPath, 'vendor', dir);
   const serverLua = packaged ? path.join(resourcesPath, 'pob', 'server.lua') : path.join(appPath, 'pob', 'server.lua');
@@ -105,7 +105,7 @@ function createEngine({ log = () => {}, appPath, resourcesPath, packaged, game =
     });
     const mine = ready;
     // only this start's failure counts: a newer engine may be running by the time it comes
-    mine.catch(() => { failedAt = Date.now(); if (ready === mine) ready = null; });
+    mine.catch(() => { failedAt = Date.now(); if (ready === mine) ready = null; try { onFail('start'); } catch (_) { /* only counted */ } });
     return mine;
   }
 
@@ -162,7 +162,7 @@ function createEngine({ log = () => {}, appPath, resourcesPath, packaged, game =
     buildInfo = null;
     const myGen = gen;
     const p = request({ cmd: 'load', xml }, 120000).then(async (r) => {
-      if (!r.ok) throw new Error(r.error || 'Path of Building could not load the build.');
+      if (!r.ok) { try { onFail('load'); } catch (_) { /* only counted */ } throw new Error(r.error || 'Path of Building could not load the build.'); }
       r.pobGear = r.gear;
       if (overrides.length) {
         const e = await request({ cmd: 'equip', items: overrides }, 60000);

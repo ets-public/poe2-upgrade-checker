@@ -39,7 +39,7 @@ module.exports = function (C) {
     return pobEngineFor(tg());
   }
   function pobEngineFor(game) {
-    if (!pobEngs[game]) pobEngs[game] = createEngine({ log: C.log, appPath: path.join(ROOT, '..'), resourcesPath: process.resourcesPath, packaged: app.isPackaged, game });
+    if (!pobEngs[game]) pobEngs[game] = createEngine({ log: C.log, appPath: path.join(ROOT, '..'), resourcesPath: process.resourcesPath, packaged: app.isPackaged, game, onFail: () => { if (C.usage) C.usage.problem('pob'); } });
     return pobEngs[game];
   }
   // you changed game: give the other game's engine's memory back now, not after its idle time

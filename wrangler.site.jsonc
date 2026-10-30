@@ -10,7 +10,8 @@
     // /ninja, and sends www.poe2upgrade.com to poe2upgrade.com; everything else it hands to the files
     // (otherwise a browser visit to /download got the 404 page, and www was a duplicate of the site)
     "run_worker_first": true },
-  // anonymous usage statistics (/api/ping, /api/stats): one row per install per day, no IP addresses
+  // anonymous usage statistics (/api/ping, /api/stats): one row per install per day, no IP addresses;
+  // page views and Download clicks: one number per page per day
   "d1_databases": [{ "binding": "STATS", "database_name": "poe-upgrade-stats", "database_id": "02487108-39bd-41a9-a99b-8c16411330b3", "migrations_dir": "migrations/stats" }],
   // rate limits per visitor address (worker/site-worker.js, allowed()): poe.ninja calls for price lists
   // that aren't cached yet, usage pings and the stats page. Each one-minute count is kept in Cloudflare's
@@ -18,7 +19,8 @@
   "ratelimits": [
     { "name": "RL_NINJA", "namespace_id": "2101", "simple": { "limit": 120, "period": 60 } },
     { "name": "RL_PING", "namespace_id": "2102", "simple": { "limit": 10, "period": 60 } },
-    { "name": "RL_STATS", "namespace_id": "2103", "simple": { "limit": 10, "period": 60 } }
+    { "name": "RL_STATS", "namespace_id": "2103", "simple": { "limit": 10, "period": 60 } },
+    { "name": "RL_VISIT", "namespace_id": "2104", "simple": { "limit": 1, "period": 60 } }
   ],
   "workers_dev": true,
   "routes": [
