@@ -176,7 +176,6 @@ $('#suggestBtn').addEventListener('click', async () => {
   });
 });
 
-$('#buildSel').addEventListener('change', async () => { await window.api.setSetting('build', $('#buildSel').value); await load(); });
 
 // ---------- popup / display options ----------
 ['popupPosition', 'uiScale', 'popupDetail'].forEach((k) => $('#' + k).addEventListener('change', async () => {

@@ -69,7 +69,7 @@
   - Import from Path of Building (pobb.in links or codes). A pobb.in link can be read again with one click, or link the build file PoB saves and the app follows it each time you save.
   - **No PoB link?** Link a guide's Build Planner file (`.build`): the tree, skills and the guide's gear become a Path of Building build, with a stage picker for levelling guides (or *Follow my level*). A *Skills* panel sets gem levels and quality (all, or one gem apart), the main skill items are judged on and which others count in the total DPS; *Compare skills* has Path of Building work out each skill's damage, so you can see which one the guide really runs on.
   - Several characters, each with their own gear and build.
-- **Gear score fallback:** without a PoB build, a 0–100 gear score from build profiles (minion summoner, ES caster, life + res) and your own stat weights.
+- **Gear score fallback:** without a PoB build, a 0–100 gear score from a profile for your kind of build (damage: melee, bows/crossbows/spears, spells, minions or any; defence: life with Armour, Evasion or both, Energy Shield, or hybrids) or your own stat weights.
 - **Built for playing:**
   - Looks like the games' own item tooltips: rarity-coloured names, mods in the games' blue, no clutter.
   - Compact popup.
@@ -193,7 +193,7 @@ Anything PoB can't read falls back to the gear score below.
 
 ## Gear score (without Path of Building)
 
-Without a PoB build (or for items PoB can't read), every item gets a **gear score from 0 to 100** for how useful it is to your character, with a grade: **S** 85+, **A** 70+, **B** 55+, **C** 40+, **D** below that. Pick the closest profile under **Build & stats** (importing a PoB build picks one for you). The minion summoner profile, for example:
+Without a PoB build (or for items PoB can't read), every item gets a **gear score from 0 to 100** for how useful it is to your character, with a grade: **S** 85+, **A** 70+, **B** 55+, **C** 40+, **D** below that. Under **Build & stats**, pick what your build's **damage** is (melee attacks; bows, crossbows & spears; spells; minions; or any build, by weapon damage) and its **defence** (life & resistances; life with Armour, Evasion or both; Energy Shield; Evasion or Armour with Energy Shield), or tick **Custom** to score by your own stat weights. Importing a PoB build picks the pair that fits it (its main skill and its defences), and *Match my Path of Building build* picks it again. Playing a league starter or a guide's build? Load its pobb.in link, PoB code or .build file instead: every item is then judged with that exact build. The minions with Energy Shield profile, for example:
 
 - **Weapon / focus / amulet / helmet:** + Level of all Minion Skills.
 - **Sceptre:** Spirit and ally damage.

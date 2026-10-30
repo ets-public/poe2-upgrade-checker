@@ -7,7 +7,7 @@
 function renderBuildEditor() {
   const stats = state.buildStats || [];
   const tw = state.settings.buildTweaks || {};
-  if (state.settings.build === 'off' || !stats.length) { $('#buildEditor').innerHTML = '<tr><td class="dim">Pick a build above to edit its gear score.</td></tr>'; return; }
+  if (state.settings.build === 'off' || !stats.length) { $('#buildEditor').innerHTML = '<tr><td class="dim">Untick Custom above to edit the gear score of a profile.</td></tr>'; return; }
   const opts = [0, 0.5, 1, 1.5, 2, 3];
   $('#buildEditor').innerHTML = '<tr><th>Stat</th><th>Counts on (importance)</th><th>How much it matters</th></tr>' + stats.map((x) => {
     const cur = tw[x.label] != null ? Number(tw[x.label]) : 1;
@@ -22,7 +22,7 @@ function renderBuildEditor() {
     await load();
   }));
 }
-$('#buildTweaksReset').addEventListener('click', async () => { await window.api.setSetting('buildTweaks', {}); $('#buildMsg').textContent = 'Back to the build defaults.'; await load(); });
+$('#buildTweaksReset').addEventListener('click', async () => { await window.api.setSetting('buildTweaks', {}); $('#buildMsg').textContent = "Back to the profile's defaults."; await load(); });
 
 // ---------- alerts ----------
 async function renderAlertStatus() {

@@ -33,6 +33,7 @@ contextBridge.exposeInMainWorld('api', {
   setHotkey: (accel) => ipcRenderer.invoke('hotkey:set', accel),
   setPriceHotkey: (accel) => ipcRenderer.invoke('hotkey:setPrice', accel),
   setEquipHotkey: (accel) => ipcRenderer.invoke('hotkey:setEquip', accel),
+  fitProfile: () => ipcRenderer.invoke('gear:fitProfile'),
   equipUndo: () => ipcRenderer.invoke('equip:undo'),
   bestUniques: (slot) => ipcRenderer.invoke('pob:uniques', slot),
   searchUnique: (name, base) => ipcRenderer.invoke('trade:unique', name, base),

@@ -102,3 +102,17 @@ button.link.spend-pick.b { font-weight: 700; color: var(--stone); }
 #uniqueCard .warn { color: #e0a060; }
 #uniqueCard .verd { font-weight: 700; font-size: 12px; letter-spacing: .03em; }
 #uniqueCard .verd.up { color: #8fd18f; } #uniqueCard .verd.dn { color: #e07a6a; } #uniqueCard .verd.same { color: var(--dim, #8d8a82); } #uniqueCard .verd.warn { color: #e0a060; }
+
+/* Build & stats: the gear score profile picker */
+.gs-pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px 14px; margin: 10px 0 6px; }
+.gs-pick label { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.gs-pick label > span { font-size: 12px; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; }
+.gs-pick select { width: 100%; min-width: 0; }
+.gs-pick select:disabled { opacity: .5; }
+.gs-opts { justify-content: space-between; flex-wrap: wrap; gap: 6px 14px; }
+.gs-summary { margin-top: 4px; }
+.gs-starter { margin: 12px 0 10px; padding: 10px 12px; border: 1px solid var(--iron-hi); border-radius: 4px; background: rgba(231, 180, 120, .04); line-height: 1.5; }
+.gs-starter .gs-sites { margin-top: 6px; color: var(--dim); }
+/* page header text wraps instead of running past the window's edge */
+.page-head > div:first-child { flex: 1 1 320px; min-width: 0; }
+.page-head .sub { overflow-wrap: anywhere; }

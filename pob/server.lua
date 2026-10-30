@@ -300,13 +300,22 @@ local function gearTypes()
   return r
 end
 
+-- what the main skill is: attack or spell, melee or projectile, minions (for the gear score profile)
+local function skillKind()
+  local ms = build.calcsTab.mainEnv.player.mainSkill
+  local t = (ms and ms.skillTypes) or {}
+  return { attack = not not t[SkillType.Attack], spell = not not t[SkillType.Spell], melee = not not t[SkillType.Melee],
+    projectile = not not (t[SkillType.Projectile] or t[SkillType.RangedAttack]), minion = not not (ms and ms.minion) }
+end
+
 local function summary()
   local o = build.calcsTab.mainOutput
+  local okk, kind = pcall(skillKind)
   local okt, types = pcall(gearTypes)
   local skill = build.mainSocketGroup and build.skillsTab.socketGroupList[build.mainSocketGroup]
   local okg, gems = pcall(slotGems)
   return {
-    slotGems = okg and gems or nil, gearTypes = okt and types or nil,
+    slotGems = okg and gems or nil, gearTypes = okt and types or nil, kind = okk and kind or nil,
     ok = true, game = GAME, treeVersion = build.spec and build.spec.treeVersion,
     className = build.spec and build.spec.curClassName, ascendancy = build.spec and build.spec.curAscendClassName,
     level = build.characterLevel,

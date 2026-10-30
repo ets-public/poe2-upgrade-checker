@@ -10,6 +10,7 @@ const planner = require('../core/buildplanner');
 const { parseItem } = require('../core/parser');
 const resLib = require('../core/resists');
 const pobVerdict = require('../core/pobverdict');
+const gearLib = require('../core/gearscore');
 
 module.exports = function (C) {
   // ---------- Path of Building import ----------
@@ -121,7 +122,7 @@ module.exports = function (C) {
           engine = pobSummary(info);
           // the gear score (used when PoB can't judge something) gets a profile that fits this build
           if (!C.store.settings.buildPicked && engine && C.tg() === 'poe2') {
-            const fit = engine.dpsKey === 'MinionDPS' ? 'djinn-varashta' : (engine.es || 0) > (engine.life || 0) * 2 ? 'es-caster' : 'life-res';
+            const fit = fitOf(info, engine);
             if (fit !== C.store.settings.build) { C.store.setSetting('build', fit); C.log(`gear score profile set to ${fit} from the PoB build`); }
           }
           if (engine.mismatch.length) message += ` Note: ${engine.mismatch.join('; ')}.`;
@@ -303,6 +304,27 @@ module.exports = function (C) {
   }
 
   // what the engine says about your build, plus where it disagrees with your character sheet
+  // the gear score profile that fits the Path of Building build: what its main skill does and its defences
+  function fitOf(info, engine) {
+    const st = info.stats || {};
+    const w = info.gearTypes && info.gearTypes['Weapon 1'];
+    return gearLib.fitProfile({ dpsKey: engine ? engine.dpsKey : pobVerdict.dpsKey(st), kind: info.kind, weapon: w && w.type, life: st.Life, es: st.EnergyShield, armour: st.Armour, evasion: st.Evasion });
+  }
+  // "Match my Path of Building build" on Build & stats: picks it again, and PoB imports keep it matched
+  ipcMain.handle('gear:fitProfile', async () => {
+    if (!C.pobOn() || C.tg() !== 'poe2') return { ok: false, error: 'Load your Path of Building build first (My gear).' };
+    try {
+      const info = await C.pobEngine().ensureLoaded();
+      if (!info) return { ok: false, error: 'Load your Path of Building build first (My gear).' };
+      const fit = fitOf(info);
+      C.store.setSetting('build', fit); C.store.setSetting('buildPicked', false);
+      C.log(`gear score profile matched to the PoB build: ${fit}`);
+      if (C.refreshAll) C.refreshAll();
+      C.notifySettings('settings:changed');
+      return { ok: true, id: fit, name: (gearLib.buildInfo(fit) || {}).name };
+    } catch (err) { return { ok: false, error: err.message }; }
+  });
+
   function pobSummary(info) {
     if (!info) return null;
     const st = info.stats || {};

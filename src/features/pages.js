@@ -96,6 +96,10 @@ module.exports = function (C) {
     profiles: C.store.listProfiles(),
     buildStats: gearLib.buildStats(C.store.settings.build),
     builds: gearLib.buildList(),
+    buildParts: gearLib.buildParts(),
+    buildNow: C.store.settings.build === 'off'
+      ? { ...(gearLib.buildInfo(C.store.settings.buildLast) || gearLib.buildInfo(gearLib.DEFAULT_BUILD)), id: 'off', custom: true, name: 'Custom (my own stat weights)' }
+      : gearLib.buildInfo(C.store.settings.build),
     gearScores: Object.fromEntries(Object.entries(C.store.equipped).map(([slot, it]) => [slot, C.gearOf(it, slot)])),
     mainSlots: MAIN_SLOTS,
     ignorePresets: Object.entries(ignoreLib.PRESETS).map(([id, p]) => ({ id, label: p.label })),

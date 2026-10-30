@@ -256,13 +256,17 @@
       </header>
       <div class="grid g-2">
         <div class="col p2"><div class="card-p">
-          <h3>Your build</h3>
-          <div class="row"><label>Build <select id="buildSel"></select></label></div>
-          <div class="help" id="buildHelp"></div>
+          <h3>Gear score profile</h3>
+          <div class="help">What kind of build you play, so the gear score knows which stats matter.</div>
+          <div id="gsPicker"></div>
+          <div class="gs-starter" id="gsStarter">
+            <b>Playing a league starter or a guide's build?</b> Load it on <button class="link" data-goto="gear">My gear</button> (its pobb.in link, Path of Building code or the guide's <b>.build</b> file). Verdicts then use that exact build, which is far better than any profile.
+            <div class="gs-sites">Find one: <button class="link" data-site="https://poe.ninja/poe2/builds">poe.ninja builds</button> · <button class="link" data-site="https://mobalytics.gg/poe-2/tier-list">Mobalytics tier list</button></div>
+          </div>
           <details class="fold" id="gsEditorFold" open><summary>Gear score editor <span class="dim small fold-why hidden">only used without Path of Building</span></summary>
-          <div class="help">How much each stat matters to you. 1× is the build's default, 0× turns it off, 2× doubles it. Changes apply to this character only.</div>
+          <div class="help">How much each stat matters to you. 1× is the profile's default, 0× turns it off, 2× doubles it. Changes apply to this character only.</div>
           <table class="list" id="buildEditor"></table>
-          <div class="row"><button id="buildTweaksReset">Reset to the build's defaults</button><span class="note" id="buildMsg"></span></div>
+          <div class="row"><button id="buildTweaksReset">Reset to the profile's defaults</button><span class="note" id="buildMsg"></span></div>
           </details>
         </div></div>
         <div class="col side-col"><div class="card-p" id="gsExplainCard">
@@ -443,6 +447,7 @@
   <script src="render-blocks.js"></script>
   <script src="render-prices.js"></script>
   <script src="render-cards.js"></script>
+  <script src="settings-profile.js"></script>
   <script src="settings.js"></script>
   <script src="settings-find.js"></script>
   <script src="settings-options.js"></script>

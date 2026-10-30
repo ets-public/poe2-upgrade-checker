@@ -90,7 +90,9 @@ module.exports = function (C) {
     .map((i) => ({ id: i.id, name: i.name, itemClass: i.itemClass, copiedAt: i.copiedAt })));
 
   ipcMain.on('open:url', (_e, url) => {
-    if (trade.isTradePage(url) || ninjaLib.isInfoPage(url)) shell.openExternal(url);
+    // build sites, for "Find a league starter" on Build & stats
+    const buildSite = typeof url === 'string' && /^https:\/\/(poe\.ninja\/poe2\/builds|mobalytics\.gg\/poe-2\/tier-list)$/.test(url);
+    if (trade.isTradePage(url) || ninjaLib.isInfoPage(url) || buildSite) shell.openExternal(url);
   });
 
   // ---------- poe.ninja prices (currency, gems, maps, divination cards, uniques...) ----------

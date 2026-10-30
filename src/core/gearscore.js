@@ -74,14 +74,17 @@ const COMMON = (lifeImp) => [
   { test: /^# to (Strength|Dexterity|Intelligence)$/, label: 'Attributes', imp: { Jewel: 0, default: 2 }, cap: 35 },
   { test: /^#% increased Rarity of Items found$/, label: 'Rarity', imp: { Ring: 1.5, Amulet: 1.5, Helmet: 1.5, Gloves: 1.5, Boots: 1.5, default: 0 }, cap: 30 },
 ];
+// wands and staves: "Gain #% of Damage as Extra Fire Damage" (up to 30 on a wand, 60 on a staff)
+const EXTRA_ELE = { test: /^Gain #% of Damage as Extra (Fire|Cold|Lightning) Damage$/, label: 'Damage as extra', imp: { Weapon: 6, default: 0 }, cap: 45 };
 BUILDS['es-caster'] = {
   name: 'Energy Shield spellcaster (generic)',
-  summary: 'Spell skill levels, spell/elemental damage, cast speed and crit on weapons; Energy Shield and resistances on armour.',
+  summary: 'Spell skill levels, spell/elemental damage, cast speed, crit and extra damage on weapons; Energy Shield and resistances on armour.',
   stats: [
     { test: /^# to Level of all (Spell|Fire Spell|Cold Spell|Lightning Spell|Chaos Spell) Skills$/, label: 'Spell skill levels', key: '# to Level of all Spell Skills', imp: { Weapon: 10, Offhand: 9, Amulet: 9, default: 0 }, cap: { Weapon: 5, default: 3 } },
     { test: /^#% increased (Spell|Fire|Cold|Lightning|Chaos|Elemental) Damage$/, label: 'Spell damage', key: '#% increased Spell Damage', imp: { Weapon: 9, Offhand: 8, Amulet: 5, Ring: 4, Jewel: 7, default: 0 }, cap: { Jewel: 15, Ring: 30, default: 100 } },
     { test: /^#% increased Cast Speed$/, label: 'Cast speed', key: '#% increased Cast Speed', imp: { Weapon: 7, Ring: 5, Amulet: 5, Jewel: 4, default: 0 }, cap: { Jewel: 6, default: 25 } },
     { test: /^#% increased Critical (Hit Chance|Damage Bonus)( for Spells)?$/, label: 'Crit', imp: { Weapon: 6, Offhand: 5, Amulet: 4, Jewel: 4, Helmet: 3, default: 0 }, cap: { Jewel: 15, default: 60 } },
+    EXTRA_ELE,
     ES,
     { test: /^#% increased maximum Energy Shield$/, label: '% Energy Shield', key: '#% increased maximum Energy Shield', imp: { Amulet: 7, Jewel: 7, default: 0 }, cap: { Jewel: 12, default: 25 } },
     { test: /^# to maximum Energy Shield$/, label: 'Energy Shield', key: '# to maximum Energy Shield', imp: { Amulet: 6, Ring: 5, Belt: 4, default: 0 }, cap: 60 },
@@ -101,6 +104,133 @@ BUILDS['life-res'] = {
   ],
 };
 
+// ---------- profiles for every kind of build: what it does x how it stays alive ----------
+// The three profiles above are three of these pairs (minions/ES, spells/ES, any/life); the rest are
+// put together from the parts below. Mod texts and top rolls are PoE2's (Path of Building 2's mod data).
+const ARM_B = { test: /^\[Base\] Armour$/, label: 'Armour', imp: { 'Body Armour': 10, Helmet: 8, Gloves: 7, Boots: 6, Offhand: 7, default: 0 }, cap: { 'Body Armour': 1200, Helmet: 600, Gloves: 400, Boots: 450, Offhand: 450, default: 1 } };
+const EVA_B = { test: /^\[Base\] Evasion Rating$/, label: 'Evasion', imp: { 'Body Armour': 10, Helmet: 8, Gloves: 7, Boots: 6, Offhand: 7, default: 0 }, cap: { 'Body Armour': 1200, Helmet: 600, Gloves: 400, Boots: 450, Offhand: 450, default: 1 } };
+// a hybrid base has about half of each: its excellent roll is lower
+const half = (e) => ({ ...e, cap: Object.fromEntries(Object.entries(e.cap).map(([k, v]) => [k, k === 'default' ? v : Math.round(v * 0.55)])) });
+const LIFE = (imp) => ({ test: /^# to maximum Life$/, label: 'Life', key: '# to maximum Life', imp: { Weapon: 0, Jewel: 0, default: imp }, cap: 100 });
+const LIFE_PCT = { test: /^#% increased maximum Life$/, label: '% Life', key: '#% increased maximum Life', imp: { Amulet: 5, default: 0 }, cap: 8 };
+const ARM_X = [
+  { test: /^#% increased Armour$/, label: '% Armour', key: '#% increased Armour', imp: { Amulet: 3, Jewel: 3, default: 0 }, cap: { Jewel: 20, default: 50 } },
+  { test: /^# to Armour$/, label: 'Flat Armour', key: '# to Armour', imp: { Belt: 3, default: 0 }, cap: 350 },
+  { test: /^#% of Armour also applies to Elemental Damage$/, label: 'Armour vs elemental', imp: { 'Body Armour': 4, Helmet: 3, Gloves: 3, Boots: 3, Offhand: 3, default: 0 }, cap: 50 },
+];
+const EVA_X = [
+  { test: /^#% increased Evasion Rating$/, label: '% Evasion', key: '#% increased Evasion Rating', imp: { Amulet: 3, Jewel: 3, default: 0 }, cap: { Jewel: 20, default: 50 } },
+  { test: /^# to Evasion Rating$/, label: 'Flat Evasion', key: '# to Evasion Rating', imp: { Ring: 2, default: 0 }, cap: 230 },
+  { test: /^Gain Deflection Rating equal to #% of Evasion Rating$/, label: 'Deflection', imp: { 'Body Armour': 4, Helmet: 3, Gloves: 3, Boots: 3, Offhand: 3, default: 0 }, cap: 26 },
+];
+const ES_X = [
+  { test: /^#% increased maximum Energy Shield$/, label: '% Energy Shield', key: '#% increased maximum Energy Shield', imp: { Amulet: 7, Jewel: 7, default: 0 }, cap: { Jewel: 12, default: 25 } },
+  { test: /^# to maximum Energy Shield$/, label: 'Flat Energy Shield', key: '# to maximum Energy Shield', imp: { Amulet: 6, Ring: 5, Belt: 4, default: 0 }, cap: 60 },
+  { test: /^#% increased Energy Shield Recharge Rate$|^#% faster start of Energy Shield Recharge$/, label: 'ES recharge', imp: { 'Body Armour': 2, Helmet: 2, Offhand: 2, Jewel: 2, default: 0 }, cap: { Jewel: 25, default: 30 } },
+];
+const RECOUP = { test: /^#% of Damage taken Recouped as Life$/, label: 'Life recoup', imp: { Amulet: 2, default: 0 }, cap: 24 };
+
+const DEF = {
+  life: { name: 'Life & resistances (any)', summary: 'life, resistances and whatever Armour, Evasion or Energy Shield the armour has.', stats: [AR, ES, LIFE(7), LIFE_PCT, RECOUP] },
+  'life-ar': { name: 'Life & Armour', summary: 'life, Armour (and Armour against elemental hits), resistances.', stats: [ARM_B, LIFE(7), LIFE_PCT, ...ARM_X, RECOUP] },
+  'life-ev': { name: 'Life & Evasion', summary: 'life, Evasion and Deflection, resistances.', stats: [EVA_B, LIFE(7), LIFE_PCT, ...EVA_X, RECOUP] },
+  'life-arev': { name: 'Life, Armour & Evasion', summary: 'life, Armour and Evasion bases, resistances.', stats: [half(ARM_B), half(EVA_B), LIFE(7), LIFE_PCT, ...ARM_X, ...EVA_X, RECOUP] },
+  es: { name: 'Energy Shield', summary: 'Energy Shield bases, % and flat Energy Shield, resistances; a little life.', stats: [ES, ...ES_X, LIFE(3)] },
+  'ev-es': { name: 'Evasion & Energy Shield', summary: 'Evasion and Energy Shield bases, Deflection, resistances; some life.', stats: [half(EVA_B), half(ES), ...ES_X, ...EVA_X, LIFE(4)] },
+  'ar-es': { name: 'Armour & Energy Shield', summary: 'Armour and Energy Shield bases, resistances; some life.', stats: [half(ARM_B), half(ES), ...ES_X, ...ARM_X, LIFE(4)] },
+};
+
+const WEAPON_DPS = { test: /^\[Weapon\] Total DPS$/, label: 'Weapon DPS', imp: { Weapon: 10, default: 0 }, cap: 450 };
+const SPIRIT_BUFFS = { test: /^# to Spirit$/, label: 'Spirit', key: '# to Spirit', imp: { 'Body Armour': 4, Amulet: 4, default: 0 }, cap: 60 };
+const MANA = (imp) => ({ test: /^# to maximum Mana$/, label: 'Mana', key: '# to maximum Mana', imp: { Jewel: 0, default: imp }, cap: 150 });
+const ATTACK = (ranged) => [
+  WEAPON_DPS,
+  ranged
+    ? { test: /^# to Level of all Projectile Skills$/, label: 'Projectile skill levels', key: '# to Level of all Projectile Skills', imp: { Weapon: 8, Amulet: 9, Offhand: 6, default: 0 }, cap: { Weapon: 5, Amulet: 3, default: 1 } }
+    : { test: /^# to Level of all Melee Skills$/, label: 'Melee skill levels', key: '# to Level of all Melee Skills', imp: { Weapon: 8, Amulet: 9, Gloves: 7, default: 0 }, cap: { Weapon: 5, Amulet: 3, default: 2 } },
+  { test: /^#% increased Attack Speed$/, label: 'Attack speed', key: '#% increased Attack Speed', imp: { Gloves: 6, Offhand: ranged ? 6 : 0, Jewel: 4, default: 0 }, cap: { Jewel: 4, default: 16 } },
+  { test: /^#% increased Critical Hit Chance( for Attacks)?$/, label: 'Crit chance', imp: { Helmet: 4, Amulet: 5, Offhand: ranged ? 5 : 0, Jewel: 4, default: 0 }, cap: { Jewel: 16, default: 38 } },
+  { test: /^#% increased Critical Damage Bonus( for Attack Damage)?$/, label: 'Crit damage', imp: { Gloves: 5, Amulet: 5, Offhand: ranged ? 5 : 0, Jewel: 4, default: 0 }, cap: { Jewel: 20, default: 38 } },
+  { test: /^Adds # to # Physical Damage to Attacks$/, label: 'Added physical', key: 'Adds # to # Physical Damage to Attacks', imp: { Ring: 6, Gloves: 6, Offhand: ranged ? 6 : 0, default: 0 }, cap: 25 },
+  { test: /^# to Accuracy Rating$/, label: 'Accuracy', key: '# to Accuracy Rating', imp: { Gloves: 4, Helmet: 3, Ring: 4, Amulet: 3, Offhand: ranged ? 4 : 0, default: 0 }, cap: { Ring: 450, Amulet: 450, default: 550 } },
+  ranged
+    ? { test: /^#% increased (Projectile|Attack) Damage$/, label: 'Projectile damage', imp: { Jewel: 6, default: 0 }, cap: 15 }
+    : { test: /^#% increased (Melee|Attack) Damage$/, label: 'Melee damage', imp: { Jewel: 6, default: 0 }, cap: 15 },
+  ...(ranged ? [{ test: /^#% increased Projectile Speed$/, label: 'Projectile speed', imp: { Offhand: 2, default: 0 }, cap: 46 }] : []),
+  { test: /^Leech #% of Physical Attack Damage as Life$/, label: 'Life leech', imp: { Gloves: 3, Ring: 3, default: 0 }, cap: 8 },
+  SPIRIT_BUFFS, MANA(1.5),
+];
+const OFF = {
+  any: { name: 'Any build (weapon damage)', summary: 'Weapon damage per second and attack/cast speed', stats: [WEAPON_DPS, { test: /^#% increased (Attack|Cast) Speed$/, label: 'Speed', imp: { Weapon: 4, Ring: 3, Amulet: 3, Gloves: 3, default: 0 }, cap: 20 }, SPIRIT_BUFFS, MANA(2)] },
+  melee: { name: 'Melee attacks', summary: 'Weapon damage, melee skill levels, attack speed, crit, accuracy and added physical damage', stats: ATTACK(false) },
+  ranged: { name: 'Bows, crossbows & spears', summary: 'Weapon damage, projectile skill levels, attack speed, crit and accuracy (quivers too)', stats: ATTACK(true) },
+  spell: { name: 'Spells', summary: 'Spell skill levels, spell/elemental damage, cast speed, crit and extra damage on wands and staves', stats: [...BUILDS['es-caster'].stats.slice(0, 5), { test: /^# to Spirit$/, label: 'Spirit', key: '# to Spirit', imp: { 'Body Armour': 5, Amulet: 5, default: 0 }, cap: 60 }, MANA(3), { test: /^#% increased Mana Regeneration Rate$/, label: 'Mana regen', imp: { Ring: 1.5, Amulet: 1.5, Offhand: 1.5, default: 0 }, cap: 69 }] },
+  minion: { name: 'Minions', summary: 'Minion skill levels and Spirit first, then ally/minion damage, crit and speed', stats: [...BUILDS['djinn-varashta'].stats.slice(0, 11), MANA(3)] },
+};
+const SHARED = [
+  { test: /^#% to Fire Resistance$/, label: 'Fire res', key: '#% to Fire Resistance', res: 'Fire', imp: { Weapon: 0, Jewel: 0, default: 5 }, cap: 45 },
+  { test: /^#% to Cold Resistance$/, label: 'Cold res', key: '#% to Cold Resistance', res: 'Cold', imp: { Weapon: 0, Jewel: 0, default: 5 }, cap: 45 },
+  { test: /^#% to Lightning Resistance$/, label: 'Lightning res', key: '#% to Lightning Resistance', res: 'Lightning', imp: { Weapon: 0, Jewel: 0, default: 5 }, cap: 45 },
+  { test: /^#% to Chaos Resistance$/, label: 'Chaos res', key: '#% to Chaos Resistance', res: 'Chaos', imp: { Weapon: 0, Jewel: 0, default: 3 }, cap: 30 },
+  { test: /^#% increased Movement Speed$/, label: 'Movement speed', key: '#% increased Movement Speed', imp: { Boots: 10, default: 0 }, cap: 35 },
+  { test: /^# to (Strength|Dexterity|Intelligence)$/, label: 'Attributes', imp: { Jewel: 0, default: 2 }, cap: 35 },
+  { test: /^# Life Regeneration per second$/, label: 'Life regen', imp: { Weapon: 0, Jewel: 0, default: 1 }, cap: 25 },
+  { test: /^#% increased Rarity of Items found$/, label: 'Rarity', imp: { Ring: 1.5, Amulet: 1.5, Helmet: 1.5, Gloves: 1.5, Boots: 1.5, default: 0 }, cap: 19 },
+];
+// the three hand-made profiles are these pairs
+const LEGACY = { 'djinn-varashta': ['minion', 'es'], 'es-caster': ['spell', 'es'], 'life-res': ['any', 'life'] };
+const pairId = (off, def) => { const l = Object.entries(LEGACY).find(([, [o, d]]) => o === off && d === def); return l ? l[0] : `${off}/${def}`; };
+function pairOf(id) {
+  if (LEGACY[id]) return LEGACY[id];
+  const m = /^(\w+)\/([\w-]+)$/.exec(String(id || ''));
+  return m && OFF[m[1]] && DEF[m[2]] ? [m[1], m[2]] : null;
+}
+for (const [id, [o, d]] of Object.entries(LEGACY)) BUILDS[id].name = `${OFF[o].name} · ${DEF[d].name}`;
+const made = {};
+// a profile by id: one of the hand-made ones or "offence/defence"; undefined for anything else
+function getBuild(id) {
+  id = id || DEFAULT_BUILD;
+  if (BUILDS[id]) return BUILDS[id];
+  if (made[id]) return made[id];
+  const p = pairOf(id);
+  if (!p) return undefined;
+  const [o, d] = p;
+  const legacy = pairId(o, d);
+  if (BUILDS[legacy]) return BUILDS[legacy];
+  return (made[id] = { name: `${OFF[o].name} · ${DEF[d].name}`, summary: `${OFF[o].summary}; ${DEF[d].summary} Movement speed on boots.`, stats: [...OFF[o].stats, ...DEF[d].stats, ...SHARED] });
+}
+const buildParts = () => ({
+  off: Object.entries(OFF).map(([id, x]) => ({ id, name: x.name })),
+  def: Object.entries(DEF).map(([id, x]) => ({ id, name: x.name })),
+});
+function buildInfo(id) {
+  if (id === 'off') return { id: 'off', custom: true };
+  const b = getBuild(id); const p = pairOf(id || DEFAULT_BUILD);
+  return b ? { id: p ? pairId(p[0], p[1]) : id || DEFAULT_BUILD, name: b.name, summary: b.summary, off: p && p[0], def: p && p[1] } : null;
+}
+
+// The profile that fits a Path of Building build: { dpsKey, kind: {attack, spell, melee, projectile, minion},
+// weapon (base type of the main weapon), life, es, armour, evasion } -> a profile id
+function fitProfile(b) {
+  b = b || {};
+  const k = b.kind || {};
+  const w = String(b.weapon || '');
+  let off;
+  if (b.dpsKey === 'MinionDPS' || k.minion) off = 'minion';
+  else if (k.spell && !k.attack) off = 'spell';
+  else if (k.attack) off = k.projectile || /^(Bow|Crossbow)$/i.test(w) ? 'ranged' : 'melee';
+  else if (/^(Wand|Staff)$/i.test(w)) off = 'spell';
+  else off = 'any';
+  const life = Number(b.life) || 0; const es = Number(b.es) || 0; const ar = Number(b.armour) || 0; const ev = Number(b.evasion) || 0;
+  let def;
+  if (es > life * 2) def = ev > es * 0.5 && ev >= ar ? 'ev-es' : ar > es * 0.5 ? 'ar-es' : 'es';
+  else if (Math.max(ar, ev) < 300) def = 'life';
+  else if (Math.min(ar, ev) > Math.max(ar, ev) * 0.4) def = 'life-arev';
+  else def = ar > ev ? 'life-ar' : 'life-ev';
+  // the hand-made Djinn profile is a minion build on Energy Shield; other minion builds on life get a life one
+  return pairId(off, def);
+}
+
 const ARMOUR_SLOTS = ['Helmet', 'Body Armour', 'Gloves', 'Boots', 'Offhand'];
 const { groupOf } = require('./slots');
 const slotName = (s) => groupOf(s);
@@ -116,7 +246,7 @@ function grade(score) {
 // opts: { build: id, ignore(key) -> bool }
 function gearScore(item, opts) {
   opts = opts || {};
-  const build = BUILDS[opts.build || DEFAULT_BUILD];
+  const build = getBuild(opts.build);
   if (!build || !item || !item.slot) return null;
   const slot = slotName(item.slot);
   if (['Charm', 'Life Flask', 'Mana Flask'].includes(slot)) {
@@ -221,7 +351,7 @@ function gearScore(item, opts) {
 // Is this stat something the build wants on this slot? (used to colour the
 // popup's change list and pick the "top changes")
 function usefulness(slotIn, key, opts) {
-  const build = BUILDS[(opts && opts.build) || DEFAULT_BUILD];
+  const build = getBuild(opts && opts.build);
   if (!build) return 0;
   const slot = slotName(slotIn);
   const e = build.stats.find((en) => en.test.test(key));
@@ -233,7 +363,7 @@ function usefulness(slotIn, key, opts) {
 
 // The most important searchable stats for a slot (for "craftable bases").
 function topStats(slotIn, n, opts) {
-  const build = BUILDS[(opts && opts.build) || DEFAULT_BUILD];
+  const build = getBuild(opts && opts.build);
   if (!build) return [];
   const slot = slotName(slotIn);
   const tw = (opts && opts.tweaks) || {};
@@ -249,7 +379,7 @@ function topStats(slotIn, n, opts) {
 // Ignored stats and resistances you're already capped on are left out.
 function searchWeights(slotIn, opts) {
   opts = opts || {};
-  const build = BUILDS[opts.build || DEFAULT_BUILD];
+  const build = getBuild(opts.build);
   if (!build) return [];
   const slot = slotName(slotIn);
   const tw = opts.tweaks || {};
@@ -269,7 +399,7 @@ function searchWeights(slotIn, opts) {
 
 // For the gear score editor: each stat line of a build, with where it counts.
 function buildStats(id) {
-  const b = BUILDS[id || DEFAULT_BUILD];
+  const b = getBuild(id);
   if (!b) return [];
   const seen = new Set();
   return b.stats.filter((e) => { if (seen.has(e.label)) return false; seen.add(e.label); return true; }).map((e) => {
@@ -283,4 +413,4 @@ function buildList() {
   return Object.entries(BUILDS).map(([id, b]) => ({ id, name: b.name, summary: b.summary }));
 }
 
-module.exports = { COND, gearScore, grade, buildList, buildStats, usefulness, topStats, searchWeights, BUILDS, DEFAULT_BUILD, slotName };
+module.exports = { getBuild, buildParts, buildInfo, fitProfile, pairId, pairOf, COND, gearScore, grade, buildList, buildStats, usefulness, topStats, searchWeights, BUILDS, DEFAULT_BUILD, slotName };

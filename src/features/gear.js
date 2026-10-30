@@ -127,6 +127,15 @@ module.exports = function (C) {
   ipcMain.handle('weights:reset', () => { C.store.resetWeights(); refreshAll(); return true; });
   ipcMain.handle('slot:clear', (_e, slot) => { C.store.setEquipped(slot, null); C.pobSync(); refreshAll(); return true; });
   ipcMain.handle('setting:set', (_e, key, value) => {
+    // a gear score profile: "off" (your own weights), a hand-made one or "damage/defence"
+    if (key === 'build') {
+      const gearLib = require('../core/gearscore');
+      const p = gearLib.pairOf(value);
+      if (p) value = gearLib.pairId(p[0], p[1]);
+      else if (value !== 'off' && !gearLib.getBuild(value)) return false;
+      // Custom: the profile it had is kept, for when Custom is turned off again
+      if (value === 'off' && C.store.settings.build && C.store.settings.build !== 'off') C.store.setSetting('buildLast', C.store.settings.build);
+    }
     C.store.setSetting(key, value);
     if (key === 'build') C.store.setSetting('buildPicked', true); // you chose it: PoB imports won't change it
     if (key === 'startWithWindows') C.applyLoginItem();

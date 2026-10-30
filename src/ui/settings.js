@@ -39,12 +39,9 @@ async function load() {
   renderIgnore();
   renderSaved();
   renderHistory();
-  $('#buildSel').innerHTML = (state.builds || []).map((b) => `<option value="${esc(b.id)}">${esc(b.name)}</option>`).join('') + '<option value="off">None – score by my own stat weights</option>';
-  $('#buildSel').value = state.settings.build || state.defaultBuild;
-  // "By my weights" only makes sense when you score by stat weights (build turned off)
+  window.renderProfilePicker($('#gsPicker'));
+  // "By my weights" only makes sense when you score by stat weights (Custom)
   $('#findQuick').classList.toggle('hidden', state.settings.build !== 'off');
-  const bd = (state.builds || []).find((b) => b.id === $('#buildSel').value);
-  $('#buildHelp').textContent = bd ? bd.summary + ' Ignored stats (Find upgrades page) are left out of the score.' : 'Gear score is turned off.';
   $('#popupPosition').value = state.settings.popupPosition || 'cursor';
   $('#uiScale').value = String(state.settings.uiScale || 1);
   $('#popupDetail').value = state.settings.popupDetail || 'compact';
@@ -89,8 +86,8 @@ function renderGearSummary() {
   const avg = Math.round(rated.reduce((a, [, g]) => a + g.score, 0) / rated.length);
   const grade = avg >= 85 ? 'S' : avg >= 70 ? 'A' : avg >= 55 ? 'B' : avg >= 40 ? 'C' : 'D';
   const weakest = rated.slice().sort((a, b) => a[1].score - b[1].score).slice(0, 3);
-  const build = (state.builds || []).find((b) => b.id === (state.settings.build || state.defaultBuild));
-  $('#gearSummary').innerHTML = `<div class="gear"><span class="gs g-${grade}">${avg} ${grade}</span> <b>Overall gear score</b> <span class="dim">for ${esc(build ? build.name : 'your build')}${state.pobOn ? ' – a rough guide; verdicts come from Path of Building' : ''}</span></div>
+  const build = state.buildNow;
+  $('#gearSummary').innerHTML = `<div class="gear"><span class="gs g-${grade}">${avg} ${grade}</span> <b>Overall gear score</b> <span class="dim">for ${esc(build && build.name ? build.name : 'your build')}${state.pobOn ? ' – a rough guide; verdicts come from Path of Building' : ''}</span></div>
     <div>Upgrade first: ${weakest.map(([slot, g]) => `<button class="link" data-quick2="${esc(slot)}">${esc(slot)} (${g.score})</button>`).join(' · ')}
     <span class="note" id="gearSumMsg"></span></div>`;
   document.querySelectorAll('[data-quick2]').forEach((b) => b.addEventListener('click', async () => {
