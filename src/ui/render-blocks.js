@@ -50,6 +50,16 @@
     return `<div class="res-loss-banner">⚠ LOSES DAMAGE: <b>${d.minion ? 'Minion DPS' : 'DPS'} ${n(d.from)} → ${n(d.to)}</b> <span>(−${Math.abs(d.pct)}%: it doesn't have the damage mods your item gives)</span></div>`;
   };
 
+  // "At 20% quality: +6.1% (UPGRADE)": the same item judged again by Path of Building with 20% quality
+  //   r.atQuality: { quality, from, score, verdict, gain } (core/quality.js summarise)
+  window.atQualityHtml = function (r) {
+    const q = r && !r.isEquipped && r.pob && r.atQuality;
+    if (!q) return '';
+    const v = (R.VERDICT && R.VERDICT[q.verdict]) || null;
+    const sc = `${q.score > 0 ? '+' : q.score < 0 ? '−' : '±'}${Math.abs(q.score)}%`;
+    return `<div class="at-quality small" title="Path of Building judged this item again with ${q.quality}% quality (it has ${q.from}% now). Quality raises an armour piece's defences and a weapon's physical damage; a few Armourer's Scraps, Blacksmith's Whetstones or Arcanist's Etchers get it there.">At ${q.quality}% quality: <b>${sc}</b> for your build${v ? ` <span class="dim">(${R.esc(v.text)})</span>` : ''} <span class="dim">· ${q.from}% now</span></div>`;
+  };
+
   // Path of Building's verdict: what the item really does to your build
   //   p: pobverdict.judge() output; opts: { pending, error, compact }
   window.pobBlock = function (p, opts) {

@@ -136,6 +136,7 @@
         ${r.savePick ? `<div class="auto-saved small">Which one is it? Click <b>Set as …</b> below (both slots hold other items).</div>` : ''}
         ${r.autoSaved ? `<div class="auto-saved small" title="It's the item you have saved as your ${R.esc(r.autoSaved.slot)} (same base, item level${rarity === 'rare' || unique ? ' and name' : ' and mods'}), changed since. The verdict above is against your gear before this change.">✓ Saved as your ${R.esc(r.autoSaved.slot)}: it changed since you last saved it</div>` : ''}
         ${lossBanner}
+        ${window.atQualityHtml(r)}
         ${r.ninja ? window.ninjaLine(r.ninja, advWord) : ''}
         ${adviceBlock}
         ${window.sellHtml(r)}

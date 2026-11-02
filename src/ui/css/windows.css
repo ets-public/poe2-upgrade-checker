@@ -126,6 +126,8 @@ summary:hover { color: var(--gold-hi); }
 button.more { display: block; margin: 8px 0 0; padding: 0; }
 .more-box { margin-top: 8px; border-top: 1px solid rgba(122, 101, 69, .35); padding-top: 8px; }
 .craft { font-size: 13px; color: var(--rune); margin: 3px 0; }
+.at-quality { margin: 3px 0; color: var(--rune); }
+.at-quality b { color: var(--gold-hi); }
 .card .chgs { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 13.5px; margin: 5px 0; }
 .card .chg.pos { color: var(--up); } .card .chg.neg { color: var(--down); } .card .chg.unweighted { color: var(--ash); }
 /* colour-blind friendly: blue = better, orange = worse */
