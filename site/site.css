@@ -181,3 +181,31 @@ footer p { margin: 4px 0; }
 .league .lg-name { font: 500 14px var(--f-head); color: var(--label); }
 .league .lg-when { font: 700 20px var(--f-head); color: var(--title); }
 .league.live .lg-when { color: var(--up, #8fd18f); }
+
+/* economy page (/economy/) */
+.eco-head { padding-top: 28px; margin-bottom: 28px; }
+.eco-head .lead { max-width: 820px; }
+.eco-bar { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; }
+.eco-bar label { display: flex; gap: 8px; align-items: center; color: var(--label); }
+.eco-bar .grow { flex: 1 1 260px; }
+.eco-bar select, .eco-bar input { font: inherit; color: var(--value); background: var(--panel-solid); border: 1px solid var(--line-hi); padding: 6px 10px; }
+.eco-bar input { width: 100%; }
+.seg { display: flex; gap: 6px; }
+.seg .btn[aria-pressed="true"], .eco-tabs .btn[aria-selected="true"] { border-color: var(--title); color: var(--light); }
+.movers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-bottom: 36px; }
+.mv { padding: 14px 18px; }
+.mv ol { margin: 8px 0 0; padding-left: 22px; }
+.mv li { margin: 3px 0; }
+.eco-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.eco-table-wrap { overflow-x: auto; }
+.eco-table { width: 100%; border-collapse: collapse; font-size: 16px; }
+.eco-table th { text-align: left; font: 700 15px var(--f-head); color: var(--title); padding: 8px 10px; border-bottom: 1px solid var(--line-hi); cursor: pointer; white-space: nowrap; }
+.eco-table th[aria-sort="ascending"]::after { content: " ▴"; }
+.eco-table th[aria-sort="descending"]::after { content: " ▾"; }
+.eco-table td { padding: 6px 10px; border-bottom: 1px solid var(--line); }
+.eco-table .r, .eco-table th.r { text-align: right; white-space: nowrap; }
+.eco-table tbody tr:hover { background: var(--band); }
+.eco .dim { color: var(--label); }
+.eco .small { font-size: 14px; }
+.spark { display: inline-block; vertical-align: middle; color: var(--currency); }
+@media (max-width: 720px) { .movers { grid-template-columns: 1fr; } .eco-table { font-size: 15px; } .eco-table td, .eco-table th { padding: 6px; } .eco-table th:nth-child(5), .eco-table td:nth-child(5), .spark { display: none; } }

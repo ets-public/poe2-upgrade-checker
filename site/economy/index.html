@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PoE2 Currency Prices and Economy Today | PoE Upgrade Checker</title>
+  <meta name="description" content="Path of Exile 2 and Path of Exile 1 currency exchange prices for the current league: exalted, divine and chaos values, 7-day trends and the biggest movers, from poe.ninja.">
+  <link rel="canonical" href="https://poe2upgrade.com/economy/">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta property="og:site_name" content="PoE Upgrade Checker">
+  <meta property="og:title" content="PoE2 currency prices today">
+  <meta property="og:description" content="Currency exchange prices for Path of Exile 2 and 1: values, 7-day trends and the biggest movers of the league.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://poe2upgrade.com/economy/">
+  <meta property="og:image" content="https://poe2upgrade.com/img/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#0e0c0a">
+  <link rel="icon" href="/img/icon-64.png">
+  <link rel="apple-touch-icon" href="/img/icon-180.png">
+  <link rel="stylesheet" href="/site.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "PoE Upgrade Checker", "item": "https://poe2upgrade.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Economy", "item": "https://poe2upgrade.com/economy/" }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/"><img src="/img/icon-64.png" alt="PoE Upgrade Checker logo" width="28" height="28"><span>PoE Upgrade Checker</span></a>
+    <nav aria-label="Main">
+      <a href="/#features">Features</a>
+      <a href="/economy/" aria-current="page">Economy</a>
+      <a href="/#faq">FAQ</a>
+      <a class="btn small" href="/download">Download</a>
+    </nav>
+  </header>
+
+  <main class="article eco">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="/">PoE Upgrade Checker</a> › Economy</nav>
+    <section class="eco-head">
+      <h1>Currency prices <span id="ecoSub">for the current league</span></h1>
+      <p class="lead">What the currency exchange pays today, how each price moved over the last 7 days, and the biggest movers. Prices from <a href="https://poe.ninja">poe.ninja</a>, refreshed about every half hour.</p>
+      <div class="eco-bar">
+        <div class="seg" role="group" aria-label="Game">
+          <button class="btn small" data-game="poe2" aria-pressed="true">PoE2</button>
+          <button class="btn small" data-game="poe1" aria-pressed="false">PoE1</button>
+        </div>
+        <label>League <select id="ecoLeague" aria-label="League"></select></label>
+        <label class="grow"><input id="ecoSearch" type="search" placeholder="Find an item (e.g. divine, omen, essence)" aria-label="Find an item"></label>
+      </div>
+      <p class="fine" id="ecoRate"></p>
+    </section>
+
+    <section class="movers" id="ecoMovers" aria-label="Biggest movers this week"></section>
+
+    <section>
+      <div class="eco-tabs" id="ecoTabs" role="tablist" aria-label="Category"></div>
+      <div class="eco-table-wrap">
+        <table class="eco-table" id="ecoTable">
+          <thead><tr>
+            <th data-sort="name" scope="col">Item</th>
+            <th data-sort="value" scope="col" class="r">Price</th>
+            <th data-sort="div" scope="col" class="r">In divines</th>
+            <th data-sort="change" scope="col" class="r">7 days</th>
+            <th data-sort="volume" scope="col" class="r">Traded</th>
+          </tr></thead>
+          <tbody><tr><td colspan="5" class="dim">Loading prices…</td></tr></tbody>
+        </table>
+      </div>
+      <noscript><p>This page needs JavaScript to load the prices.</p></noscript>
+    </section>
+
+    <section class="final">
+      <h2>Is that item an upgrade for your build?</h2>
+      <p>PoE Upgrade Checker is a free overlay: hover an item in game and press F2, and Path of Building says what it does to your damage, effective HP and resistances, with its price.</p>
+      <p><a class="btn main" href="/download">Download PoE Upgrade Checker</a></p>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="/">PoE Upgrade Checker</a> · <a href="/path-of-building-poe2/">Path of Building for PoE2</a> · Prices: <a href="https://poe.ninja">poe.ninja</a> · Not affiliated with or endorsed by Grinding Gear Games.</p>
+  </footer>
+  <script src="/economy.js"></script>
+</body>
+</html>
