@@ -77,3 +77,17 @@ test('filter: tiers by price keep the edits you made by hand', () => {
 test('filter: style lines are written safely', () => {
   assert.deepStrictEqual(F.styleLines({ SetFontSize: ['40'], CustomAlertSound: ['my "sound".mp3', '300'], Bogus: ['x'] }), ['\tSetFontSize 40', '\tCustomAlertSound "my sound.mp3" 300']);
 });
+
+test('filter: a local copy remembers its online filter, with your edits on top', () => {
+  const copy = F.markOnline(FILTER, 'abc123');
+  assert.strictEqual(F.onlineSource(copy), 'abc123');
+  assert.strictEqual(F.onlineSource(F.markOnline(copy, 'xyz')), 'xyz');
+  assert.strictEqual(F.markOnline(copy, 'xyz').split(F.ONLINE).length, 2);
+  const edited = F.apply(copy, [{ baseType: 'Chaos Orb', show: false }]);
+  assert.strictEqual(F.onlineSource(edited), 'abc123');
+  assert.deepStrictEqual(F.readEdits(edited).map((e) => e.baseType), ['Chaos Orb']);
+  assert.strictEqual(F.onlineSource(FILTER), null);
+  assert.strictEqual(F.copyBaseName('NeverSink-6uberplu-poe2 (local copy)'), 'NeverSink-6uberplu-poe2');
+  assert.strictEqual(F.copyBaseName('NeverSink (local copy) 2'), 'NeverSink');
+  assert.strictEqual(F.copyBaseName('My filter'), null);
+});

@@ -61,6 +61,9 @@
     if (!d.ok) { msg(d.error); return; }
     st.file = file; st.data = d;
     $('#lfAuto').checked = d.autoTiers > 0;
+    const reset = $('#lfResetOnline');
+    reset.classList.toggle('hidden', !d.online);
+    reset.textContent = 'Reset to online'; delete reset.dataset.armed;
     renderList();
     if (st.item) selectItem(st.item);
   }
@@ -168,6 +171,24 @@
     if (!r.ok) { msg(r.error); e.target.checked = false; return; }
     msg(e.target.checked ? `${r.count} items put in tiers by today's prices in ${r.league} (${Object.entries(r.by || {}).map(([k, v]) => `${k}: ${v}`).join(', ')}). Tick it again later to use newer prices. Reload the filter in game to see it.` : 'Tiers by price taken off: the filter decides again (your own edits stay).');
     await openFile(st.file);
+  });
+  // two clicks: the first says what goes, the second (within a few seconds) resets
+  $('#lfResetOnline').addEventListener('click', async (e) => {
+    const b = e.currentTarget;
+    if (!st.file || !st.data || !st.data.online) return;
+    if (!b.dataset.armed) {
+      b.dataset.armed = '1';
+      b.textContent = 'Click again to reset';
+      const n = st.data.edits.length;
+      msg(`Reset to "${st.data.online.name}" as it is online now? ${n ? `Your ${n} edit${n === 1 ? '' : 's'} in this copy will be taken off. ` : ''}The file as it is now is kept as a .before-reset.bak copy.`);
+      setTimeout(() => { if (b.dataset.armed) { delete b.dataset.armed; b.textContent = 'Reset to online'; } }, 5000);
+      return;
+    }
+    delete b.dataset.armed; b.textContent = 'Reset to online';
+    const r = await window.api.lfResetOnline(st.file);
+    if (!r.ok) { msg(r.error); return; }
+    await loadFiles(); // opens the file again
+    msg(`Reset to "${r.online}" as it is online now${r.dropped ? ` (${r.dropped} edit${r.dropped === 1 ? '' : 's'} taken off)` : ''}. Reload the filter in game to see it (Copy reload command).`);
   });
   $('#lfReload').addEventListener('click', async () => {
     if (!st.file) { msg('Pick a filter first.'); return; }

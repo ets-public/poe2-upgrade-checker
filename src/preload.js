@@ -59,6 +59,7 @@ contextBridge.exposeInMainWorld('api', {
   // loot filter editor
   lfList: () => ipcRenderer.invoke('lf:list'),
   lfCopyOnline: (id) => ipcRenderer.invoke('lf:copyOnline', id),
+  lfResetOnline: (file) => ipcRenderer.invoke('lf:resetOnline', file),
   lfOpen: (file) => ipcRenderer.invoke('lf:open', file),
   lfLast: () => ipcRenderer.invoke('lf:last'),
   lfItem: (file, q) => ipcRenderer.invoke('lf:item', file, q),

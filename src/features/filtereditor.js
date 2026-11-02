@@ -77,9 +77,35 @@ module.exports = function (C) {
     const base = `${onlineName(text, id)} (local copy)`;
     let file = path.join(gameFolder(), `${base}.filter`);
     for (let n = 2; fs.existsSync(file) && n < 50; n++) file = path.join(gameFolder(), `${base} ${n}.filter`);
-    fs.writeFileSync(file, text);
+    fs.writeFileSync(file, F.markOnline(text, id));
     C.log(`filter editor: copied online filter ${id} to ${path.basename(file)}`);
     return { ok: true, file, name: path.basename(file, '.filter') };
+  }
+
+  // the online filter a local copy came from: the id on its first line, or (copies made before that)
+  // the online filter whose name the copy's name starts with
+  function onlineSourceOf(f, text) {
+    const id = F.onlineSource(text);
+    if (id && onlinePath(id) && fs.existsSync(onlinePath(id))) return { id, name: onlineName(fs.readFileSync(onlinePath(id), 'utf8').slice(0, 4000), id) };
+    const base = F.copyBaseName(path.basename(f, '.filter'));
+    if (!base) return null;
+    const hit = list().online.find((o) => o.name === base);
+    return hit ? { id: hit.id, name: hit.name } : null;
+  }
+  // the local copy made the online filter again, as it is now: your edits are dropped, the file as it
+  // was is kept next to it (.before-reset.bak)
+  function resetOnline(file) {
+    const f = localPath(file);
+    if (!f || !fs.existsSync(f)) return { ok: false, error: 'Pick one of your filters.' };
+    const cur = fs.readFileSync(f, 'utf8');
+    const src = onlineSourceOf(f, cur);
+    if (!src) return { ok: false, error: 'Can\'t find the online filter this is a copy of. Pick it in the game once so the game downloads it.' };
+    const dropped = F.readEdits(cur).length;
+    try { fs.writeFileSync(f.replace(/\.filter$/i, '.before-reset.bak'), cur); } catch (err) { C.log('filter editor: backup before reset failed: ' + err.message); }
+    fs.writeFileSync(f, F.markOnline(fs.readFileSync(onlinePath(src.id), 'utf8'), src.id));
+    cache.delete(f);
+    C.log(`filter editor: ${path.basename(f)}: reset to online filter ${src.id} (${dropped} edits dropped)`);
+    return { ok: true, dropped, online: src.name };
   }
 
   // parsed files, kept while unchanged on disk
@@ -103,7 +129,7 @@ module.exports = function (C) {
     const names = new Set(F.baseTypes(r.parsed));
     for (const e of edits) names.add(e.baseType);
     return { ok: true, file: f, name: path.basename(f, '.filter'), items: [...names].sort((a, b) => a.localeCompare(b)), tiers: F.tiers(F.parse(F.withoutEdits(r.text))), edits,
-      autoTiers: edits.filter((e) => e.auto).length, blocks: r.parsed.blocks.length };
+      autoTiers: edits.filter((e) => e.auto).length, blocks: r.parsed.blocks.length, online: onlineSourceOf(f, r.text) };
   }
 
   // how an item looks now: the block that decides it, in the filter with your edits and without them
@@ -206,6 +232,7 @@ module.exports = function (C) {
   const wrap = (fn) => async (_e, ...a) => { try { return await fn(...a); } catch (err) { C.log('filter editor: ' + (err.stack || err)); return { ok: false, error: err.message || String(err) }; } };
   ipcMain.handle('lf:list', wrap(() => list()));
   ipcMain.handle('lf:copyOnline', wrap((id) => copyOnline(id)));
+  ipcMain.handle('lf:resetOnline', wrap((file) => resetOnline(file)));
   ipcMain.handle('lf:open', wrap((file) => { C.store.setSetting('filterEditorFile', file); return open(file); }));
   ipcMain.handle('lf:last', wrap(() => C.store.settings.filterEditorFile || null));
   ipcMain.handle('lf:item', wrap((file, q) => itemInfo(file, q || {})));
@@ -231,5 +258,5 @@ module.exports = function (C) {
   ipcMain.on('lf:window', () => openWindow());
   ipcMain.on('lf:hide', () => { if (win && !win.isDestroyed()) win.hide(); });
 
-  return { openWindow, toggleWindow, registerHotkey, active: () => hk, list, open, itemInfo, setEdit, copyOnline };
+  return { openWindow, toggleWindow, registerHotkey, active: () => hk, list, open, itemInfo, setEdit, copyOnline, resetOnline };
 };

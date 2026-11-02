@@ -208,6 +208,20 @@ function setEdit(edits, baseType, edit) {
   return edit ? [{ ...edit, baseType }, ...rest] : rest;
 }
 
+// ---------- a local copy of an online filter ----------
+// The copy keeps the online filter's file name on its first line, so "Reset to online" can find it again.
+const ONLINE = '# poe-upgrade-checker-online: ';
+const markOnline = (text, id) => `${ONLINE}${String(id).replace(/[\r\n]/g, '')}\n${String(text || '').replace(new RegExp(`^${ONLINE}.*\\r?\\n`, 'm'), '')}`;
+function onlineSource(text) {
+  const m = withoutEdits(String(text || '').slice(0, 300000)).slice(0, 2000).match(/^# poe-upgrade-checker-online: (.+?)\r?$/m);
+  return m ? m[1].trim() : null;
+}
+// "NeverSink (local copy 2)" or "NeverSink (local copy) 2" -> "NeverSink": for copies made before the marker
+function copyBaseName(name) {
+  const m = String(name || '').match(/^(.*) \(local copy\)(?: \d+)?$/);
+  return m ? m[1] : null;
+}
+
 // ---------- automatic tiers from today's prices ----------
 // prices: [{ name, div }] (poe.ninja, in divines). Each item goes in the first tier its price reaches.
 const PRICE_TIERS = [
@@ -231,4 +245,4 @@ function priceEdits(prices, own = []) {
   return out.sort((a, b) => order(a) - order(b));
 }
 
-module.exports = { START, END, parse, parseLine, findBlock, baseTypes, tiers, readEdits, withoutEdits, section, apply, setEdit, styleLines, priceEdits, PRICE_TIERS, condHolds };
+module.exports = { START, END, ONLINE, markOnline, onlineSource, copyBaseName, parse, parseLine, findBlock, baseTypes, tiers, readEdits, withoutEdits, section, apply, setEdit, styleLines, priceEdits, PRICE_TIERS, condHolds };
