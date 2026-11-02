@@ -260,7 +260,7 @@ Questions, bugs or ideas: email **[support@poe2upgrade.com](mailto:support@poe2u
 
 ## Linux (experimental)
 
-For PoE2 running through **Steam with Proton** (or Lutris/Heroic) on desktop Linux: Ubuntu, Fedora, Arch, Bazzite and so on, on X11 or Wayland.
+For PoE2 running through **Steam with Proton** (or Lutris/Heroic) on desktop Linux: Ubuntu, Fedora, Arch, Bazzite and so on, on X11 or Wayland. The same steps are on the website: [poe2upgrade.com/linux](https://poe2upgrade.com/linux/).
 
 1. Download **`PoE-Upgrade-Checker.AppImage`** from the [newest release](https://poe2upgrade.com/download) and put it where you want to keep it (e.g. `~/Applications`).
 2. Make it executable and run it: right-click → Properties → *Allow executing as program*, or `chmod +x PoE-Upgrade-Checker.AppImage && ./PoE-Upgrade-Checker.AppImage`. It **updates itself** like the Windows installer, in place: the file keeps its name, so shortcuts and *Start with your desktop* keep working (a `PoE2-Upgrade-Checker.AppImage` from before the rename keeps that name too).
