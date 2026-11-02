@@ -78,8 +78,45 @@ module.exports = function (C) {
     let file = path.join(gameFolder(), `${base}.filter`);
     for (let n = 2; fs.existsSync(file) && n < 50; n++) file = path.join(gameFolder(), `${base} ${n}.filter`);
     fs.writeFileSync(file, text);
+    rememberSource(file, id);
     C.log(`filter editor: copied online filter ${id} to ${path.basename(file)}`);
     return { ok: true, file, name: path.basename(file, '.filter') };
+  }
+
+  // which online filter a local copy was made from (kept in settings; copies made before that are matched by name)
+  function rememberSource(file, id) {
+    const all = { ...(C.store.settings.filterSources || {}) };
+    all[`${C.tg()}:${path.basename(file).toLowerCase()}`] = id;
+    C.store.setSetting('filterSources', all);
+  }
+  function sourceOf(f) {
+    const id = (C.store.settings.filterSources || {})[`${C.tg()}:${path.basename(f).toLowerCase()}`];
+    if (id && onlinePath(id) && fs.existsSync(onlinePath(id))) return id;
+    const m = path.basename(f, path.extname(f)).match(/^(.*) \(local copy\)(?: \d+)?$/i);
+    if (!m) return null;
+    const hit = list().online.find((o) => o.name.toLowerCase() === m[1].toLowerCase());
+    return hit ? hit.id : null;
+  }
+
+  // start again: a copy of an online filter goes back to that online filter as the game has it now;
+  // any other filter goes back to how it was before its first edit (or just loses the edits). What it was
+  // a moment ago is kept next to it as .before-reset.bak.
+  function reset(file) {
+    const f = localPath(file);
+    if (!f || !fs.existsSync(f)) return { ok: false, error: 'Pick one of your filters.' };
+    const now = fs.readFileSync(f, 'utf8');
+    const id = sourceOf(f);
+    let text; let from;
+    if (id) { text = fs.readFileSync(onlinePath(id), 'utf8'); from = 'online'; }
+    else {
+      const bak = f.replace(/\.filter$/i, '.before-edits.bak');
+      if (fs.existsSync(bak)) { text = fs.readFileSync(bak, 'utf8'); from = 'backup'; } else { text = F.withoutEdits(now); from = 'edits'; }
+    }
+    try { fs.writeFileSync(f.replace(/\.filter$/i, '.before-reset.bak'), now); } catch (err) { C.log('filter editor: reset backup failed: ' + err.message); }
+    fs.writeFileSync(f, text);
+    cache.delete(f);
+    C.log(`filter editor: ${path.basename(f)} reset (${from}${id ? ` ${id}` : ''})`);
+    return { ok: true, from, online: id ? (list().online.find((o) => o.id === id) || {}).name || id : null };
   }
 
   // parsed files, kept while unchanged on disk
@@ -102,8 +139,8 @@ module.exports = function (C) {
     const edits = F.readEdits(r.text);
     const names = new Set(F.baseTypes(r.parsed));
     for (const e of edits) names.add(e.baseType);
-    return { ok: true, file: f, name: path.basename(f, '.filter'), items: [...names].sort((a, b) => a.localeCompare(b)), tiers: F.tiers(F.parse(F.withoutEdits(r.text))), edits,
-      autoTiers: edits.filter((e) => e.auto).length, blocks: r.parsed.blocks.length };
+    return { ok: true, file: f, name: path.basename(f, '.filter'), source: sourceOf(f), items: [...names].sort((a, b) => a.localeCompare(b)), tiers: F.tiers(F.parse(F.withoutEdits(r.text))), edits,
+      autoTiers: edits.filter((e) => e.auto).length, blocks: r.parsed.blocks.length, tierMembers: F.tierMembers(r.text, edits) };
   }
 
   // how an item looks now: the block that decides it, in the filter with your edits and without them
@@ -133,7 +170,7 @@ module.exports = function (C) {
     const name = String(baseType || '').trim().slice(0, 80);
     if (!name) return { ok: false, error: 'Pick an item.' };
     const clean = edit ? { show: edit.show !== false, style: edit.show === false ? null : (edit.style || null), rarity: /^(<=|>=|<|>|=|==)?\s*(Normal|Magic|Rare|Unique)$/.test(edit.rarity || '') ? edit.rarity : undefined,
-      note: String(edit.note || `${name}: your edit`).slice(0, 60) } : null;
+      tier: edit.tier ? String(edit.tier).slice(0, 80) : undefined, note: String(edit.note || `${name}: your edit`).slice(0, 60) } : null;
     const edits = F.setEdit(F.readEdits(read(f).text), name, clean);
     writeEdits(f, edits);
     C.log(`filter editor: ${path.basename(f)}: ${clean ? (clean.show ? 'styled' : 'hid') : 'took the edit off'} ${name}`);
@@ -211,6 +248,7 @@ module.exports = function (C) {
   ipcMain.handle('lf:item', wrap((file, q) => itemInfo(file, q || {})));
   ipcMain.handle('lf:setEdit', wrap((file, baseType, edit) => setEdit(file, baseType, edit)));
   ipcMain.handle('lf:autoTiers', wrap((file, on) => autoTiers(file, !!on)));
+  ipcMain.handle('lf:reset', wrap((file) => reset(file)));
   ipcMain.handle('lf:copied', wrap(() => copiedItem()));
   ipcMain.handle('lf:reload', wrap((file) => {
     const f = localPath(file);
@@ -231,5 +269,5 @@ module.exports = function (C) {
   ipcMain.on('lf:window', () => openWindow());
   ipcMain.on('lf:hide', () => { if (win && !win.isDestroyed()) win.hide(); });
 
-  return { openWindow, toggleWindow, registerHotkey, active: () => hk, list, open, itemInfo, setEdit, copyOnline };
+  return { openWindow, toggleWindow, registerHotkey, active: () => hk, list, open, itemInfo, setEdit, copyOnline, reset };
 };

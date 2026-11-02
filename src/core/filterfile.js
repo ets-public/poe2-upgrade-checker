@@ -50,7 +50,7 @@ function parse(text) {
       continue;
     }
     if (!t) continue;
-    if (t.startsWith('#')) { const c = t.replace(/^#+\s*/, ''); if (c) comment.push(c); if (comment.length > 4) comment.shift(); continue; }
+    if (t.startsWith('#')) { if (t.startsWith(DATA.trim()) || t === START || t === END) continue; const c = t.replace(/^#+\s*/, ''); if (c) comment.push(c); if (comment.length > 4) comment.shift(); continue; }
     if (!cur) continue;
     const p = parseLine(t);
     if (!p) continue;
@@ -68,7 +68,7 @@ function labelOf(inline, comment) {
   const s = `${inline || ''} ${(comment || []).slice(-1)[0] || ''}`;
   const tier = s.match(/\$tier->(\S+)/); const type = s.match(/\$type->(\S+)/);
   if (tier || type) return `${type ? type[1].replace(/->/g, ' ') : ''}${tier ? ` · ${tier[1]}` : ''}`.trim();
-  const c = (comment || []).slice(-1)[0] || inline || '';
+  const c = (inline || '').trim() || (comment || []).slice(-1)[0] || '';
   return c.replace(/[=\-#*[\]]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
 }
 
@@ -147,6 +147,38 @@ function tiers(parsed) {
     if (out.length >= 80) break;
   }
   return out;
+}
+
+// what's in each tier: every labelled block of the filter you started from with the base types it names
+// (hidden ones as "Hidden: label"), with your edits moved to the tier you gave them. An edit's tier is its
+// `tier` (picked from a tier button), "Tier S" etc. for tiers by price, "Hidden by you", or "Your own look".
+// -> [{ label, hidden, ours, items: [{ baseType, edited, auto }] }], the filter's own order, ours first
+function tierMembers(text, edits) {
+  const base = parse(withoutEdits(text));
+  const groups = new Map();
+  const group = (label, extra) => { const k = label.toLowerCase(); if (!groups.has(k)) groups.set(k, { label, items: [], seen: new Set(), ...extra }); return groups.get(k); };
+  for (const t of PRICE_TIERS) group(`Tier ${t.id}`, { ours: true, hidden: false });
+  group('Tier D', { ours: true, hidden: false });
+  const moved = new Map((edits || []).map((e) => [e.baseType.toLowerCase(), e]));
+  for (const b of base.blocks) {
+    if (!b.label) continue;
+    const names = [];
+    for (const c of b.conds) if (c.key === 'BaseType') for (const v of c.values) if (v && v.length > 2) names.push(v);
+    if (!names.length) continue;
+    const g = group(b.action === 'Hide' ? `Hidden: ${b.label}` : b.label, { ours: false, hidden: b.action === 'Hide' });
+    for (const n of names) {
+      if (moved.has(n.toLowerCase()) || g.seen.has(n.toLowerCase())) continue;
+      g.seen.add(n.toLowerCase()); g.items.push({ baseType: n });
+    }
+  }
+  for (const e of edits || []) {
+    const label = e.show === false ? 'Hidden by you' : e.auto ? `Tier ${e.auto}` : e.tier || 'Your own look';
+    const g = group(label, { ours: !!e.auto || /^Tier [SABCD]$/.test(label) || label === 'Hidden by you' || label === 'Your own look', hidden: e.show === false });
+    if (g.seen.has(e.baseType.toLowerCase())) continue;
+    g.seen.add(e.baseType.toLowerCase());
+    g.items.push({ baseType: e.baseType, edited: true, auto: e.auto || null });
+  }
+  return [...groups.values()].filter((g) => g.items.length).map(({ seen, ...g }) => ({ ...g, items: g.items.sort((a, b) => a.baseType.localeCompare(b.baseType)) }));
 }
 
 // ---------- the editor's section ----------
@@ -231,4 +263,4 @@ function priceEdits(prices, own = []) {
   return out.sort((a, b) => order(a) - order(b));
 }
 
-module.exports = { START, END, parse, parseLine, findBlock, baseTypes, tiers, readEdits, withoutEdits, section, apply, setEdit, styleLines, priceEdits, PRICE_TIERS, condHolds };
+module.exports = { START, END, tierMembers, parse, parseLine, findBlock, baseTypes, tiers, readEdits, withoutEdits, section, apply, setEdit, styleLines, priceEdits, PRICE_TIERS, condHolds };

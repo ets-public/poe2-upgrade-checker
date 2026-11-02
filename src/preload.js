@@ -66,6 +66,7 @@ contextBridge.exposeInMainWorld('api', {
   lfAutoTiers: (file, on) => ipcRenderer.invoke('lf:autoTiers', file, on),
   lfCopied: () => ipcRenderer.invoke('lf:copied'),
   lfReload: (file) => ipcRenderer.invoke('lf:reload', file),
+  lfReset: (file) => ipcRenderer.invoke('lf:reset', file),
   lfFolder: () => ipcRenderer.invoke('lf:folder'),
   lfWindow: () => ipcRenderer.send('lf:window'),
   lfHide: () => ipcRenderer.send('lf:hide'),
