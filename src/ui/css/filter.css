@@ -34,3 +34,5 @@ body.lfe { margin: 0; height: 100vh; display: flex; flex-direction: column; back
 .lfe-item h4 { margin: 14px 0 4px; color: var(--gold); font-family: var(--f-carved); font-weight: 500; }
 .lfe-item input[type="range"] { width: 220px; }
 .lfe-item input[type="color"] { width: 36px; height: 26px; padding: 0; border: 1px solid var(--iron-hi); background: none; }
+.lfe-list select { width: 100%; box-sizing: border-box; }
+#lfResetAll.armed { border-color: var(--down); color: var(--down); }

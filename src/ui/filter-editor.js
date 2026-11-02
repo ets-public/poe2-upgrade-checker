@@ -6,7 +6,7 @@
 (function () {
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const st = { file: null, data: null, item: null, info: null, q: '' };
+  const st = { file: null, data: null, item: null, info: null, q: '', tier: '' };
   const msg = (t) => { $('#lfMsg').textContent = t || ''; };
 
   // the game's beam and minimap colours, and our own price tiers' looks (same as core/filterfile.js)
@@ -61,17 +61,33 @@
     if (!d.ok) { msg(d.error); return; }
     st.file = file; st.data = d;
     $('#lfAuto').checked = d.autoTiers > 0;
+    renderTierView();
+    $('#lfResetAll').textContent = d.source ? 'Reset to online' : 'Reset';
     renderList();
     if (st.item) selectItem(st.item);
+  }
+
+  // the tier picker over the list: every tier with what's in it now, your edits included
+  function renderTierView() {
+    const d = st.data; const sel = $('#lfTierView');
+    const groups = (d && d.tierMembers) || [];
+    if (st.tier && !groups.some((g) => g.label === st.tier)) st.tier = '';
+    const opt = (g) => `<option value="${esc(g.label)}">${esc(g.label)} (${g.items.length})</option>`;
+    const ours = groups.filter((g) => g.ours); const shown = groups.filter((g) => !g.ours && !g.hidden); const hidden = groups.filter((g) => !g.ours && g.hidden);
+    sel.innerHTML = `<option value="">All items</option>${ours.length ? `<optgroup label="Your tiers and edits">${ours.map(opt).join('')}</optgroup>` : ''}${
+      shown.length ? `<optgroup label="The filter's tiers">${shown.map(opt).join('')}</optgroup>` : ''}${hidden.length ? `<optgroup label="Hidden by the filter">${hidden.map(opt).join('')}</optgroup>` : ''}`;
+    sel.value = st.tier;
   }
 
   function renderList() {
     const d = st.data; if (!d) return;
     const q = st.q.trim().toLowerCase();
     const edited = new Map(d.edits.map((e) => [e.baseType.toLowerCase(), e]));
-    const items = q ? d.items.filter((x) => x.toLowerCase().includes(q)) : d.items;
+    const tier = st.tier && (d.tierMembers || []).find((g) => g.label === st.tier);
+    const pool = tier ? tier.items.map((i) => i.baseType) : d.items;
+    const items = q ? pool.filter((x) => x.toLowerCase().includes(q)) : pool;
     $('#lfItems').innerHTML = items.slice(0, 600).map((x) => { const e = edited.get(x.toLowerCase()); return `<li role="option" tabindex="0" data-item="${esc(x)}" class="${e ? (e.auto ? 'auto' : 'edited') : ''}" aria-selected="${st.item && st.item.baseType === x}">${esc(x)}</li>`; }).join('');
-    $('#lfCount').textContent = `${items.length} item${items.length === 1 ? '' : 's'}${items.length > 600 ? ' (first 600 shown: search to narrow)' : ''} · ${d.edits.length} edit${d.edits.length === 1 ? '' : 's'}${d.autoTiers ? ` (${d.autoTiers} by price)` : ''}`;
+    $('#lfCount').textContent = `${tier ? `${tier.label}: ` : ''}${items.length} item${items.length === 1 ? '' : 's'}${items.length > 600 ? ' (first 600 shown: search to narrow)' : ''} · ${d.edits.length} edit${d.edits.length === 1 ? '' : 's'}${d.autoTiers ? ` (${d.autoTiers} by price)` : ''}`;
   }
 
   async function selectItem(item) {
@@ -96,7 +112,7 @@
     if (!r.ok) { msg(r.error); return; }
     st.info = r;
     const d = await window.api.lfOpen(st.file);
-    if (d.ok) { st.data = d; renderList(); }
+    if (d.ok) { st.data = d; renderTierView(); renderList(); }
     renderItem();
     msg('Saved. Reload the filter in game to see it (Copy reload command, then Enter, Ctrl+V, Enter).');
   }
@@ -134,11 +150,11 @@
     if (ic[1]) $('#cIconColour').value = ic[1];
     if (ic[2]) $('#cIconShape').value = ic[2];
 
-    const change = (fn, note) => { const ed = currentEdit(); ed.show = true; ed.style = ed.style || {}; fn(ed); const r = $('#lfRarity'); if (r && r.value) ed.rarity = r.value; else delete ed.rarity; save(ed, note); };
+    const change = (fn, note) => { const ed = currentEdit(); ed.show = true; ed.style = ed.style || {}; delete ed.tier; fn(ed); const r = $('#lfRarity'); if (r && r.value) ed.rarity = r.value; else delete ed.rarity; save(ed, note); };
     $('#lfShow').addEventListener('change', () => { const ed = currentEdit(); ed.show = $('#lfShow').checked; save(ed, `${st.item.baseType}: ${ed.show ? 'shown' : 'hidden'}`); });
     const reset = $('#lfReset'); if (reset) reset.addEventListener('click', () => save(null));
     const rar = $('#lfRarity'); if (rar) rar.addEventListener('change', () => change(() => {}));
-    box.querySelectorAll('[data-tier]').forEach((b) => b.addEventListener('click', () => { const t = tiers[Number(b.dataset.tier)]; change((ed) => { ed.style = JSON.parse(JSON.stringify(t.styles)); }, `${st.item.baseType}: ${t.label}`); }));
+    box.querySelectorAll('[data-tier]').forEach((b) => b.addEventListener('click', () => { const t = tiers[Number(b.dataset.tier)]; change((ed) => { ed.style = JSON.parse(JSON.stringify(t.styles)); ed.tier = t.label; }, `${st.item.baseType}: ${t.label}`); }));
     $('#cText').addEventListener('change', (ev) => change((ed) => { ed.style.SetTextColor = fromHex(ev.target.value); }));
     $('#cBg').addEventListener('change', (ev) => change((ed) => { ed.style.SetBackgroundColor = fromHex(ev.target.value, 240); }));
     $('#cBorder').addEventListener('change', (ev) => change((ed) => { ed.style.SetBorderColor = fromHex(ev.target.value); }));
@@ -152,6 +168,7 @@
   }
 
   $('#lfFile').addEventListener('change', (e) => { st.item = null; $('#lfItem').innerHTML = '<div class="dim">Pick an item on the left, or <b>Use copied item</b>.</div>'; msg(''); openFile(e.target.value); });
+  $('#lfTierView').addEventListener('change', (e) => { st.tier = e.target.value; renderList(); });
   $('#lfSearch').addEventListener('input', (e) => { st.q = e.target.value; renderList(); });
   $('#lfItems').addEventListener('click', (e) => { const li = e.target.closest('[data-item]'); if (li) selectItem({ baseType: li.dataset.item }); });
   $('#lfItems').addEventListener('keydown', (e) => { if (e.key === 'Enter') { const li = e.target.closest('[data-item]'); if (li) selectItem({ baseType: li.dataset.item }); } });
@@ -173,6 +190,25 @@
     if (!st.file) { msg('Pick a filter first.'); return; }
     const r = await window.api.lfReload(st.file);
     msg(r.ok ? `Copied "${r.cmd}". In game: Enter, Ctrl+V, Enter. The game loads the filter again.` : r.error);
+  });
+  // two clicks, so a stray one doesn't throw your edits away
+  let resetArmed = null;
+  $('#lfResetAll').addEventListener('click', async () => {
+    const b = $('#lfResetAll');
+    if (!st.file) { msg('Pick a filter first.'); return; }
+    if (!resetArmed) {
+      const was = b.textContent;
+      b.textContent = 'Click again to reset'; b.classList.add('armed');
+      msg(st.data && st.data.source ? 'This puts the filter back to the online one and drops all your edits here. Click again to do it.' : 'This drops all your edits to this filter. Click again to do it.');
+      resetArmed = setTimeout(() => { resetArmed = null; b.textContent = was; b.classList.remove('armed'); }, 4000);
+      return;
+    }
+    clearTimeout(resetArmed); resetArmed = null; b.classList.remove('armed');
+    const r = await window.api.lfReset(st.file);
+    if (!r.ok) { msg(r.error); return; }
+    await loadFiles();
+    await openFile(st.file);
+    msg(`${r.from === 'online' ? `Back to the online filter${r.online ? ` "${r.online}"` : ''}, as the game has it now.` : r.from === 'backup' ? 'Back to how it was before your first edit.' : 'Your edits are gone; the filter is as it was.'} What it was before is kept as a .before-reset.bak file. Reload the filter in game to see it.`);
   });
   $('#lfFolderBtn').addEventListener('click', () => window.api.lfFolder());
   $('#lfClose').addEventListener('click', () => window.api.lfHide());

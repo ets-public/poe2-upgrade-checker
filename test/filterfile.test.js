@@ -77,3 +77,26 @@ test('filter: tiers by price keep the edits you made by hand', () => {
 test('filter: style lines are written safely', () => {
   assert.deepStrictEqual(F.styleLines({ SetFontSize: ['40'], CustomAlertSound: ['my "sound".mp3', '300'], Bogus: ['x'] }), ['\tSetFontSize 40', '\tCustomAlertSound "my sound.mp3" 300']);
 });
+
+test('filterfile: what is in each tier, with edits moved to their new tier', () => {
+  const text = `Show # $type->currency $tier->t1
+\tBaseType == "Divine Orb" "Mirror of Kalandra"
+\tSetFontSize 45
+
+Show # $type->currency $tier->t3
+\tBaseType == "Chaos Orb" "Exalted Orb"
+\tSetFontSize 40
+
+Hide # $type->currency $tier->hidden
+\tBaseType "Transmutation" "Wisdom"
+`;
+  const edits = [{ baseType: 'Exalted Orb', show: true, style: {}, auto: 'A' }, { baseType: 'Wisdom', show: true, style: {}, tier: 'currency · t1' }, { baseType: 'Chaos Orb', show: false, style: null }];
+  const g = F.tierMembers(F.apply(text, edits), edits);
+  const by = Object.fromEntries(g.map((x) => [x.label, x.items.map((i) => i.baseType)]));
+  assert.deepStrictEqual(by['Tier A'], ['Exalted Orb']);
+  assert.deepStrictEqual(by['Hidden by you'], ['Chaos Orb']);
+  assert.ok(!('Tier S' in by), 'empty tiers are left out');
+  const t1 = g.find((x) => /t1$/.test(x.label)); assert.deepStrictEqual(t1.items.map((i) => i.baseType), ['Divine Orb', 'Mirror of Kalandra', 'Wisdom'], 'an edit given a filter tier joins it');
+  const hidden = g.find((x) => x.hidden && /^Hidden: /.test(x.label)); assert.deepStrictEqual(hidden.items.map((i) => i.baseType), ['Transmutation']);
+  assert.ok(!g.some((x) => /t3$/.test(x.label)), 'a tier whose items all moved is left out');
+});
