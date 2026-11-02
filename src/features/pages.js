@@ -23,7 +23,7 @@ module.exports = function (C) {
     return [...(Array.isArray(extra) ? extra.filter((k) => typeof k === 'string').slice(0, 30) : []), ...Object.keys(marks).filter((k) => marks[k] === 'd')];
   }
   ipcMain.handle('strings:get', () => ({ game: C.tg(), resShort: resShort(), mapAvoid: searchStr.mapAvoid(avoidKeys()), limit: searchStr.LIMIT,
-    marked: avoidKeys().length }));
+    marked: avoidKeys().length, hotkey: C.store.settings.stringsHotkey || null }));
   ipcMain.handle('strings:vendor', (_e, opts) => searchStr.vendor({ ...(opts || {}), game: C.tg() }));
   ipcMain.handle('strings:mapAvoid', (_e, keys) => {
     const r = searchStr.mapAvoid(avoidKeys(keys));
@@ -113,6 +113,7 @@ module.exports = function (C) {
     slots: SLOTS,
     lastItem: C.lastItem,
     hotkeyStatus: C.hotkeyStatus,
+    hotkeyProblems: C.hotkeyProblems(),
   })));
 
   ipcMain.handle('evaluate:text', (_e, text) => {
@@ -149,5 +150,5 @@ module.exports = function (C) {
     if (fresh) C.settingsWin.webContents.once('did-finish-load', send); else send();
   });
 
-  return {};
+  return { openTab };
 };

@@ -73,7 +73,7 @@
   };
   window.bindSell = function (el, r) {
     const b = el.querySelector('#copySell');
-    if (b) b.addEventListener('click', () => { window.api.copyText(r.sellNote.note); b.textContent = 'Copied'; });
+    if (b) b.addEventListener('click', () => { window.api.copyText(r.sellNote.note); if (window.api.forSaleAdd) window.api.forSaleAdd(r.sellNote.note, r.sellNote.text); b.textContent = 'Copied · on your For sale list'; });
   };
   window.adviceHtml = function (r) {
     const a = window.keepSell && window.keepSell.advise(r);

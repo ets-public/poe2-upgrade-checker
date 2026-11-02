@@ -50,6 +50,28 @@
     return `<div class="res-loss-banner">⚠ LOSES DAMAGE: <b>${d.minion ? 'Minion DPS' : 'DPS'} ${n(d.from)} → ${n(d.to)}</b> <span>(−${Math.abs(d.pct)}%: it doesn't have the damage mods your item gives)</span></div>`;
   };
 
+  // "At 20% quality: +6.1% (UPGRADE)": the same item judged again by Path of Building with 20% quality
+  //   r.atQuality: { quality, from, score, verdict, gain } (core/quality.js summarise)
+  window.atQualityHtml = function (r) {
+    const q = r && !r.isEquipped && r.pob && r.atQuality;
+    if (!q) return '';
+    const v = (R.VERDICT && R.VERDICT[q.verdict]) || null;
+    const sc = `${q.score > 0 ? '+' : q.score < 0 ? '−' : '±'}${Math.abs(q.score)}%`;
+    return `<div class="at-quality small" title="Path of Building judged this item again with ${q.quality}% quality (it has ${q.from}% now). Quality raises an armour piece's defences and a weapon's physical damage; a few Armourer's Scraps, Blacksmith's Whetstones or Arcanist's Etchers get it there.">At ${q.quality}% quality: <b>${sc}</b> for your build${v ? ` <span class="dim">(${R.esc(v.text)})</span>` : ''} <span class="dim">· ${q.from}% now</span></div>`;
+  };
+
+  // Best mods to add (features/craft.js): the free slots' best mods for your build
+  window.craftBestHtml = function (res) {
+    if (!res || !res.ok) return `<div class="note">${R.esc((res && res.error) || 'Path of Building could not try the mods.')}</div>`;
+    const sg = (v) => `${v > 0 ? '+' : v < 0 ? '−' : '±'}${Math.abs(v)}%`;
+    const rows = res.list.map((x) => `<tr class="${x.gain != null && x.gain >= 0.3 ? 'pos' : 'unweighted'}">
+        <td><span class="tier ${x.tier <= 2 ? 'tier-top' : x.tier <= 4 ? 'tier-mid' : 'tier-low'}" title="${R.esc(x.affix ? `"${x.affix}", ` : '')}${x.type.toLowerCase()}, tier ${x.tier} of ${x.tiers} (the best this item level allows)">${x.type === 'Prefix' ? 'P' : 'S'} T${x.tier}</span> ${R.esc(x.lines.join(' / '))}${x.capped.length ? ` <span class="small">✓ caps ${R.esc(x.capped.join(', ').toLowerCase())}</span>` : ''}</td>
+        <td class="r"><b>${sg(x.score)}</b>${x.gain != null ? ` <span class="dim small">(${sg(x.gain)})</span>` : ''}</td></tr>`).join('');
+    return `<div class="dim small">With one more mod (${res.open.prefix} prefix${res.open.prefix === 1 ? '' : 'es'}, ${res.open.suffix} suffix${res.open.suffix === 1 ? '' : 'es'} free), for your build vs what you wear${res.now != null ? `; in brackets, the gain over this item as it is (${sg(res.now)})` : ''}. Best tier for item level ${R.esc(res.ilvl)}, middle roll; a random craft rolls lower tiers too.</div>
+      <table class="rows craft-table">${rows}</table>
+      <div class="dim small">${res.tried} mods tried${res.useless ? `; ${res.useless} add next to nothing for your build` : ''}.</div>`;
+  };
+
   // Path of Building's verdict: what the item really does to your build
   //   p: pobverdict.judge() output; opts: { pending, error, compact }
   window.pobBlock = function (p, opts) {

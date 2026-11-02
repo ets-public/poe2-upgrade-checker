@@ -30,6 +30,8 @@
 
   <main class="main">
     <div class="res-loss-banner hidden" id="loadError" role="alert"></div>
+    <div class="hk-problems hidden" id="hotkeyProblems" role="alert"></div>
+    <div class="whatsnew-bar hidden" id="whatsNewBar"></div>
     <section class="tab active" id="tab-gear">
       <header class="page-head">
         <div><h2>My gear</h2><div class="sub"><span class="p2">What you're wearing, scored for your build (<button class="link gs-help">what's the gear score?</button>).</span><span class="p1">What you're wearing. Items are judged by Path of Building with your build (<button class="link gs-help">how?</button>).</span> Click a slot's <b>Find upgrades</b> to search for something better.</div></div>
@@ -69,7 +71,7 @@
           <div class="card-p" id="filterCard">
             <h3>Loot filter for this build</h3>
             <div class="help">Highlights drops worth a look: the uniques your guide uses that you don't have yet, the best runes for your sockets (after a check on the Character page), better bases of the kinds you wear, your own bases, and identified magic and rare items with the mods your build values most (weapons and offhands too). While levelling, bases show from your level. Pick your current filter and the app saves a copy with this section in front (your filter itself isn't changed). Then choose the new file in the game's options.</div>
-            <div class="row"><button id="filterMake">Make loot filter…</button><button id="filterRemake" class="hidden" title="Write the same file again from your gear and build now, with your filter read again">Remake</button></div>
+            <div class="row"><button id="filterMake">Make loot filter…</button><button id="filterEdit" title="Change how items look in any of your filters, in game: hide, show, tiers, colours, sounds, beams. Online filters are edited as a local copy.">Edit a filter…</button><button id="filterRemake" class="hidden" title="Write the same file again from your gear and build now, with your filter read again">Remake</button></div>
             <div class="small" id="filterStatus"></div>
             <div class="note" id="filterMsg"></div>
           </div>
@@ -310,6 +312,11 @@
           <label class="small"><input type="checkbox" id="soldOn"> Search my price checks again a few hours later to see what sold</label>
           <div class="help">After a trade site price check, the app searches the same thing again about 3 hours later (when you haven't searched for a minute, inside the trade site's limit) and compares. Only instant buyout listings count, because they stay up while their seller is offline: a gone one was bought, or taken down. Checking the item again shows it.</div>
           <div id="soldList"></div>
+        </div>
+        <div class="card-p sold-card">
+          <h3>For sale</h3>
+          <div class="help">Items you copied a price note for (<i>Copy price note</i> after a price check). <b>Check</b> searches the trade site again: is your listing still up, and is it still the cheapest like it, or is it gone (sold, or taken down)?</div>
+          <div id="forSaleList"></div>
         </div></div>
         <div class="col"><div id="testResult"></div></div>
       </div>
@@ -333,6 +340,12 @@
           <span class="k" title="Hover an item you wear (character screen, C) and press it: saved in its slot, no popup click">Save as equipped</span>
           <span class="v"><input id="equipHotkey" class="hotkey" readonly placeholder="off: click, then press keys" aria-label="Save as equipped hotkey"><button id="equipHotkeySave">Save</button><button class="link" id="equipHotkeyOff" title="No save-as-equipped hotkey">Turn off</button></span>
           <span id="equipHotkeyMsg" class="note"></span>
+          <span class="k" title="Copies a search string for the game's search box (Ctrl+F): vendors and stash, maps without your dangerous mods, your own saved strings. Press again for the next.">Search strings</span>
+          <span class="v"><input id="stringsHotkey" class="hotkey" readonly placeholder="off: click, then press keys" aria-label="Search strings hotkey"><button id="stringsHotkeySave">Save</button><button class="link" id="stringsHotkeyOff" title="No search strings hotkey">Turn off</button></span>
+          <span id="stringsHotkeyMsg" class="note"></span>
+          <span class="k" title="Shows or hides the loot filter editor over the game">Loot filter editor</span>
+          <span class="v"><input id="filterHotkey" class="hotkey" readonly placeholder="off: click, then press keys" aria-label="Loot filter editor hotkey"><button id="filterHotkeySave">Save</button><button class="link" id="filterHotkeyOff" title="No loot filter editor hotkey">Turn off</button></span>
+          <span id="filterHotkeyMsg" class="note"></span>
           <span class="k">Results window</span>
           <span class="v"><input id="resultsHotkey" class="hotkey" readonly placeholder="click, then press keys" aria-label="Show or hide the results window"><button id="resultsHotkeySave">Save</button></span>
           <span id="resultsHotkeyMsg" class="note"></span>
@@ -392,8 +405,13 @@
         <div class="row"><label><input type="checkbox" id="autoUpdate"> Download updates automatically</label></div>
         <div class="row"><label><input type="checkbox" id="betaUpdates"> Get beta versions</label></div>
         <div class="help" id="betaNote">Betas get new features a little earlier and can have bugs. If something breaks, send the log to support@poe2upgrade.com.</div>
-        <div class="row"><button id="updCheck">Check for updates</button><button class="primary hidden" id="updAction"></button></div>
+        <div class="row"><button id="updCheck">Check for updates</button><button class="link" id="whatsNewBtn">What&rsquo;s new</button><button class="primary hidden" id="updAction"></button></div>
         <div class="help" id="updStatus"></div>
+      </div>
+      <div class="card-p">
+        <h3>Back up &amp; restore</h3>
+        <div class="row"><button id="backupExport">Back up to a file…</button><button id="backupImport">Restore…</button></div>
+        <div class="help" id="backupMsg">One file with your characters, gear, Path of Building builds, priorities, saved searches, hotkeys and League start progress: for a new PC or a reinstall. Restoring keeps what you have now as a copy next to it.</div>
       </div>
       <div class="card-p">
         <h3>Troubleshooting</h3>

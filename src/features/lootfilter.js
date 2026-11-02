@@ -81,7 +81,10 @@ module.exports = function (C) {
     if (!section.blocks) return { ok: false, error: 'Nothing to put in a filter yet: save your gear on My gear first.' };
     let existing = '';
     if (source) { try { existing = fs.readFileSync(source, 'utf8'); } catch (err) { return { ok: false, error: `Couldn't read your filter ${path.basename(source)}: ${err.message}` }; } }
-    try { fs.writeFileSync(file, existing ? filterLib.merge(section, existing) : section.text); } catch (err) { return { ok: false, error: `Couldn't save it: ${err.message}` }; }
+    let out = existing ? filterLib.merge(section, existing) : section.text;
+    // edits made in the loot filter editor on this file stay on top when it's made again
+    try { const was = fs.existsSync(file) ? require('../core/filterfile').readEdits(fs.readFileSync(file, 'utf8')) : []; if (was.length) out = require('../core/filterfile').apply(out, was); } catch (_) { /* no edits */ }
+    try { fs.writeFileSync(file, out); } catch (err) { return { ok: false, error: `Couldn't save it: ${err.message}` }; }
     C.store.setLootFilter({ file, source: source || null, at: Date.now(), sig: sigOf(made), game: made.opts.game });
     C.log(`filter: saved ${file} (${section.blocks} blocks)`);
     return { ok: true, file, section };

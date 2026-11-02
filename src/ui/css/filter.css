@@ -1,0 +1,36 @@
+/* Loot filter editor (filter-editor.html) */
+body.lfe { margin: 0; height: 100vh; display: flex; flex-direction: column; background: var(--bg); color: var(--text); overflow: hidden; border: 1px solid var(--iron-hi); box-sizing: border-box; }
+.lfe-head { display: flex; gap: 8px; align-items: center; padding: 8px 10px; border-bottom: 1px solid var(--iron); -webkit-app-region: drag; flex-wrap: wrap; }
+.lfe-head > * { -webkit-app-region: no-drag; }
+.lfe-head .lfe-title, .lfe-head .grow { -webkit-app-region: drag; }
+.lfe-title { color: var(--gold); font-family: var(--f-carved); font-size: 16px; }
+.lfe-head select { max-width: 280px; }
+.lfe-auto { font-size: 13px; display: flex; gap: 4px; align-items: center; }
+.lfe-msg { padding: 0 12px; min-height: 0; font-size: 13px; color: var(--gold-hi); }
+.lfe-msg:not(:empty) { padding: 6px 12px; border-bottom: 1px solid var(--iron); }
+.lfe-main { flex: 1; display: grid; grid-template-columns: 260px 1fr; min-height: 0; }
+.lfe-list { display: flex; flex-direction: column; border-right: 1px solid var(--iron); min-height: 0; padding: 8px; gap: 6px; }
+.lfe-list input { width: 100%; box-sizing: border-box; }
+.lfe-list ul { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
+.lfe-list li { padding: 4px 8px; cursor: pointer; font-size: 14px; border-bottom: 1px solid var(--iron-lo); }
+.lfe-list li:hover, .lfe-list li[aria-selected="true"] { background: var(--abyss-2); color: var(--gold-hi); }
+.lfe-list li.edited::after { content: " ✎"; color: var(--gold); }
+.lfe-list li.auto::after { content: " ◆"; color: var(--rune); font-size: 11px; }
+.lfe-item { overflow-y: auto; padding: 12px 18px; }
+.lfe-preview { display: flex; justify-content: center; padding: 16px 0 10px; }
+.lfe-label { display: inline-block; padding: 3px 12px; border: 2px solid transparent; font-family: var(--f-carved); line-height: 1.2; }
+.lfe-label.hidden-item { opacity: .35; text-decoration: line-through; }
+.lfe-where { text-align: center; font-size: 13px; }
+.lfe-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+.lfe-row > .k { min-width: 110px; color: var(--dim); font-size: 13px; }
+.lfe-tiers { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.lfe-tier { padding: 4px 10px; border: 2px solid transparent; cursor: pointer; font-family: var(--f-carved); font-size: 15px; }
+.lfe-tier:focus-visible { outline: 2px solid var(--gold); }
+.lfe-swatch { display: flex; gap: 4px; flex-wrap: wrap; }
+.lfe-swatch button { width: 26px; height: 26px; padding: 0; border: 1px solid var(--iron-hi); }
+.lfe-swatch button[aria-pressed="true"] { outline: 2px solid var(--gold-hi); }
+.lfe-sounds button { min-width: 30px; padding: 2px 6px; }
+.lfe-sounds button[aria-pressed="true"] { border-color: var(--gold); color: var(--gold-hi); }
+.lfe-item h4 { margin: 14px 0 4px; color: var(--gold); font-family: var(--f-carved); font-weight: 500; }
+.lfe-item input[type="range"] { width: 220px; }
+.lfe-item input[type="color"] { width: 36px; height: 26px; padding: 0; border: 1px solid var(--iron-hi); background: none; }

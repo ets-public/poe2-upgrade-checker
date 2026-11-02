@@ -139,6 +139,7 @@ const C = {
   get ninjaLeague() { return M.budget.ninjaLeague; },
   get ninjaLib() { return ninjaLib; },
   get ninjaPrice() { return ninjaPrice; },
+  get ninjaGet() { return prices.ninjaGet; },
   get notifySettings() { return M.gear.notifySettings; },
   get onHotkey() { return M.items.onHotkey; },
   get openIfAny() { return M.search.openIfAny; },
@@ -187,6 +188,11 @@ const C = {
   get registerHotkey() { return M.hotkeys.registerHotkey; },
   get registerPriceHotkey() { return M.hotkeys.registerPriceHotkey; },
   get registerEquipHotkey() { return M.hotkeys.registerEquipHotkey; },
+  get hotkeyProblems() { return M.hotkeys.hotkeyProblems; },
+  get forSaleSearch() { return M.forsale && M.forsale.rememberSearch; },
+  get filterHotkeyActive() { return M.filterEditor && M.filterEditor.active; },
+  get stringsHotkeyActive() { return M.strings && M.strings.active; },
+  get openSettingsTab() { return M.pages.openTab; },
   get equipNow() { return M.gear.equipNow; },
   get registerResultsHotkey() { return M.results.registerResultsHotkey; },
   get remember() { return remember; },
@@ -271,6 +277,11 @@ function ninjaPrice(item) {
 function showPriceCard(item) { return prices.showPriceCard(item); }
 function showMapCard(item) { return mapFeature.showMapCard(item); }
 const updates = require('./features/updates')(C);
+require('./features/backup')(C);
+require('./features/craft')(C);
+M.strings = require('./features/strings')(C);
+M.forsale = require('./features/forsale')(C);
+M.filterEditor = require('./features/filtereditor')(C);
 const usage = require('./features/stats')(C);
 const savedFeature = require('./features/saved')(C);
 function savedList() { return savedFeature.savedList(); }
@@ -346,6 +357,7 @@ function buildTrayMenu() {
     { label: `Show / hide results${C.resultsHotkey ? ` (${C.resultsHotkey})` : ''}`, click: C.toggleResults, enabled: !!C.resultsState },
     ...(updates.upd.state === 'ready' ? [{ label: `Restart to update to ${updates.upd.version}`, click: () => updates.updater() && updates.updater().quitAndInstall(true, true) }] : []),
     { label: 'Settings && gear…', click: openSettings },
+    { label: `Loot filter editor…${store.settings.filterHotkey ? ` (${store.settings.filterHotkey})` : ''}`, click: () => M.filterEditor.openWindow() },
     { label: 'Open log', click: () => { log('log opened'); shell.openPath(logFile); } },
     { label: paused ? 'Resume watching' : 'Pause watching', click: () => { store.setSetting('paused', !paused); buildTrayMenu(); } },
     { type: 'separator' },
@@ -392,6 +404,10 @@ app.whenReady().then(() => {
   C.registerResultsHotkey();
   C.registerPriceHotkey();
   C.registerEquipHotkey();
+  M.strings.register();
+  M.filterEditor.registerHotkey();
+  // a hotkey another program holds: said once now, not only in the log
+  setTimeout(() => M.hotkeys.warnHotkeyProblems(), 3000);
   routeFeature.start();
   M.sold.start();
   buildTrayMenu();
@@ -405,6 +421,7 @@ app.whenReady().then(() => {
   setTimeout(() => C.gameCtx.run({ game: store.activeGame() }, () => C.loadTradeData(false)).then(() => log('trade data ready')).catch((err) => log('trade data warm-up: ' + (err.message || err))), 4000);
   applyLoginItem();
   updates.setupUpdater();
+  setTimeout(() => updates.announceWhatsNew(), 5000);
   usage.start();
   const hidden = process.argv.includes('--hidden') || store.settings.openSettingsOnStart === false;
   if (!hidden) openSettings();

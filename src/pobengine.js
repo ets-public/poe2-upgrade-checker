@@ -276,6 +276,12 @@ function createEngine({ log = () => {}, appPath, resourcesPath, packaged, game =
     if (!r.ok) throw new Error(r.error || 'Path of Building could not try the uniques.');
     return r;
   }
+  // every mod that could go in the item's open prefixes / suffixes, each as the item's text with it added
+  async function craftOptions(req) {
+    const r = await request({ cmd: 'craft', ...(req || {}) }, 60000);
+    if (!r.ok) throw new Error(r.error || 'Path of Building could not list the mods for this item.');
+    return r;
+  }
   // PoB's own weighted trade search for a slot
   async function makeQuery(opts) {
     if (!buildXml) throw new Error('No Path of Building build loaded.');
@@ -285,7 +291,7 @@ function createEngine({ log = () => {}, appPath, resourcesPath, packaged, game =
   }
 
   return {
-    available, start, stop, resetFailure, loadBuild, setBuild, skills, mainPick: () => mainPick, evalItems, evalPairs, mapCheck, affixes, gemCheck, bossCheck, anointCheck, makeQuery, bestUniques, skillDps, runeCheck, runeApply, betterBases,
+    available, start, stop, resetFailure, loadBuild, setBuild, skills, mainPick: () => mainPick, evalItems, evalPairs, mapCheck, affixes, gemCheck, bossCheck, anointCheck, makeQuery, bestUniques, craftOptions, skillDps, runeCheck, runeApply, betterBases,
     kill, sheet: async () => { if (!buildXml) return null; const r = await request({ cmd: "sheet" }, 60000); if (!r.ok) throw new Error(r.error || "Path of Building could not read the character."); return r; },
     ensureLoaded: async () => {
       if (!buildXml) return null;

@@ -147,7 +147,42 @@ module.exports = function (C) {
     C.showResult(C.evaluate(parseItem(SAMPLE_ITEM)));
   });
 
+  // Hotkeys that didn't register (another program holds them: a second overlay, a recorder, a
+  // keyboard tool). Said in Settings and, at start, in one Windows notification, since the app
+  // usually starts quietly in the tray and a dead key otherwise just looks like the app not working.
+  function hotkeyProblems() {
+    const out = [];
+    const main = C.hotkeyStatus || {};
+    if (!main.ok) out.push({ what: 'Check item', key: C.store.settings.hotkey || DEFAULT_HOTKEY, tab: 'options' });
+    const wantPrice = C.store.settings.priceHotkey === undefined ? DEFAULT_PRICE_HOTKEY : C.store.settings.priceHotkey;
+    if (wantPrice && !priceHotkey) out.push({ what: 'Price only', key: wantPrice, tab: 'options' });
+    const wantEquip = C.store.settings.equipHotkey || '';
+    if (wantEquip && !equipHotkey) out.push({ what: 'Save as equipped', key: wantEquip, tab: 'options' });
+    const wantStrings = C.store.settings.stringsHotkey || '';
+    if (wantStrings && C.stringsHotkeyActive && !C.stringsHotkeyActive()) out.push({ what: 'Search strings', key: wantStrings, tab: 'options' });
+    const wantFilter = C.store.settings.filterHotkey || '';
+    if (wantFilter && C.filterHotkeyActive && !C.filterHotkeyActive()) out.push({ what: 'Loot filter editor', key: wantFilter, tab: 'options' });
+    const wantResults = C.store.settings.resultsHotkey || 'Ctrl+Shift+D';
+    if (!C.resultsHotkey && wantResults) out.push({ what: 'Results window', key: wantResults, tab: 'options' });
+    return out;
+  }
+  function warnHotkeyProblems() {
+    const list = hotkeyProblems();
+    if (!list.length) return;
+    C.log(`hotkeys not registered: ${list.map((x) => `${x.what} (${x.key})`).join(', ')}`);
+    try {
+      const { Notification } = require('electron');
+      const n = new Notification({ title: list.length === 1 ? `${list[0].key} doesn't work: another program uses it` : `${list.length} hotkeys don't work: other programs use them`,
+        body: `${list.map((x) => `${x.what}: ${x.key}`).join(' · ')}. Click to pick other keys.`, icon: C.ICON });
+      n.on('click', () => C.openSettingsTab('options'));
+      C.keepNotification(n);
+      n.show();
+    } catch (_) { /* ignore */ }
+  }
+
   return {
+    hotkeyProblems,
+    warnHotkeyProblems,
     showQuickPrice,
     registerPriceHotkey,
     registerEquipHotkey,

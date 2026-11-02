@@ -6,6 +6,7 @@ const { BrowserWindow, screen, ipcMain } = require('electron');
 const trade = require('../core/trade');
 const { SLOTS, SLOT_GROUPS, visibleJewels } = require('../core/slots');
 const ninjaLib = require('../core/ninja');
+const qualityLib = require('../core/quality');
 const ROOT = path.join(__dirname, '..'); // src
 
 module.exports = function (C) {
@@ -176,11 +177,17 @@ module.exports = function (C) {
     let judged = Promise.resolve();
     if (withPob) {
       const item = popupItem;
-      judged = C.pobJudge([{ item: result.item.raw ? result.item : (item || result.item), slot: result.targetSlot }]).then((res) => {
+      const judgeItem = result.item.raw ? result.item : (item || result.item);
+      // the same item at 20% quality, judged in the same call: "At 20% quality: +6.1%"
+      const q20 = qualityLib.canRaise(judgeItem) ? { item: { ...judgeItem, raw: qualityLib.withQuality(judgeItem.raw) }, slot: result.targetSlot } : null;
+      judged = C.pobJudge([{ item: judgeItem, slot: result.targetSlot }, ...(q20 ? [q20] : [])]).then((res) => {
         const j = res[0];
         result.pobPending = false;
         if (!j) result.pobError = C.pobErrorOf(res, 0);
-        else C.applyPob(result, j);
+        else {
+          C.applyPob(result, j);
+          if (q20) result.atQuality = qualityLib.summarise(j, res[1], qualityLib.currentQuality(judgeItem.raw));
+        }
       }).catch((err) => { result.pobPending = false; result.pobError = err.message; C.log('pob: ' + err.message); })
         .then(() => {
           if (timing && timing.seq === seq) { timing.verdict = Date.now(); logTiming(); }

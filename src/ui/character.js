@@ -323,6 +323,7 @@
     const cb = (k, label) => `<label class="small"><input type="checkbox" data-str="${k}" ${strOpts[k] ? 'checked' : ''}> ${label}</label>`;
     const rcb = (el) => `<label class="small"><input type="checkbox" data-sres="${el}" ${strOpts.res.includes(el) ? 'checked' : ''}> ${el[0].toUpperCase() + el.slice(1)} res${g.resShort.includes(el) ? ' <small class="neg">short</small>' : ''}</label>`;
     const v = await window.api.stringsVendor({ ...strOpts });
+    const own = await window.api.stringsCustom();
     const line = (r, id) => (r.text ? `<div class="str-line"><code>${esc(r.text)}</code> <span class="dim small">${r.length}/${g.limit}</span> <button class="link" data-copy="${id}">Copy</button></div>${r.left.length ? `<div class="dim small">${r.left.length} more didn't fit: ${esc(r.left.join(', '))}</div>` : ''}` : '');
     box.innerHTML = `<h3>Search strings</h3>
       <div class="help">Paste into the search box in game (Ctrl+F at a vendor, in your stash or at the map device): matching items light up.</div>
@@ -331,8 +332,22 @@
       ${line(v, 'v') || '<div class="dim small">Tick something to look for.</div>'}
       <h4 class="small">${map[0].toUpperCase() + map.slice(1)}s without your dangerous mods</h4>
       ${line(g.mapAvoid, 'm') || `<div class="dim small">Check a ${map} (hover it, press your hotkey) and click its mods to mark the dangerous ones: they show up here.</div>`}
-      <div class="dim small">Each mod is cut to a short word, so check it lights up what you expect.</div>`;
+      <div class="dim small">Each mod is cut to a short word, so check it lights up what you expect.</div>
+      <h4 class="small">Your own strings</h4>
+      ${own.map((x, i) => `<div class="str-line"><b class="small">${esc(x.name || 'Saved string')}</b> <code>${esc(x.text)}</code> <button class="link" data-copy="c${i}">Copy</button> <button class="link" data-del="${i}">Remove</button></div>`).join('') || '<div class="dim small">None yet. Save searches you use often (relics, tablets, a crafting base) to copy them with the search strings hotkey.</div>'}
+      <div class="row wrap"><input id="strName" placeholder="Name (e.g. Good relics)" maxlength="40" aria-label="Name of the search string"><input id="strText" placeholder="Search text" maxlength="${g.limit}" aria-label="Search string"><button id="strAdd">Save</button></div>
+      <div class="dim small">${g.hotkey ? `In game, <b>${esc(g.hotkey)}</b> copies these one after another (press it again for the next); then Ctrl+F, Ctrl+V.` : 'Set a <b>Search strings</b> hotkey in Settings to copy these in game, one after another.'}</div>`;
     const texts = { v: v.text, m: g.mapAvoid.text };
+    own.forEach((x, i) => { texts['c' + i] = x.text; });
+    box.querySelectorAll('[data-del]').forEach((b) => b.addEventListener('click', async () => { own.splice(Number(b.dataset.del), 1); await window.api.stringsCustomSet(own); renderStrings(); }));
+    const add = box.querySelector('#strAdd');
+    if (add) add.addEventListener('click', async () => {
+      const text = box.querySelector('#strText').value.trim();
+      if (!text) return;
+      own.push({ name: box.querySelector('#strName').value.trim(), text });
+      await window.api.stringsCustomSet(own);
+      renderStrings();
+    });
     box.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', () => { window.api.copyText(texts[b.dataset.copy]); b.textContent = 'Copied'; }));
     box.querySelectorAll('[data-str]').forEach((c) => c.addEventListener('change', () => { strOpts[c.dataset.str] = c.checked; renderStrings(); }));
     box.querySelectorAll('[data-sres]').forEach((c) => c.addEventListener('change', () => { strOpts.res = strOpts.res.filter((x) => x !== c.dataset.sres).concat(c.checked ? [c.dataset.sres] : []); renderStrings(); }));

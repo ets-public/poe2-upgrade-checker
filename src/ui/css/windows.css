@@ -126,6 +126,8 @@ summary:hover { color: var(--gold-hi); }
 button.more { display: block; margin: 8px 0 0; padding: 0; }
 .more-box { margin-top: 8px; border-top: 1px solid rgba(122, 101, 69, .35); padding-top: 8px; }
 .craft { font-size: 13px; color: var(--rune); margin: 3px 0; }
+.at-quality { margin: 3px 0; color: var(--rune); }
+.at-quality b { color: var(--gold-hi); }
 .card .chgs { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 13.5px; margin: 5px 0; }
 .card .chg.pos { color: var(--up); } .card .chg.neg { color: var(--down); } .card .chg.unweighted { color: var(--ash); }
 /* colour-blind friendly: blue = better, orange = worse */
@@ -198,3 +200,14 @@ body.cb .up { color: #4aa3ff; } body.cb .down { color: #ff9a3c; }
 .charch .cc.warn { color: var(--down); font-weight: 500; }
 .charch .cc.dim { color: var(--ash); }
 .charch .cc b { font-variant-numeric: tabular-nums; }
+
+/* hotkeys another program holds; the "what's new" bar after an update */
+.hk-problems { margin: 0 0 10px; padding: 8px 12px; border: 1px solid var(--warn); color: var(--gold-hi); background: rgba(224, 168, 74, .12); }
+.whatsnew-bar { margin: 0 0 10px; padding: 8px 12px; border: 1px solid var(--bronze); background: var(--abyss-2); }
+.whatsnew-bar .wn-head { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.whatsnew-bar ul { margin: 8px 0 2px 18px; padding: 0; max-height: 320px; overflow: auto; }
+.whatsnew-bar li { margin: 4px 0; }
+.whatsnew-bar li b { color: var(--gold-hi); }
+.craft-best { margin: 4px 0 6px; }
+.craft-table td { padding: 2px 4px; font-size: 13px; }
+.craft-table td.r { text-align: right; white-space: nowrap; }

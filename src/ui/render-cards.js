@@ -102,7 +102,7 @@
     const emptySlot = !r.replacing.length && !r.isEquipped && it.slot !== 'Flask';
     const craft = it.affixes && it.affixes.known && !unique ? `<div class="craft">${it.affixes.openPrefix || it.affixes.openSuffix
       ? `Open: <b>${it.affixes.openPrefix}</b> prefix${it.affixes.openPrefix === 1 ? '' : 'es'}, <b>${it.affixes.openSuffix}</b> suffix${it.affixes.openSuffix === 1 ? '' : 'es'} – craftable`
-      : 'All 6 affixes taken'}</div>` : '';
+      : 'All 6 affixes taken'}${(it.affixes.openPrefix || it.affixes.openSuffix) && (r.pob || r.pobPending) && !it.corrupted && !r.isEquipped ? ' <button class="link" id="craftBest" title="Path of Building tries every mod that can roll in the free slots on your build">Best mods to add</button>' : ''}</div><div class="craft-best hidden" id="craftBestBox"></div>` : '';
 
     const flask = it.slot === 'Flask'; // PoE1 flasks: no slot of their own in the app
     const primary = unique
@@ -136,6 +136,7 @@
         ${r.savePick ? `<div class="auto-saved small">Which one is it? Click <b>Set as …</b> below (both slots hold other items).</div>` : ''}
         ${r.autoSaved ? `<div class="auto-saved small" title="It's the item you have saved as your ${R.esc(r.autoSaved.slot)} (same base, item level${rarity === 'rare' || unique ? ' and name' : ' and mods'}), changed since. The verdict above is against your gear before this change.">✓ Saved as your ${R.esc(r.autoSaved.slot)}: it changed since you last saved it</div>` : ''}
         ${lossBanner}
+        ${window.atQualityHtml(r)}
         ${r.ninja ? window.ninjaLine(r.ninja, advWord) : ''}
         ${adviceBlock}
         ${window.sellHtml(r)}
@@ -213,6 +214,18 @@
     });
     run(el.querySelector('#priceFind'), () => withWorth(window.api.priceCheck(ref)), 'Checking prices…');
     // "Choose stats…": tick the stats the price check should match, with their minimums
+    const cb = el.querySelector('#craftBest');
+    if (cb) cb.addEventListener('click', async () => {
+      const box = el.querySelector('#craftBestBox');
+      if (!box.classList.contains('hidden') && box.dataset.done) { box.classList.add('hidden'); resize(); return; }
+      box.classList.remove('hidden');
+      box.innerHTML = '<div class="dim small"><span class="spinner"></span> Trying every mod that can roll here…</div>';
+      resize();
+      const res = await window.api.craftBest();
+      box.dataset.done = '1';
+      box.innerHTML = window.craftBestHtml(res);
+      resize();
+    });
     const pp = el.querySelector('#pricePick');
     if (pp) pp.addEventListener('click', async () => {
       const box = el.querySelector('#pricePickBox');

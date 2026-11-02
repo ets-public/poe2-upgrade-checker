@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'">
+  <title>Loot filter editor</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/windows.css">
+  <link rel="stylesheet" href="css/native.css">
+  <link rel="stylesheet" href="css/filter.css">
+</head>
+<body class="lfe">
+  <header class="lfe-head">
+    <b class="lfe-title">Loot filter editor</b>
+    <select id="lfFile" aria-label="Loot filter"></select>
+    <button id="lfCopied" title="The item you last copied in game (F2, F3 or Ctrl+C)">Use copied item</button>
+    <label class="lfe-auto" title="Currency, omens, runes, essences and the like put in tiers S/A/B/C by today's poe.ninja price. Items you edited yourself keep your edit."><input type="checkbox" id="lfAuto"> Tiers by today's prices</label>
+    <span class="grow"></span>
+    <button id="lfReload" title="Copies /itemfilter and the filter's name: in game press Enter, Ctrl+V, Enter to load it">Copy reload command</button>
+    <button class="link" id="lfFolderBtn" title="Open the game's filter folder">Folder</button>
+    <button class="x" id="lfClose" title="Hide (the hotkey shows it again)">×</button>
+  </header>
+  <div class="lfe-msg" id="lfMsg" role="status"></div>
+  <main class="lfe-main">
+    <aside class="lfe-list">
+      <input id="lfSearch" type="search" placeholder="Search items…" aria-label="Search items">
+      <ul id="lfItems" role="listbox" aria-label="Items in this filter"></ul>
+      <div class="dim small" id="lfCount"></div>
+    </aside>
+    <section class="lfe-item" id="lfItem"><div class="dim">Pick an item on the left, or <b>Use copied item</b>.</div></section>
+  </main>
+  <script src="filter-editor.js"></script>
+</body>
+</html>

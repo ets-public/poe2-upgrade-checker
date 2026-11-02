@@ -438,5 +438,64 @@ local function bestUniques(req)
   return { ok = true, before = pick(base), list = out }
 end
 
-return { gemCheck = gemCheck, anointCheck = anointCheck, bossCheck = bossCheck, affixNames = affixNames, skillDps = skillDps,
+-- Best craft for the open affixes: every prefix / suffix that can roll on the item's base (by Path of
+-- Building's mod data), one per mod group, at the best tier its item level allows and a middle roll,
+-- skipping groups the item already has. Each comes back as the item's text with that mod added, for
+-- the app to judge on your build like any item (so the same slots, verdicts and priorities apply).
+--   req: { text, prefix = open prefixes, suffix = open suffixes, ilvl } -> { options = { {type, group, affix, tier, tiers, level, lines, text} } }
+local function craftOptions(req)
+  local item = makeItem(tostring(req.text or ""))
+  if not item or not item.base then return { ok = false, error = "Path of Building couldn't read this item." } end
+  local open = { Prefix = tonumber(req.prefix) or 0, Suffix = tonumber(req.suffix) or 0 }
+  if open.Prefix <= 0 and open.Suffix <= 0 then return { ok = true, options = {} } end
+  local ilvl = tonumber(req.ilvl) or tonumber(item.itemLevel) or 100
+  local tags = {}
+  for t, on in pairs(item.base.tags or {}) do if on then tags[t] = true end end
+  local function weight(mod)
+    for i, k in ipairs(mod.weightKey or {}) do
+      if tags[k] or k == "default" then return (mod.weightVal and mod.weightVal[i]) or 0 end
+    end
+    return 0
+  end
+  -- "+(5-8) to Strength" and "+7 to Strength" are the same mod: numbers and ranges become #
+  local function tmpl(l) return (tostring(l or ""):gsub("{[^}]*}", ""):gsub("%b()", "#"):gsub("%d+%.?%d*", "#"):gsub("[%+%-]#", "#"):lower():gsub("%s+", " ")) end
+  local have = {}
+  for _, ml in ipairs(item.explicitModLines or {}) do have[tmpl(ml.line)] = true end
+  for _, ml in ipairs(item.implicitModLines or {}) do have["implicit:" .. tmpl(ml.line)] = true end
+  local groups = {}
+  for _, mod in pairs((data.itemMods and data.itemMods.Item) or {}) do
+    if (mod.type == "Prefix" or mod.type == "Suffix") and open[mod.type] > 0 and mod.group and weight(mod) > 0 then
+      local dup = false
+      for _, l in ipairs(mod) do if have[tmpl(l)] then dup = true end end
+      if not dup then
+        local g = groups[mod.group]
+        if not g then g = { all = {} }; groups[mod.group] = g end
+        g.all[#g.all + 1] = mod
+      end
+    end
+  end
+  local raw = item:BuildRaw()
+  local out = {}
+  for name, g in pairs(groups) do
+    table.sort(g.all, function(a, b) return (a.level or 0) > (b.level or 0) end)
+    local best, tier
+    for i, m in ipairs(g.all) do if (m.level or 0) <= ilvl then best = m; tier = i; break end end
+    if best then
+      local lines, added = {}, {}
+      for _, l in ipairs(best) do
+        local okr, shown = pcall(itemLib.applyRange, l, 0.5)
+        lines[#lines + 1] = okr and shown or l
+        added[#added + 1] = "{range:0.5}" .. l
+      end
+      if #lines > 0 then
+        out[#out + 1] = { type = best.type, group = name, affix = best.affix, tier = tier, tiers = #g.all, level = best.level or 0,
+          lines = lines, text = raw .. "\n" .. table.concat(added, "\n") }
+      end
+    end
+  end
+  table.sort(out, function(a, b) return a.group < b.group end)
+  return { ok = true, options = out, ilvl = ilvl }
+end
+
+return { craftOptions = craftOptions, gemCheck = gemCheck, anointCheck = anointCheck, bossCheck = bossCheck, affixNames = affixNames, skillDps = skillDps,
   runeCheck = runeCheck, runeApply = runeApply, betterBases = betterBases, genQuery = genQuery, bestUniques = bestUniques }
