@@ -108,3 +108,24 @@ test('PoB1: flasks are tried in the flask slots; gems say their socket colours',
   const cg = Object.values(s.slotGems || {}).find((x) => x.colours);
   assert.ok(cg && cg.colours.R + cg.colours.G + cg.colours.B + cg.colours.W === cg.gems, JSON.stringify(s.slotGems));
 });
+
+test('PoB2: best mods to add skips what the item has and judges each option', { skip: skip2, timeout: 120000 }, async () => {
+  await e2.loadBuild(fx('pob2-minimal.xml'));
+  const ring = 'Item Class: Rings\nRarity: Rare\nGale Loop\nSapphire Ring\n--------\nItem Level: 80\n--------\n+20% to Cold Resistance (implicit)\n--------\n+30% to Fire Resistance\n+40 to maximum Life\n';
+  const r = await e2.craftOptions({ text: ring, prefix: 2, suffix: 2, ilvl: 80 });
+  const groups = r.options.map((o) => o.group);
+  assert.ok(groups.includes('LightningResistance') && groups.includes('ColdResistance'), groups.join(' '));
+  assert.ok(!groups.includes('FireResistance') && !groups.includes('IncreasedLife'), 'mods the ring has are left out');
+  const none = await e2.craftOptions({ text: ring, prefix: 0, suffix: 0 });
+  assert.strictEqual(none.options.length, 0);
+  const ev = await e2.evalItems(r.options.slice(0, 5).map((o) => ({ slot: 'Ring 1', text: o.text })));
+  assert.ok(ev.every((x) => x.ok), JSON.stringify(ev.find((x) => !x.ok)));
+});
+
+test('PoB2: 20% quality raises an armour piece\'s energy shield', { skip: skip2, timeout: 120000 }, async () => {
+  await e2.loadBuild(fx('pob2-minimal.xml'));
+  const Q = require('../src/core/quality');
+  const body = 'Item Class: Body Armours\nRarity: Rare\nDoom Shell\nSacrificial Regalia\n--------\nEnergy Shield: 150 (augmented)\n--------\nItem Level: 80\n--------\n+80 to maximum Energy Shield\n';
+  const [a, b] = await e2.evalItems([{ slot: 'Body Armour', text: body }, { slot: 'Body Armour', text: Q.withQuality(body) }]);
+  assert.ok(b.after.EnergyShield > a.after.EnergyShield, `${a.after.EnergyShield} -> ${b.after.EnergyShield}`);
+});

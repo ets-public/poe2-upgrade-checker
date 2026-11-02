@@ -786,6 +786,7 @@ local checksFile = ((debug.getinfo(1, "S").source or ""):match("^@(.*[/\\])") or
 local checks = assert(loadfile(checksFile))({ GAME = GAME, num = num, pick = pick, makeItem = makeItem, pobSlot = pobSlot })
 local gemCheck, anointCheck, bossCheck, affixNames, skillDps = checks.gemCheck, checks.anointCheck, checks.bossCheck, checks.affixNames, checks.skillDps
 local runeCheck, runeApply, betterBases, genQuery, bestUniques = checks.runeCheck, checks.runeApply, checks.betterBases, checks.genQuery, checks.bestUniques
+local craftOptions = checks.craftOptions
 
 
 local HEAVY = { setmain = true, load = true, equip = true, pairs = true, runeapply = true, skilldps = true, query = true, anoints = true, bosscheck = true, uniques = true }
@@ -877,6 +878,8 @@ while true do
       return betterBases(req)
     elseif req.cmd == "uniques" then
       return bestUniques(req)
+    elseif req.cmd == "craft" then
+      return craftOptions(req)
     elseif req.cmd == "runes" then
       return runeCheck(req)
     elseif req.cmd == "runeapply" then

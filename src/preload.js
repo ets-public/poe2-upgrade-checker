@@ -36,6 +36,7 @@ contextBridge.exposeInMainWorld('api', {
   fitProfile: () => ipcRenderer.invoke('gear:fitProfile'),
   equipUndo: () => ipcRenderer.invoke('equip:undo'),
   bestUniques: (slot) => ipcRenderer.invoke('pob:uniques', slot),
+  craftBest: () => ipcRenderer.invoke('craft:best'),
   searchUnique: (name, base) => ipcRenderer.invoke('trade:unique', name, base),
   quickPriceRefresh: () => ipcRenderer.send('quickprice:refresh'),
   openLog: () => ipcRenderer.send('open:log'),

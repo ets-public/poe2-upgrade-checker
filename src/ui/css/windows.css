@@ -208,3 +208,6 @@ body.cb .up { color: #4aa3ff; } body.cb .down { color: #ff9a3c; }
 .whatsnew-bar ul { margin: 8px 0 2px 18px; padding: 0; max-height: 320px; overflow: auto; }
 .whatsnew-bar li { margin: 4px 0; }
 .whatsnew-bar li b { color: var(--gold-hi); }
+.craft-best { margin: 4px 0 6px; }
+.craft-table td { padding: 2px 4px; font-size: 13px; }
+.craft-table td.r { text-align: right; white-space: nowrap; }

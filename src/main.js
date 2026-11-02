@@ -274,6 +274,7 @@ function showPriceCard(item) { return prices.showPriceCard(item); }
 function showMapCard(item) { return mapFeature.showMapCard(item); }
 const updates = require('./features/updates')(C);
 require('./features/backup')(C);
+require('./features/craft')(C);
 const usage = require('./features/stats')(C);
 const savedFeature = require('./features/saved')(C);
 function savedList() { return savedFeature.savedList(); }
