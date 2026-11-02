@@ -278,6 +278,7 @@ module.exports = function (C) {
     // the search itself failed (only a pre-filled link came back): open that rather than saying "nothing listed"
     if (r.total == null) return { ok: true, mode: 'price', total: null, league, item: item.name, url: r.url, fallback: true, levelLabel: q.levelLabel }; // a button, never a browser by itself
     if (!r.total) return { ok: true, mode: 'price', total: 0, league, item: item.name, url: r.url, levelLabel: q.levelLabel };
+    if (C.forSaleSearch) C.forSaleSearch(item.id, q.body, league, C.tg()); // for checking your listing later (For sale)
     const ctx = { item, mode: 'price', title: `Price check: ${item.name}`, body: q.body, searchKey: C.searchKey(q.body),
       note: `Listings like this one (${q.levelLabel}, ${q.need} of ${q.total} stats), cheapest first.` };
     if (!C.sameGame()) return C.SWITCHED();

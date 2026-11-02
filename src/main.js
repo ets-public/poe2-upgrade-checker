@@ -188,6 +188,7 @@ const C = {
   get registerPriceHotkey() { return M.hotkeys.registerPriceHotkey; },
   get registerEquipHotkey() { return M.hotkeys.registerEquipHotkey; },
   get hotkeyProblems() { return M.hotkeys.hotkeyProblems; },
+  get forSaleSearch() { return M.forsale && M.forsale.rememberSearch; },
   get stringsHotkeyActive() { return M.strings && M.strings.active; },
   get openSettingsTab() { return M.pages.openTab; },
   get equipNow() { return M.gear.equipNow; },
@@ -277,6 +278,7 @@ const updates = require('./features/updates')(C);
 require('./features/backup')(C);
 require('./features/craft')(C);
 M.strings = require('./features/strings')(C);
+M.forsale = require('./features/forsale')(C);
 const usage = require('./features/stats')(C);
 const savedFeature = require('./features/saved')(C);
 function savedList() { return savedFeature.savedList(); }
