@@ -160,6 +160,8 @@ module.exports = function (C) {
     if (wantEquip && !equipHotkey) out.push({ what: 'Save as equipped', key: wantEquip, tab: 'options' });
     const wantStrings = C.store.settings.stringsHotkey || '';
     if (wantStrings && C.stringsHotkeyActive && !C.stringsHotkeyActive()) out.push({ what: 'Search strings', key: wantStrings, tab: 'options' });
+    const wantFilter = C.store.settings.filterHotkey || '';
+    if (wantFilter && C.filterHotkeyActive && !C.filterHotkeyActive()) out.push({ what: 'Loot filter editor', key: wantFilter, tab: 'options' });
     const wantResults = C.store.settings.resultsHotkey || 'Ctrl+Shift+D';
     if (!C.resultsHotkey && wantResults) out.push({ what: 'Results window', key: wantResults, tab: 'options' });
     return out;

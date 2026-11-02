@@ -3,6 +3,7 @@
 // Settings window: the loot filter, hotkeys, and your budget and levelling options.
 
 // ---------- loot filter from your build ----------
+$('#filterEdit').addEventListener('click', () => window.api.lfWindow());
 $('#filterMake').addEventListener('click', async () => {
   const b = $('#filterMake'); b.disabled = true;
   $('#filterMsg').innerHTML = '<span class="spinner"></span> Asking Path of Building which mods matter for each slot (about half a minute)…';
@@ -242,3 +243,19 @@ $('#autoRate').addEventListener('change', async () => {
 $('#rateRefresh').addEventListener('click', () => showRate(true));
 document.querySelector('.tabs button[data-tab="find"]').addEventListener('click', () => showRate(false));
 window.api.onFindUpgrade(() => showRate(false));
+
+// the loot filter editor over the game (off until you pick a key; also in the tray menu and on My gear)
+const filterKeyNow = () => (state && state.settings.filterHotkey) || '';
+$('#filterHotkey').addEventListener('keydown', (e) => {
+  if (captureKeys(e, $('#filterHotkey'), filterKeyNow, $('#filterHotkeyMsg'))) return;
+  const acc = toAccelerator(e);
+  if (acc) { $('#filterHotkey').value = acc; $('#filterHotkeyMsg').textContent = 'Click Save to use it.'; }
+  else if (!['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) $('#filterHotkeyMsg').textContent = 'Use a modifier (Ctrl/Alt) plus a key, or an F-key.';
+});
+const saveFilterKey = async (k) => {
+  const res = await window.api.setFilterHotkey(k);
+  await load();
+  $('#filterHotkeyMsg').textContent = res.ok ? (res.accelerator ? `Saved. ${res.accelerator} shows or hides the loot filter editor.` : 'Turned off.') : res.error;
+};
+$('#filterHotkeySave').addEventListener('click', () => saveFilterKey($('#filterHotkey').value.trim()));
+$('#filterHotkeyOff').addEventListener('click', () => saveFilterKey(''));

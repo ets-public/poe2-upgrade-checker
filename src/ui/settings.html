@@ -71,7 +71,7 @@
           <div class="card-p" id="filterCard">
             <h3>Loot filter for this build</h3>
             <div class="help">Highlights drops worth a look: the uniques your guide uses that you don't have yet, the best runes for your sockets (after a check on the Character page), better bases of the kinds you wear, your own bases, and identified magic and rare items with the mods your build values most (weapons and offhands too). While levelling, bases show from your level. Pick your current filter and the app saves a copy with this section in front (your filter itself isn't changed). Then choose the new file in the game's options.</div>
-            <div class="row"><button id="filterMake">Make loot filter…</button><button id="filterRemake" class="hidden" title="Write the same file again from your gear and build now, with your filter read again">Remake</button></div>
+            <div class="row"><button id="filterMake">Make loot filter…</button><button id="filterEdit" title="Change how items look in any of your filters, in game: hide, show, tiers, colours, sounds, beams. Online filters are edited as a local copy.">Edit a filter…</button><button id="filterRemake" class="hidden" title="Write the same file again from your gear and build now, with your filter read again">Remake</button></div>
             <div class="small" id="filterStatus"></div>
             <div class="note" id="filterMsg"></div>
           </div>
@@ -343,6 +343,9 @@
           <span class="k" title="Copies a search string for the game's search box (Ctrl+F): vendors and stash, maps without your dangerous mods, your own saved strings. Press again for the next.">Search strings</span>
           <span class="v"><input id="stringsHotkey" class="hotkey" readonly placeholder="off: click, then press keys" aria-label="Search strings hotkey"><button id="stringsHotkeySave">Save</button><button class="link" id="stringsHotkeyOff" title="No search strings hotkey">Turn off</button></span>
           <span id="stringsHotkeyMsg" class="note"></span>
+          <span class="k" title="Shows or hides the loot filter editor over the game">Loot filter editor</span>
+          <span class="v"><input id="filterHotkey" class="hotkey" readonly placeholder="off: click, then press keys" aria-label="Loot filter editor hotkey"><button id="filterHotkeySave">Save</button><button class="link" id="filterHotkeyOff" title="No loot filter editor hotkey">Turn off</button></span>
+          <span id="filterHotkeyMsg" class="note"></span>
           <span class="k">Results window</span>
           <span class="v"><input id="resultsHotkey" class="hotkey" readonly placeholder="click, then press keys" aria-label="Show or hide the results window"><button id="resultsHotkeySave">Save</button></span>
           <span id="resultsHotkeyMsg" class="note"></span>
