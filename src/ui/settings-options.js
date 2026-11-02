@@ -259,3 +259,19 @@ const saveFilterKey = async (k) => {
 };
 $('#filterHotkeySave').addEventListener('click', () => saveFilterKey($('#filterHotkey').value.trim()));
 $('#filterHotkeyOff').addEventListener('click', () => saveFilterKey(''));
+
+// the search string builder over the game (off until you pick a key; also in the tray menu and on Character)
+const regexKeyNow = () => (state && state.settings.regexHotkey) || '';
+$('#regexHotkey').addEventListener('keydown', (e) => {
+  if (captureKeys(e, $('#regexHotkey'), regexKeyNow, $('#regexHotkeyMsg'))) return;
+  const acc = toAccelerator(e);
+  if (acc) { $('#regexHotkey').value = acc; $('#regexHotkeyMsg').textContent = 'Click Save to use it.'; }
+  else if (!['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) $('#regexHotkeyMsg').textContent = 'Use a modifier (Ctrl/Alt) plus a key, or an F-key.';
+});
+const saveRegexKey = async (k) => {
+  const res = await window.api.setRegexHotkey(k);
+  await load();
+  $('#regexHotkeyMsg').textContent = res.ok ? (res.accelerator ? `Saved. ${res.accelerator} shows or hides the search string builder.` : 'Turned off.') : res.error;
+};
+$('#regexHotkeySave').addEventListener('click', () => saveRegexKey($('#regexHotkey').value.trim()));
+$('#regexHotkeyOff').addEventListener('click', () => saveRegexKey(''));

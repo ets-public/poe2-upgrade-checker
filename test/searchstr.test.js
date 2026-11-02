@@ -12,7 +12,7 @@ test('map avoid string: one short distinctive word per mod, within the limit', (
 });
 
 test('strings never go over the limit; what is left is reported', () => {
-  const many = ['reflect', 'regenerate', 'thorns', 'ailments', 'projectiles', 'temporal', 'vulnerability', 'enfeeble', 'blinded', 'hexproof', 'curses'].map((w) => `monsters have ${w}`);
+  const many = Array.from({ length: 60 }, (_, i) => `monsters have ${String.fromCharCode(97 + (i % 26))}${'wxyzqrstuv'[Math.floor(i / 26)]}distinct${i}`);
   const r = S.mapAvoid(many);
   assert.ok(r.text.length <= S.LIMIT);
   assert.ok(r.left.length > 0);

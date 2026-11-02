@@ -191,6 +191,7 @@ const C = {
   get hotkeyProblems() { return M.hotkeys.hotkeyProblems; },
   get forSaleSearch() { return M.forsale && M.forsale.rememberSearch; },
   get filterHotkeyActive() { return M.filterEditor && M.filterEditor.active; },
+  get regexHotkeyActive() { return M.regexBuilder && M.regexBuilder.active; },
   get stringsHotkeyActive() { return M.strings && M.strings.active; },
   get openSettingsTab() { return M.pages.openTab; },
   get equipNow() { return M.gear.equipNow; },
@@ -282,6 +283,7 @@ require('./features/craft')(C);
 M.strings = require('./features/strings')(C);
 M.forsale = require('./features/forsale')(C);
 M.filterEditor = require('./features/filtereditor')(C);
+M.regexBuilder = require('./features/regexbuilder')(C);
 const usage = require('./features/stats')(C);
 const savedFeature = require('./features/saved')(C);
 function savedList() { return savedFeature.savedList(); }
@@ -358,6 +360,7 @@ function buildTrayMenu() {
     ...(updates.upd.state === 'ready' ? [{ label: `Restart to update to ${updates.upd.version}`, click: () => updates.updater() && updates.updater().quitAndInstall(true, true) }] : []),
     { label: 'Settings && gear…', click: openSettings },
     { label: `Loot filter editor…${store.settings.filterHotkey ? ` (${store.settings.filterHotkey})` : ''}`, click: () => M.filterEditor.openWindow() },
+    { label: `Search string builder…${store.settings.regexHotkey ? ` (${store.settings.regexHotkey})` : ''}`, click: () => M.regexBuilder.openWindow() },
     { label: 'Open log', click: () => { log('log opened'); shell.openPath(logFile); } },
     { label: paused ? 'Resume watching' : 'Pause watching', click: () => { store.setSetting('paused', !paused); buildTrayMenu(); } },
     { type: 'separator' },
@@ -406,6 +409,7 @@ app.whenReady().then(() => {
   C.registerEquipHotkey();
   M.strings.register();
   M.filterEditor.registerHotkey();
+  M.regexBuilder.registerHotkey();
   // a hotkey another program holds: said once now, not only in the log
   setTimeout(() => M.hotkeys.warnHotkeyProblems(), 3000);
   routeFeature.start();

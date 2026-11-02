@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'">
+  <title>Search string builder</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/windows.css">
+  <link rel="stylesheet" href="css/native.css">
+  <link rel="stylesheet" href="css/regex.css">
+</head>
+<body class="rxb">
+  <header class="rxb-head">
+    <b class="rxb-title">Search string builder</b>
+    <span class="rxb-tabs" role="tablist">
+      <button role="tab" id="rxTabMap" data-tab="map" aria-selected="true">Maps &amp; waystones</button>
+      <button role="tab" id="rxTabItem" data-tab="item" aria-selected="false">Any item</button>
+    </span>
+    <span class="grow"></span>
+    <button class="link" id="rxReset" title="Clear this tab">Clear</button>
+    <button class="x" id="rxClose" title="Hide (the hotkey shows it again)">×</button>
+  </header>
+  <main class="rxb-main">
+    <section id="rxMap" class="rxb-pane"></section>
+    <section id="rxItem" class="rxb-pane hidden"></section>
+  </main>
+  <footer class="rxb-out">
+    <div class="rxb-outrow">
+      <textarea id="rxText" rows="2" spellcheck="false" aria-label="Search string (you can edit it)"></textarea>
+      <div class="rxb-outbtns">
+        <button class="primary" id="rxCopy" title="Copy it, then in game Ctrl+F and Ctrl+V">Copy</button>
+        <button id="rxTest" title="Does it light up the item you copied last in game (Ctrl+C, F2 or F3)?">Test on copied item</button>
+      </div>
+    </div>
+    <div class="rxb-meta"><span id="rxCount"></span> <span id="rxNotes" class="rxb-notes"></span></div>
+    <div id="rxTestOut" class="rxb-test" role="status"></div>
+    <div class="rxb-saverow">
+      <input id="rxName" maxlength="40" placeholder="Name (e.g. Juicy T15)" aria-label="Name to save it under">
+      <button id="rxSave" title="Saved strings are copied in game by the Search strings hotkey, one after another">Save</button>
+      <span class="grow"></span>
+      <select id="rxSaved" aria-label="Your saved strings"></select>
+      <button class="link" id="rxLoad" title="Put the saved string in the box">Load</button>
+      <button class="link" id="rxRemove" title="Remove the saved string">Remove</button>
+    </div>
+  </footer>
+  <script src="regex-builder.js"></script>
+</body>
+</html>

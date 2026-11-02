@@ -162,6 +162,8 @@ module.exports = function (C) {
     if (wantStrings && C.stringsHotkeyActive && !C.stringsHotkeyActive()) out.push({ what: 'Search strings', key: wantStrings, tab: 'options' });
     const wantFilter = C.store.settings.filterHotkey || '';
     if (wantFilter && C.filterHotkeyActive && !C.filterHotkeyActive()) out.push({ what: 'Loot filter editor', key: wantFilter, tab: 'options' });
+    const wantRegex = C.store.settings.regexHotkey || '';
+    if (wantRegex && C.regexHotkeyActive && !C.regexHotkeyActive()) out.push({ what: 'Search string builder', key: wantRegex, tab: 'options' });
     const wantResults = C.store.settings.resultsHotkey || 'Ctrl+Shift+D';
     if (!C.resultsHotkey && wantResults) out.push({ what: 'Results window', key: wantResults, tab: 'options' });
     return out;
