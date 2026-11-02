@@ -23,7 +23,7 @@ module.exports = function (C) {
     return [...(Array.isArray(extra) ? extra.filter((k) => typeof k === 'string').slice(0, 30) : []), ...Object.keys(marks).filter((k) => marks[k] === 'd')];
   }
   ipcMain.handle('strings:get', () => ({ game: C.tg(), resShort: resShort(), mapAvoid: searchStr.mapAvoid(avoidKeys()), limit: searchStr.LIMIT,
-    marked: avoidKeys().length }));
+    marked: avoidKeys().length, hotkey: C.store.settings.stringsHotkey || null }));
   ipcMain.handle('strings:vendor', (_e, opts) => searchStr.vendor({ ...(opts || {}), game: C.tg() }));
   ipcMain.handle('strings:mapAvoid', (_e, keys) => {
     const r = searchStr.mapAvoid(avoidKeys(keys));

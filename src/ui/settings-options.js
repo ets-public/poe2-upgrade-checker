@@ -111,6 +111,21 @@ const saveEquipKey = async (k) => {
 $('#equipHotkeySave').addEventListener('click', () => saveEquipKey($('#equipHotkey').value.trim()));
 $('#equipHotkeyOff').addEventListener('click', () => saveEquipKey(''));
 $('#priceHotkeyOff').addEventListener('click', () => savePriceKey(''));
+// search strings in game: copies a search string for Ctrl+F (off until you pick a key)
+const stringsKeyNow = () => (state && state.settings.stringsHotkey) || '';
+$('#stringsHotkey').addEventListener('keydown', (e) => {
+  if (captureKeys(e, $('#stringsHotkey'), stringsKeyNow, $('#stringsHotkeyMsg'))) return;
+  const acc = toAccelerator(e);
+  if (acc) { $('#stringsHotkey').value = acc; $('#stringsHotkeyMsg').textContent = 'Click Save to use it.'; }
+  else if (!['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) $('#stringsHotkeyMsg').textContent = 'Use a modifier (Ctrl/Alt) plus a key, or an F-key.';
+});
+const saveStringsKey = async (k) => {
+  const res = await window.api.setStringsHotkey(k);
+  await load();
+  $('#stringsHotkeyMsg').textContent = res.ok ? (res.accelerator ? `Saved. In game press ${res.accelerator}, then Ctrl+F and Ctrl+V. Press it again for the next string.` : 'Turned off.') : res.error;
+};
+$('#stringsHotkeySave').addEventListener('click', () => saveStringsKey($('#stringsHotkey').value.trim()));
+$('#stringsHotkeyOff').addEventListener('click', () => saveStringsKey(''));
 $('#advancedCopy').addEventListener('change', () => window.api.setSetting('advancedCopy', $('#advancedCopy').checked));
 $('#watchClipboard').addEventListener('change', () => window.api.setSetting('watchClipboard', $('#watchClipboard').checked));
 $('#autoUpdateGear').addEventListener('change', () => window.api.setSetting('autoUpdateGear', $('#autoUpdateGear').checked));

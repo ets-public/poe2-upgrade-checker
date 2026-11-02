@@ -158,6 +158,8 @@ module.exports = function (C) {
     if (wantPrice && !priceHotkey) out.push({ what: 'Price only', key: wantPrice, tab: 'options' });
     const wantEquip = C.store.settings.equipHotkey || '';
     if (wantEquip && !equipHotkey) out.push({ what: 'Save as equipped', key: wantEquip, tab: 'options' });
+    const wantStrings = C.store.settings.stringsHotkey || '';
+    if (wantStrings && C.stringsHotkeyActive && !C.stringsHotkeyActive()) out.push({ what: 'Search strings', key: wantStrings, tab: 'options' });
     const wantResults = C.store.settings.resultsHotkey || 'Ctrl+Shift+D';
     if (!C.resultsHotkey && wantResults) out.push({ what: 'Results window', key: wantResults, tab: 'options' });
     return out;

@@ -188,6 +188,7 @@ const C = {
   get registerPriceHotkey() { return M.hotkeys.registerPriceHotkey; },
   get registerEquipHotkey() { return M.hotkeys.registerEquipHotkey; },
   get hotkeyProblems() { return M.hotkeys.hotkeyProblems; },
+  get stringsHotkeyActive() { return M.strings && M.strings.active; },
   get openSettingsTab() { return M.pages.openTab; },
   get equipNow() { return M.gear.equipNow; },
   get registerResultsHotkey() { return M.results.registerResultsHotkey; },
@@ -275,6 +276,7 @@ function showMapCard(item) { return mapFeature.showMapCard(item); }
 const updates = require('./features/updates')(C);
 require('./features/backup')(C);
 require('./features/craft')(C);
+M.strings = require('./features/strings')(C);
 const usage = require('./features/stats')(C);
 const savedFeature = require('./features/saved')(C);
 function savedList() { return savedFeature.savedList(); }
@@ -396,6 +398,7 @@ app.whenReady().then(() => {
   C.registerResultsHotkey();
   C.registerPriceHotkey();
   C.registerEquipHotkey();
+  M.strings.register();
   // a hotkey another program holds: said once now, not only in the log
   setTimeout(() => M.hotkeys.warnHotkeyProblems(), 3000);
   routeFeature.start();
