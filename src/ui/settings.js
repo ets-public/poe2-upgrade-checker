@@ -69,6 +69,14 @@ async function load() {
   renderPob(false);
   if (Date.now() - accountAt > 30000) renderAccount(); // not on every change: it asks the trade site
   renderModeHints();
+  const hp = $('#hotkeyProblems');
+  if (hp) {
+    const probs = state.hotkeyProblems || [];
+    hp.classList.toggle('hidden', !probs.length);
+    hp.innerHTML = probs.length ? `⚠ ${probs.length === 1 ? 'This hotkey doesn\'t work' : 'These hotkeys don\'t work'}: ${probs.map((x) => `<b>${esc(x.what)}</b> (${esc(x.key)})`).join(', ')}. Another program (often another overlay) already uses ${probs.length === 1 ? 'it' : 'them'}. <button class="link" id="hkFix">Pick other keys</button>` : '';
+    const fix = hp.querySelector('#hkFix');
+    if (fix) fix.addEventListener('click', () => showTab('options'));
+  }
   const le = $('#loadError');
   if (le) { le.classList.toggle('hidden', !state.loadError); if (state.loadError) le.textContent = `Your settings file couldn't be read (${state.loadError}), so the app started with defaults. The old file was kept next to it as poe2-upgrade-checker.json.unreadable-…`; }
 }

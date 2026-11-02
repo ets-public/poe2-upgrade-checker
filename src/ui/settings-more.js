@@ -76,6 +76,20 @@ $('#updAction').addEventListener('click', async () => {
 });
 window.api.onUpdateChanged(() => renderUpdate());
 
+// ---------- What's new: shown once after an update (and from Settings → What's new) ----------
+async function renderWhatsNew(force) {
+  const bar = $('#whatsNewBar');
+  if (!bar) return;
+  let w; try { w = await window.api.whatsNew(); } catch (_) { return; }
+  if (!w || !w.sections.length || !(w.pending || force)) { if (!force) bar.classList.add('hidden'); return; }
+  const list = w.sections.map((s) => `${w.sections.length > 1 ? `<div class="dim small">${esc(s.version)}${s.date ? ` · ${esc(s.date)}` : ''}</div>` : ''}<ul>${s.entries.map((e) => `<li>${e.title ? `<b>${esc(e.title)}:</b> ` : ''}${esc(e.text.length > 320 ? e.text.slice(0, 317) + '…' : e.text)}</li>`).join('')}</ul>`).join('');
+  bar.innerHTML = `<div class="wn-head"><b>${w.pending ? `Updated to ${esc(w.current)}` : `What's new in ${esc(w.current)}`}</b><span class="grow"></span><button class="link" id="wnClose">${w.pending ? 'Got it' : 'Close'}</button></div>${list}`;
+  bar.classList.remove('hidden');
+  bar.querySelector('#wnClose').addEventListener('click', () => { bar.classList.add('hidden'); window.api.whatsNewSeen(); });
+}
+renderWhatsNew(false);
+$('#whatsNewBtn').addEventListener('click', () => { renderWhatsNew(true); $('#whatsNewBar').scrollIntoView({ block: 'start' }); });
+
 // ---------- gear score explanation ----------
 $('#gsExplain').innerHTML = window.gearExplainHtml({ where: 'gear score editor on this page' });
 window.showGearHelp = () => {
@@ -108,3 +122,14 @@ renderAccount();
   $('#betaUpdates').addEventListener('change', async () => { await window.api.setSetting('betaUpdates', $('#betaUpdates').checked); renderUpdate(); });
 })();
 renderUpdate();
+
+// ---------- back up / restore ----------
+$('#backupExport').addEventListener('click', async () => {
+  const r = await window.api.backupExport();
+  if (r.canceled) return;
+  $('#backupMsg').textContent = r.ok ? `Saved: ${r.file} (${r.characters} character${r.characters === 1 ? '' : 's'}, ${r.builds} Path of Building file${r.builds === 1 ? '' : 's'}).` : r.error;
+});
+$('#backupImport').addEventListener('click', async () => {
+  const r = await window.api.backupImport();
+  if (r && !r.ok && !r.canceled) $('#backupMsg').textContent = r.error;
+});

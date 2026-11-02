@@ -113,6 +113,7 @@ module.exports = function (C) {
     slots: SLOTS,
     lastItem: C.lastItem,
     hotkeyStatus: C.hotkeyStatus,
+    hotkeyProblems: C.hotkeyProblems(),
   })));
 
   ipcMain.handle('evaluate:text', (_e, text) => {
@@ -149,5 +150,5 @@ module.exports = function (C) {
     if (fresh) C.settingsWin.webContents.once('did-finish-load', send); else send();
   });
 
-  return {};
+  return { openTab };
 };

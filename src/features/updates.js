@@ -47,6 +47,40 @@ module.exports = function (C) {
     setTimeout(check, 15000);
     setInterval(check, 6 * C.HOUR);
   }
+  // ---------- What's new: the release notes, once, after an update ----------
+  const changelog = require('../core/changelog');
+  let changelogText = null;
+  function readChangelog() {
+    if (changelogText != null) return changelogText;
+    try { changelogText = require('fs').readFileSync(require('path').join(app.getAppPath(), 'CHANGELOG.md'), 'utf8'); } catch (_) { changelogText = ''; }
+    return changelogText;
+  }
+  // the versions to show: newer than the one you last saw, up to this one (none on a first install)
+  function whatsNew() {
+    const cur = app.getVersion();
+    const seen = C.store.settings.seenVersion;
+    const md = readChangelog();
+    // someone updating from before this was remembered: only this version's notes
+    const from = seen || (C.store.settings.wizardDone ? null : cur);
+    const pending = from !== cur && (!from || changelog.cmp(cur, from) > 0);
+    const list = pending ? (from ? changelog.since(md, from, cur) : [changelog.notesFor(md, cur)].filter(Boolean)) : [changelog.notesFor(md, cur)].filter(Boolean);
+    return { current: cur, pending: pending && list.length > 0, sections: list.slice(0, 5) };
+  }
+  function announceWhatsNew() {
+    const w = whatsNew();
+    if (!C.store.settings.seenVersion && !w.pending) { C.store.setSetting('seenVersion', w.current); return; } // a first install: nothing to announce
+    if (!w.pending) return;
+    try {
+      const count = w.sections.reduce((t, s) => t + s.entries.length, 0);
+      const n = new Notification({ title: `Updated to ${w.current}`, body: `${count} new thing${count === 1 ? '' : 's'} and fixes. Click to see what's new.`, icon: C.ICON });
+      n.on('click', () => C.openSettings());
+      C.keepNotification(n);
+      n.show();
+    } catch (_) { /* ignore */ }
+  }
+  ipcMain.handle('whatsnew:get', () => whatsNew());
+  ipcMain.handle('whatsnew:seen', () => { C.store.setSetting('seenVersion', app.getVersion()); return true; });
+
   ipcMain.handle('update:status', () => ({ ...upd, current: app.getVersion() }));
   ipcMain.handle('update:check', async () => {
     if (!autoUpdater) return { ...upd, current: app.getVersion() };
@@ -56,5 +90,5 @@ module.exports = function (C) {
   ipcMain.handle('update:download', async () => { if (autoUpdater) { upd.state = 'downloading'; autoUpdater.downloadUpdate().catch((e) => C.log('update download: ' + e.message)); } return upd; });
   ipcMain.on('update:install', () => { if (autoUpdater && upd.state === 'ready') autoUpdater.quitAndInstall(true, true); });
   ipcMain.handle('update:info', () => ({ current: app.getVersion(), beta: /-/.test(app.getVersion()), betas: wantBetas() }));
-  return { upd, setupUpdater, updaterAvailable, setBetas, updater: () => autoUpdater };
+  return { upd, announceWhatsNew, whatsNew, setupUpdater, updaterAvailable, setBetas, updater: () => autoUpdater };
 };

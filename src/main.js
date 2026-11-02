@@ -187,6 +187,8 @@ const C = {
   get registerHotkey() { return M.hotkeys.registerHotkey; },
   get registerPriceHotkey() { return M.hotkeys.registerPriceHotkey; },
   get registerEquipHotkey() { return M.hotkeys.registerEquipHotkey; },
+  get hotkeyProblems() { return M.hotkeys.hotkeyProblems; },
+  get openSettingsTab() { return M.pages.openTab; },
   get equipNow() { return M.gear.equipNow; },
   get registerResultsHotkey() { return M.results.registerResultsHotkey; },
   get remember() { return remember; },
@@ -271,6 +273,7 @@ function ninjaPrice(item) {
 function showPriceCard(item) { return prices.showPriceCard(item); }
 function showMapCard(item) { return mapFeature.showMapCard(item); }
 const updates = require('./features/updates')(C);
+require('./features/backup')(C);
 const usage = require('./features/stats')(C);
 const savedFeature = require('./features/saved')(C);
 function savedList() { return savedFeature.savedList(); }
@@ -392,6 +395,8 @@ app.whenReady().then(() => {
   C.registerResultsHotkey();
   C.registerPriceHotkey();
   C.registerEquipHotkey();
+  // a hotkey another program holds: said once now, not only in the log
+  setTimeout(() => M.hotkeys.warnHotkeyProblems(), 3000);
   routeFeature.start();
   M.sold.start();
   buildTrayMenu();
@@ -405,6 +410,7 @@ app.whenReady().then(() => {
   setTimeout(() => C.gameCtx.run({ game: store.activeGame() }, () => C.loadTradeData(false)).then(() => log('trade data ready')).catch((err) => log('trade data warm-up: ' + (err.message || err))), 4000);
   applyLoginItem();
   updates.setupUpdater();
+  setTimeout(() => updates.announceWhatsNew(), 5000);
   usage.start();
   const hidden = process.argv.includes('--hidden') || store.settings.openSettingsOnStart === false;
   if (!hidden) openSettings();

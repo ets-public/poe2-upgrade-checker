@@ -23,7 +23,8 @@
       "assets/**",
       "package.json",
       "LICENSE",
-      "NOTICE.md"
+      "NOTICE.md",
+      "CHANGELOG.md"
     ],
     "win": {
       "icon": "assets/icon.png",

@@ -30,6 +30,8 @@
 
   <main class="main">
     <div class="res-loss-banner hidden" id="loadError" role="alert"></div>
+    <div class="hk-problems hidden" id="hotkeyProblems" role="alert"></div>
+    <div class="whatsnew-bar hidden" id="whatsNewBar"></div>
     <section class="tab active" id="tab-gear">
       <header class="page-head">
         <div><h2>My gear</h2><div class="sub"><span class="p2">What you're wearing, scored for your build (<button class="link gs-help">what's the gear score?</button>).</span><span class="p1">What you're wearing. Items are judged by Path of Building with your build (<button class="link gs-help">how?</button>).</span> Click a slot's <b>Find upgrades</b> to search for something better.</div></div>
@@ -392,8 +394,13 @@
         <div class="row"><label><input type="checkbox" id="autoUpdate"> Download updates automatically</label></div>
         <div class="row"><label><input type="checkbox" id="betaUpdates"> Get beta versions</label></div>
         <div class="help" id="betaNote">Betas get new features a little earlier and can have bugs. If something breaks, send the log to support@poe2upgrade.com.</div>
-        <div class="row"><button id="updCheck">Check for updates</button><button class="primary hidden" id="updAction"></button></div>
+        <div class="row"><button id="updCheck">Check for updates</button><button class="link" id="whatsNewBtn">What&rsquo;s new</button><button class="primary hidden" id="updAction"></button></div>
         <div class="help" id="updStatus"></div>
+      </div>
+      <div class="card-p">
+        <h3>Back up &amp; restore</h3>
+        <div class="row"><button id="backupExport">Back up to a file…</button><button id="backupImport">Restore…</button></div>
+        <div class="help" id="backupMsg">One file with your characters, gear, Path of Building builds, priorities, saved searches, hotkeys and League start progress: for a new PC or a reinstall. Restoring keeps what you have now as a copy next to it.</div>
       </div>
       <div class="card-p">
         <h3>Troubleshooting</h3>
