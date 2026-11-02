@@ -31,6 +31,7 @@ img { max-width: 100%; height: auto; display: block; }
 a { color: #c8b48a; text-underline-offset: 3px; }
 a:hover { color: var(--light); }
 b { color: var(--value); font-weight: 500; }
+code { font-size: .9em; color: var(--light); overflow-wrap: anywhere; }
 kbd { font: 700 .9em var(--f-head); color: var(--light); padding: 0 7px; border: 1px solid var(--btn-line); background: var(--btn); }
 :focus-visible { outline: 2px solid var(--title); outline-offset: 2px; }
 

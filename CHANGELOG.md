@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- **Website search fixes (poe2upgrade.com):** a new page for Path of Exile 2 on Linux with Steam Proton, Lutris or Heroic (poe2upgrade.com/linux/: setup, Wayland and Steam Deck notes), new questions on the home page about trade history (what sold) and poe.ninja prices, a clearer title for the Path of Building 2 page, and the Worker's own workers.dev address now sends visitors to poe2upgrade.com like www does, so search engines see one copy of each page.
+
 ## 0.5.4 - 2026-11-02
 - **Pick your main skill on the Character page:** the main skill is now a list with every active skill of your build and each one's DPS as the main skill, worked out by Path of Building. The one you pick is what the popup, Find upgrades and Where to spend judge your damage with (Path of Building's *Include in Full DPS* ticks are left out while you have one picked), kept per character; *As in Path of Building* puts PoB's own back. A skill that isn't in the build any more falls back to PoB's, and the page says so.
 - **Your weapon's default attack (PoE2):** Crossbow Shot, Bow Shot, Mace Strike, Quarterstaff Strike, Spear Stab and Spear Throw are now in your build, with the level your character level allows, so a levelling character with no damage gem set up, or one whose best damage is still the default attack, has real DPS. The game always gives you one; the Path of Building version in the app (0.23.1) doesn't add it by itself, so the app adds it for your main weapons, and again when you copy a new weapon. It's marked *weapon's default attack* on the Character page. Swords, axes, claws, daggers and flails get none yet: this Path of Building version doesn't have their default attacks.

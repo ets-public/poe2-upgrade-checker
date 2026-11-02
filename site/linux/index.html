@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PoE2 on Linux (Steam Proton): Item Upgrade Overlay | PoE Upgrade Checker</title>
+  <meta name="description" content="Playing Path of Exile 2 on Linux through Steam Proton, Lutris or Heroic? Set up the free PoE Upgrade Checker overlay: AppImage, F2 item checks with Path of Building, X11 and Wayland.">
+  <link rel="canonical" href="https://poe2upgrade.com/linux/">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta property="og:site_name" content="PoE Upgrade Checker">
+  <meta property="og:title" content="PoE2 on Linux with Proton: the item upgrade overlay">
+  <meta property="og:description" content="Set up the free PoE Upgrade Checker overlay for Path of Exile 2 on Linux (Steam Proton, Lutris, Heroic): hover an item, press F2, and Path of Building judges it for your build.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://poe2upgrade.com/linux/">
+  <meta property="og:image" content="https://poe2upgrade.com/img/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PoE2 on Linux with Proton: the item upgrade overlay">
+  <meta name="twitter:description" content="Free Path of Exile 2 overlay for Linux (Steam Proton): press F2 on an item and Path of Building judges it for your build.">
+  <meta name="twitter:image" content="https://poe2upgrade.com/img/og.png">
+  <meta name="theme-color" content="#0e0c0a">
+  <link rel="icon" href="/img/icon-64.png">
+  <link rel="apple-touch-icon" href="/img/icon-180.png">
+  <link rel="preload" href="/fonts/AlegreyaSansSC-Bold.woff" as="font" type="font/woff" crossorigin>
+  <link rel="stylesheet" href="/site.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "HowTo",
+        "@id": "https://poe2upgrade.com/linux/#howto",
+        "name": "Set up PoE Upgrade Checker for Path of Exile 2 on Linux (Steam Proton)",
+        "description": "Install the PoE Upgrade Checker AppImage on Linux and check Path of Exile 2 items with Path of Building while the game runs through Steam Proton, Lutris or Heroic.",
+        "inLanguage": "en",
+        "tool": [{ "@type": "HowToTool", "name": "Path of Exile 2 running through Steam Proton, Lutris or Heroic" }],
+        "step": [
+          { "@type": "HowToStep", "position": 1, "name": "Download the AppImage", "text": "Download PoE-Upgrade-Checker.AppImage from poe2upgrade.com/download and keep it somewhere such as ~/Applications." },
+          { "@type": "HowToStep", "position": 2, "name": "Make it executable and run it", "text": "Right-click, Properties, Allow executing as program, or run chmod +x PoE-Upgrade-Checker.AppImage and start it. Some distros need FUSE for AppImages (libfuse2 on Ubuntu 22.04 and newer)." },
+          { "@type": "HowToStep", "position": 3, "name": "Check an item in game", "text": "Set Path of Exile 2 to Windowed Fullscreen, hover an item and press F2. Path of Building judges it for your build." }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "PoE Upgrade Checker", "item": "https://poe2upgrade.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Linux and Proton", "item": "https://poe2upgrade.com/linux/" }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "Does the overlay work with PoE2 under Proton?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, experimentally. The Linux AppImage is made for Path of Exile 2 running through Steam with Proton, or through Lutris or Heroic, on X11 or Wayland desktops. Windows 10 and 11 are fully supported." } },
+          { "@type": "Question", "name": "Does it work on Wayland?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The game runs under Proton as an X11 window through XWayland, and the app runs as an X11 app too, so the F2 hotkey and the popup work in game. On some Wayland desktops global hotkeys don't reach native Wayland windows, which doesn't matter while you play." } },
+          { "@type": "Question", "name": "Does it work on the Steam Deck?", "acceptedAnswer": { "@type": "Answer", "text": "In desktop mode it works like on any Linux desktop. Gaming mode doesn't allow other windows over the game, so the popup can't show there." } },
+          { "@type": "Question", "name": "Is it safe to use on Linux?", "acceptedAnswer": { "@type": "Answer", "text": "It works the same as on Windows: it never reads game memory or changes game files, and its only input to the game is one Ctrl+C per key press, the same as copying an item yourself. It's a fan project, not affiliated with Grinding Gear Games." } }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/"><img src="/img/icon-64.png" alt="PoE Upgrade Checker logo" width="28" height="28"><span>PoE Upgrade Checker</span></a>
+    <nav aria-label="Main">
+      <a href="/#how">How it works</a>
+      <a href="/#features">Features</a>
+      <a href="/economy/">Economy</a>
+      <a href="/#faq">FAQ</a>
+      <a class="btn small" href="/download">Download</a>
+    </nav>
+  </header>
+
+  <main id="top" class="article">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="/">PoE Upgrade Checker</a> › Linux and Proton</nav>
+
+    <section class="hero">
+      <div class="hero-text">
+        <p class="kicker">Path of Exile 2 on Linux</p>
+        <h1>PoE2 on Linux with Proton, <span>with the item overlay.</span></h1>
+        <p class="lead">Playing Path of Exile 2 through Steam with Proton, Lutris or Heroic? PoE Upgrade Checker has a Linux AppImage (experimental): hover an item, press <kbd>F2</kbd>, and Path of Building says what it does to your build, right next to the item.</p>
+        <div class="cta">
+          <a class="btn main" href="/download">Download the AppImage</a>
+          <a class="btn" href="https://github.com/ets-public/poe2-upgrade-checker#linux-experimental">Linux notes on GitHub</a>
+        </div>
+      </div>
+      <figure class="frame"><img src="/img/popup.webp" alt="The PoE Upgrade Checker popup in Path of Exile 2: Path of Building's verdict on a pair of gloves, next to the item" width="800" height="782"></figure>
+    </section>
+
+    <section class="prose">
+      <h2>Setting it up</h2>
+      <p>It's made for desktop Linux with the game running through Steam Proton (or Lutris or Heroic): Ubuntu, Fedora, Arch, Bazzite and so on, on X11 or Wayland.</p>
+      <ol class="plain">
+        <li><b>Download</b> <i>PoE-Upgrade-Checker.AppImage</i> from the <a href="/download">newest release</a> and keep it where you want it, for example <i>~/Applications</i>.</li>
+        <li><b>Make it executable and run it:</b> right-click → Properties → <i>Allow executing as program</i>, or <code>chmod +x PoE-Upgrade-Checker.AppImage</code> and start it. Some distros need FUSE for AppImages (for example <code>sudo apt install libfuse2</code> on Ubuntu 22.04 and newer).</li>
+        <li><b>In game,</b> use <i>Windowed Fullscreen</i>, hover an item and press <kbd>F2</kbd>.</li>
+      </ol>
+      <p>It updates itself like the Windows version. The file keeps its name, so your shortcuts and <i>Start with your desktop</i> keep working.</p>
+
+      <h2>How it works under Proton</h2>
+      <ul class="ticks">
+        <li><b>Path of Building runs inside the app,</b> the same engine as on Windows, so the verdicts are the same. You don't need Path of Building installed or running under Wine.</li>
+        <li><b>Copying the item:</b> the app sends one Ctrl+C to the game through X11's XTest, using the <i>python3</i> almost every distro has. The game runs under Proton as an X11 window, so this works on Wayland desktops too, through XWayland. If that's missing it uses <i>xdotool</i>, and failing that you can press Ctrl+C on the item yourself: the app picks it up from the clipboard.</li>
+        <li><b>The F2 hotkey</b> works while the game is focused. On some Wayland desktops global hotkeys don't reach native Wayland windows, which doesn't matter in game.</li>
+        <li><b>Steam Deck:</b> desktop mode works like any Linux desktop. Gaming mode doesn't allow other windows over the game.</li>
+      </ul>
+
+      <h2>What you get in game</h2>
+      <p>Everything the Windows version does: item upgrade verdicts from Path of Building, trade searches weighted for your build, price checks with poe.ninja prices and what sold, map and waystone checks, and the league start route, for Path of Exile 2 and Path of Exile 1. See <a href="/#features">all features</a>, or read about <a href="/path-of-building-poe2/">Path of Building for PoE2</a>.</p>
+      <p class="fine">Linux support is experimental. Not working for you? <a href="https://github.com/ets-public/poe2-upgrade-checker/issues">Open an issue</a> with your distro, desktop (GNOME, KDE…), X11 or Wayland, and the log (tray → Open log file). The overlay never reads game memory or changes game files. It's a fan project, not affiliated with Grinding Gear Games or Valve.</p>
+    </section>
+
+    <section class="faq">
+      <h2>Questions</h2>
+      <div class="faq-list">
+        <details>
+          <summary>Does the overlay work with PoE2 under Proton?</summary>
+          <p>Yes, experimentally. The Linux AppImage is made for Path of Exile 2 running through Steam with Proton, or through Lutris or Heroic, on X11 or Wayland desktops. Windows 10 and 11 are fully supported.</p>
+        </details>
+        <details>
+          <summary>Does it work on Wayland?</summary>
+          <p>Yes. The game runs under Proton as an X11 window through XWayland, and the app runs as an X11 app too, so the F2 hotkey and the popup work in game. On some Wayland desktops global hotkeys don't reach native Wayland windows, which doesn't matter while you play.</p>
+        </details>
+        <details>
+          <summary>Does it work on the Steam Deck?</summary>
+          <p>In desktop mode it works like on any Linux desktop. Gaming mode doesn't allow other windows over the game, so the popup can't show there.</p>
+        </details>
+        <details>
+          <summary>Is it safe to use on Linux?</summary>
+          <p>It works the same as on Windows: it never reads game memory or changes game files, and its only input to the game is one Ctrl+C per key press, the same as copying an item yourself. It's a fan project, not affiliated with Grinding Gear Games. More in <a href="/#fair-play">Fair play and privacy</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="final">
+      <h2>Stop alt-tabbing. Press F2.</h2>
+      <a class="btn main big" href="/download">Download PoE Upgrade Checker</a>
+      <p class="fine">Free and open source. Linux (experimental, Steam/Proton), Windows 10/11. Path of Exile 2 and Path of Exile 1.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>PoE Upgrade Checker is a fan project, not affiliated with Grinding Gear Games, Valve or the Path of Building Community team. Path of Exile is a trademark of Grinding Gear Games.</p>
+    <p><a href="/">Home</a> · <a href="/path-of-building-poe2/">Path of Building for PoE2</a> · <a href="/economy/">PoE2 currency prices</a> · <a href="https://github.com/ets-public/poe2-upgrade-checker">GitHub</a> · <a href="https://github.com/ets-public/poe2-upgrade-checker/issues">Report a problem</a> · <a href="mailto:support@poe2upgrade.com">support@poe2upgrade.com</a></p>
+  </footer>
+</body>
+</html>
