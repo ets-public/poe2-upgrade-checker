@@ -263,4 +263,11 @@ function priceEdits(prices, own = []) {
   return out.sort((a, b) => order(a) - order(b));
 }
 
-module.exports = { START, END, tierMembers, parse, parseLine, findBlock, baseTypes, tiers, readEdits, withoutEdits, section, apply, setEdit, styleLines, priceEdits, PRICE_TIERS, condHolds };
+// the edits with tiers by price: your own edits as they are now (read after the prices came, so an
+// edit made while they were on their way stays), then the priced items you didn't edit yourself
+function withPriceTiers(edits, prices) {
+  const mine = (edits || []).filter((e) => e && !e.auto);
+  return [...mine, ...priceEdits(prices, mine)];
+}
+
+module.exports = { withPriceTiers, START, END, tierMembers, parse, parseLine, findBlock, baseTypes, tiers, readEdits, withoutEdits, section, apply, setEdit, styleLines, priceEdits, PRICE_TIERS, condHolds };

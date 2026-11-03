@@ -264,7 +264,10 @@ function defaultLogPaths(game) {
   const dir = game === 'poe1' ? 'Path of Exile' : 'Path of Exile 2';
   const pf = process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)';
   const pf64 = process.env.ProgramFiles || 'C:\\Program Files';
+  // Linux: the game under Steam's Proton, in whichever Steam library it's installed in (first)
+  const linux = process.platform === 'linux' ? require('./gamefolders').linuxLogPaths(game) : [];
   return [
+    ...linux,
     path.join(pf, 'Steam', 'steamapps', 'common', dir, 'logs', 'Client.txt'),
     path.join(pf, 'Grinding Gear Games', dir, 'logs', 'Client.txt'),
     path.join(pf64, 'Grinding Gear Games', dir, 'logs', 'Client.txt'),

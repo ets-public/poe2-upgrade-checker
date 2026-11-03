@@ -18,6 +18,13 @@
   "build": {
     "appId": "local.poe2.upgradechecker",
     "productName": "PoE Upgrade Checker",
+    "electronFuses": {
+      "runAsNode": false,
+      "enableCookieEncryption": true,
+      "enableNodeOptionsEnvironmentVariable": false,
+      "enableNodeCliInspectArguments": false,
+      "onlyLoadAppFromAsar": true
+    },
     "files": [
       "src/**",
       "assets/**",

@@ -105,6 +105,7 @@
         <li><b>Path of Building runs inside the app,</b> the same engine as on Windows, so the verdicts are the same. You don't need Path of Building installed or running under Wine.</li>
         <li><b>Copying the item:</b> the app sends one Ctrl+C to the game through X11's XTest, using the <i>python3</i> almost every distro has. The game runs under Proton as an X11 window, so this works on Wayland desktops too, through XWayland. If that's missing it uses <i>xdotool</i>, and failing that you can press Ctrl+C on the item yourself: the app picks it up from the clipboard.</li>
         <li><b>The F2 hotkey</b> works while the game is focused. On some Wayland desktops global hotkeys don't reach native Wayland windows, which doesn't matter in game.</li>
+        <li><b>Your loot filters and Client.txt:</b> under Proton the game keeps its Documents folder inside Steam's own folder (<i>steamapps/compatdata/2694490/pfx/…</i>), not in your home folder. The loot filter editor and League start look there, in every Steam library, by themselves. Filters somewhere else? Use <i>Change folder</i> in the loot filter editor.</li>
         <li><b>Steam Deck:</b> desktop mode works like any Linux desktop. Gaming mode doesn't allow other windows over the game.</li>
       </ul>
 

@@ -68,6 +68,7 @@ contextBridge.exposeInMainWorld('api', {
   lfReload: (file) => ipcRenderer.invoke('lf:reload', file),
   lfReset: (file) => ipcRenderer.invoke('lf:reset', file),
   lfFolder: () => ipcRenderer.invoke('lf:folder'),
+  lfPickFolder: (reset) => ipcRenderer.invoke('lf:pickFolder', !!reset),
   lfWindow: () => ipcRenderer.send('lf:window'),
   lfHide: () => ipcRenderer.send('lf:hide'),
   setFilterHotkey: (accel) => ipcRenderer.invoke('hotkey:setFilter', accel),
