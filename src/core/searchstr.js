@@ -2,9 +2,10 @@
 
 // Search strings to paste into the game's search box (stash, vendor, map device).
 // The game matches text case-insensitively; inside quotes "a|b" means a OR b and a leading ! means NOT.
-// The box takes about 50 characters, so each mod becomes the shortest distinctive word we can find.
+// The box takes 250 characters in both games (PoE2's took about 50 before 0.2), and each mod still
+// becomes the shortest distinctive word we can find, so there's room for your own words too.
 
-const LIMIT = 50;
+const LIMIT = 250;
 
 // words that are on too many mods to tell one apart from another
 const COMMON = new Set(('monsters monster players player have has area damage of the a an and or to in by with are is be '

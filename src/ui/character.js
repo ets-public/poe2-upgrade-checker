@@ -327,6 +327,7 @@
     const line = (r, id) => (r.text ? `<div class="str-line"><code>${esc(r.text)}</code> <span class="dim small">${r.length}/${g.limit}</span> <button class="link" data-copy="${id}">Copy</button></div>${r.left.length ? `<div class="dim small">${r.left.length} more didn't fit: ${esc(r.left.join(', '))}</div>` : ''}` : '');
     box.innerHTML = `<h3>Search strings</h3>
       <div class="help">Paste into the search box in game (Ctrl+F at a vendor, in your stash or at the map device): matching items light up.</div>
+      <div class="row"><button id="strBuilder" title="Build a search for maps and waystones (quantity, rarity, pack size, mods to avoid) or any item (movement speed 25%+, resistances...), and test it on the item you copied">Search string builder…</button></div>
       <h4 class="small">Vendors &amp; stash: things worth a look</h4>
       <div class="row wrap">${cb('move', 'Movement speed')}${['fire', 'cold', 'lightning'].map(rcb).join('')}${cb('life', 'Life')}${cb('gems', '+ gem levels')}${g.game === 'poe1' ? cb('links', '3 linked sockets') : ''}</div>
       ${line(v, 'v') || '<div class="dim small">Tick something to look for.</div>'}
@@ -340,6 +341,8 @@
     const texts = { v: v.text, m: g.mapAvoid.text };
     own.forEach((x, i) => { texts['c' + i] = x.text; });
     box.querySelectorAll('[data-del]').forEach((b) => b.addEventListener('click', async () => { own.splice(Number(b.dataset.del), 1); await window.api.stringsCustomSet(own); renderStrings(); }));
+    const sb = box.querySelector('#strBuilder');
+    if (sb) sb.addEventListener('click', () => window.api.rxWindow());
     const add = box.querySelector('#strAdd');
     if (add) add.addEventListener('click', async () => {
       const text = box.querySelector('#strText').value.trim();
