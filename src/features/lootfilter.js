@@ -13,10 +13,12 @@ const { app, ipcMain } = require('electron');
 
 module.exports = function (C) {
   const filterLib = require('../core/lootfilter');
+  // the game's filter folder (the one picked in the filter editor; on Linux, inside Steam's Proton folder)
   function filterFolder() {
     const docs = app.getPath('documents');
-    const dir = path.join(docs, 'My Games', C.tg() === 'poe1' ? 'Path of Exile' : 'Path of Exile 2');
-    return fs.existsSync(dir) ? dir : docs;
+    const g = C.tg() === 'poe1' ? 'poe1' : 'poe2';
+    const dir = require('../core/gamefolders').gameFolder(g, { picked: (C.store.settings.filterFolders || {})[g], documents: docs });
+    return dir && fs.existsSync(dir) ? dir : docs;
   }
   const SLOTS = ['Helmet', 'Body Armour', 'Gloves', 'Boots', 'Amulet', 'Ring 1', 'Ring 2', 'Belt', 'Weapon', 'Offhand'];
   const myLevel = () => {

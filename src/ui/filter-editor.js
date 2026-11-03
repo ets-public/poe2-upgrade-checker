@@ -42,7 +42,8 @@
     const opt = (v, t) => `<option value="${esc(v)}">${esc(t)}</option>`;
     sel.innerHTML = `<option value="">Pick a filter…</option>${l.local.length ? `<optgroup label="Your filters (local)">${l.local.map((f) => opt(f.file, `${f.name}${f.edited ? ` (${f.edited} edits)` : ''}`)).join('')}</optgroup>` : ''}${
       l.online.length ? `<optgroup label="Online filters: edit a local copy">${l.online.map((f) => opt('online:' + f.id, `${f.name} (online)`)).join('')}</optgroup>` : ''}`;
-    if (!l.local.length && !l.online.length) msg(`No filters in ${l.folder}. Put a .filter file there, or pick an online filter in the game once so it downloads it.`);
+    $('#lfPickFolder').title = `Filters are read from ${l.folder}. Pick another folder${l.picked ? ' (or Shift+click to go back to the usual one)' : ''}.`;
+    if (!l.local.length && !l.online.length) msg(`No filters in ${l.folder}. Put a .filter file there, pick an online filter in the game once so it downloads it, or use Change folder if the game keeps them somewhere else.`);
     if (last && l.local.some((f) => f.file === last)) { sel.value = last; await openFile(last); }
   }
 
@@ -181,7 +182,11 @@
   $('#lfAuto').addEventListener('change', async (e) => {
     if (!st.file) { e.target.checked = false; msg('Pick a filter first.'); return; }
     msg(e.target.checked ? 'Getting today\'s prices…' : '');
-    const r = await window.api.lfAutoTiers(st.file, e.target.checked);
+    // one run at a time: the box waits until the file is written (your edits meanwhile are kept)
+    e.target.disabled = true;
+    let r;
+    try { r = await window.api.lfAutoTiers(st.file, e.target.checked); } finally { e.target.disabled = false; }
+    if (r.superseded) return;
     if (!r.ok) { msg(r.error); e.target.checked = false; return; }
     msg(e.target.checked ? `${r.count} items put in tiers by today's prices in ${r.league} (${Object.entries(r.by || {}).map(([k, v]) => `${k}: ${v}`).join(', ')}). Tick it again later to use newer prices. Reload the filter in game to see it.` : 'Tiers by price taken off: the filter decides again (your own edits stay).');
     await openFile(st.file);
@@ -211,6 +216,14 @@
     msg(`${r.from === 'online' ? `Back to the online filter${r.online ? ` "${r.online}"` : ''}, as the game has it now.` : r.from === 'backup' ? 'Back to how it was before your first edit.' : 'Your edits are gone; the filter is as it was.'} What it was before is kept as a .before-reset.bak file. Reload the filter in game to see it.`);
   });
   $('#lfFolderBtn').addEventListener('click', () => window.api.lfFolder());
+  $('#lfPickFolder').addEventListener('click', async (e) => {
+    const r = await window.api.lfPickFolder(e.shiftKey);
+    if (!r || !r.ok) { if (r && r.error) msg(r.error); return; }
+    st.file = null; st.item = null; st.data = null;
+    $('#lfItems').innerHTML = ''; $('#lfItem').innerHTML = '<div class="dim">Pick an item on the left, or <b>Use copied item</b>.</div>';
+    msg(`Filters are now read from ${r.folder}.`);
+    await loadFiles();
+  });
   $('#lfClose').addEventListener('click', () => window.api.lfHide());
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.activeElement !== $('#lfSearch')) window.api.lfHide(); });
   loadFiles();

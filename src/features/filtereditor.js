@@ -15,12 +15,16 @@
 // (/itemfilter name) for you to paste, so the app still sends nothing to the game but its Ctrl+C.
 const fs = require('fs');
 const path = require('path');
-const { app, ipcMain, BrowserWindow, globalShortcut, screen, shell } = require('electron');
+const { app, ipcMain, BrowserWindow, globalShortcut, screen, shell, dialog } = require('electron');
 const F = require('../core/filterfile');
+const folders = require('../core/gamefolders');
 
 module.exports = function (C) {
+  // the game's folder: the one you picked, else Documents/My Games/<game> (on Linux: inside Steam's
+  // Proton folder for the game, where it really keeps its filters)
   function gameFolder(game = C.tg()) {
-    return path.join(app.getPath('documents'), 'My Games', game === 'poe1' ? 'Path of Exile' : 'Path of Exile 2');
+    const picked = (C.store.settings.filterFolders || {})[game === 'poe1' ? 'poe1' : 'poe2'];
+    return path.resolve(folders.gameFolder(game, { picked, documents: app.getPath('documents') }));
   }
   const onlineFolder = (game) => path.join(gameFolder(game), 'OnlineFilters');
   // a file the editor may touch: a .filter file right in the game's folder (no other folder, no other kind)
@@ -42,7 +46,7 @@ module.exports = function (C) {
   }
 
   function list() {
-    const out = { folder: gameFolder(), game: C.tg(), local: [], online: [] };
+    const out = { folder: gameFolder(), picked: !!(C.store.settings.filterFolders || {})[C.tg()], game: C.tg(), local: [], online: [] };
     try {
       for (const f of fs.readdirSync(gameFolder())) {
         if (!/\.filter$/i.test(f)) continue;
@@ -177,14 +181,20 @@ module.exports = function (C) {
     return { ok: true, ...itemInfo(f, { baseType: name }) };
   }
 
-  // tiers by today's prices (poe.ninja, every exchange list of the league in one answer)
+  // tiers by today's prices (poe.ninja, every exchange list of the league in one answer).
+  // The prices take a while to come: your own edits are read again once they're here, so an edit
+  // made meanwhile isn't lost, and only the last tick/untick of the box writes the file.
+  const tierRuns = new Map(); // file -> number of the latest run
   async function autoTiers(file, on) {
     const f = localPath(file);
     if (!f || !fs.existsSync(f)) return { ok: false, error: 'Pick one of your filters.' };
-    const mine = F.readEdits(read(f).text).filter((e) => !e.auto);
-    if (!on) { writeEdits(f, mine); return { ok: true, count: 0 }; }
+    const run = (tierRuns.get(f) || 0) + 1;
+    tierRuns.set(f, run);
+    const ownNow = () => F.readEdits(read(f).text).filter((e) => !e.auto);
+    if (!on) { writeEdits(f, ownNow()); return { ok: true, count: 0 }; }
     const league = await C.ninjaLeague();
     const all = await C.ninjaGet([C.ninjaLib.allExchangeUrl(league, C.tg())]);
+    if (tierRuns.get(f) !== run) return { ok: true, count: 0, superseded: true }; // ticked or unticked again since
     const prices = [];
     for (const d of Object.values((all && all.types) || {})) {
       const idx = C.ninjaLib.exchangeIndex(d);
@@ -195,8 +205,10 @@ module.exports = function (C) {
       }
     }
     if (!prices.length) return { ok: false, error: `poe.ninja has no prices for ${league} right now.` };
-    const auto = F.priceEdits(prices, mine);
-    writeEdits(f, [...mine, ...auto]);
+    if (!fs.existsSync(f)) return { ok: false, error: 'That filter isn\'t there any more.' };
+    const edits = F.withPriceTiers(F.readEdits(read(f).text), prices);
+    writeEdits(f, edits);
+    const auto = edits.filter((e) => e.auto);
     const by = {}; for (const e of auto) by[e.auto] = (by[e.auto] || 0) + 1;
     C.log(`filter editor: ${path.basename(f)}: tiers by price for ${auto.length} items (${league})`);
     return { ok: true, count: auto.length, by, league };
@@ -258,6 +270,19 @@ module.exports = function (C) {
     return { ok: true, cmd };
   }));
   ipcMain.handle('lf:folder', wrap(() => { shell.openPath(gameFolder()); return true; }));
+  // another folder for the game's filters (a game installed somewhere the app doesn't look); none: back to the usual one
+  ipcMain.handle('lf:pickFolder', wrap(async (reset) => {
+    const g = C.tg() === 'poe1' ? 'poe1' : 'poe2';
+    const all = { ...(C.store.settings.filterFolders || {}) };
+    if (reset) { delete all[g]; C.store.setSetting('filterFolders', all); return { ok: true, folder: gameFolder() }; }
+    const r = await dialog.showOpenDialog(win && !win.isDestroyed() ? win : undefined, { title: `Pick the folder with your ${g === 'poe1' ? 'Path of Exile' : 'Path of Exile 2'} loot filters`, defaultPath: gameFolder(), properties: ['openDirectory'] });
+    if (r.canceled || !r.filePaths || !r.filePaths[0]) return { ok: false, canceled: true };
+    all[g] = path.resolve(r.filePaths[0]);
+    C.store.setSetting('filterFolders', all);
+    cache.clear();
+    C.log(`filter editor: ${g} filters folder picked`);
+    return { ok: true, folder: all[g] };
+  }));
   ipcMain.handle('hotkey:setFilter', wrap((accel) => {
     const prev = C.store.settings.filterHotkey || '';
     const want = typeof accel === 'string' ? accel.trim().slice(0, 40) : '';

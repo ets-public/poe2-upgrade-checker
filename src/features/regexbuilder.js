@@ -8,6 +8,7 @@
 const path = require('path');
 const { ipcMain, BrowserWindow, globalShortcut, screen } = require('electron');
 const R = require('../core/regexbuild');
+const { testSafe } = require('../core/regextest');
 const mods = require('../core/regexmods');
 const mapLib = require('../core/mapcheck');
 const searchStr = require('../core/searchstr');
@@ -49,10 +50,12 @@ module.exports = function (C) {
     return R.buildMap({ ...(spec || {}), game: game() }, allMods());
   }
   // the item you copied last (Ctrl+C, F2 or F3 in game), to see if a string lights it up
-  function testCopied(text) {
+  // (in a worker thread with a time limit: a regex you typed can't freeze the app, see core/regextest.js)
+  async function testCopied(text) {
     const it = C.lastItem;
     if (!it || !it.raw) return { ok: false, none: true };
-    const r = R.test(text, it.raw);
+    const r = await testSafe(text, it.raw);
+    if (r.timedOut) C.log('search string builder: a test took too long and was stopped');
     return { ...r, name: it.name || it.baseType || 'the item', itemClass: it.itemClass || '' };
   }
   function saveState(st) {

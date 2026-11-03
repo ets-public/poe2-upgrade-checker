@@ -150,7 +150,9 @@
   $('#rxTest').addEventListener('click', async () => {
     const t = $('#rxText').value.trim(); const out = $('#rxTestOut');
     if (!t) { out.textContent = 'Build a string first.'; return; }
+    out.textContent = 'Testing…';
     const r = await window.api.rxTest(t);
+    if (r.error && !(r.groups || []).length) { out.textContent = r.error; return; }
     if (r.none) { out.innerHTML = 'No item copied yet: hover one in game and press Ctrl+C (or your check hotkey), then test again.'; return; }
     const why = (r.groups || []).map((g) => `<li class="${(g.not ? !g.hit : g.hit) && !g.error ? 'pos' : 'neg'}"><code>${esc(g.not ? '!' + g.rx : g.rx)}</code> ${g.error ? esc(g.error) : g.not ? (g.hit ? `found it: ${esc(g.line || '')}` : 'not on it, good') : (g.hit ? `found: ${esc(g.line || '')}` : 'not on it')}</li>`).join('');
     out.innerHTML = `<b class="${r.ok ? 'pos' : 'neg'}">${r.ok ? 'Lights up' : 'Stays dark'}:</b> ${esc(r.name)}<ul>${why}</ul>`;
