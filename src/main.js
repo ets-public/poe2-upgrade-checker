@@ -362,6 +362,7 @@ function buildTrayMenu() {
     { label: `Loot filter editor…${store.settings.filterHotkey ? ` (${store.settings.filterHotkey})` : ''}`, click: () => M.filterEditor.openWindow() },
     { label: `Search string builder…${store.settings.regexHotkey ? ` (${store.settings.regexHotkey})` : ''}`, click: () => M.regexBuilder.openWindow() },
     { label: 'Open log', click: () => { log('log opened'); shell.openPath(logFile); } },
+    { label: 'Join our Discord…', click: () => shell.openExternal('https://poe2upgrade.com/discord') },
     { label: paused ? 'Resume watching' : 'Pause watching', click: () => { store.setSetting('paused', !paused); buildTrayMenu(); } },
     { type: 'separator' },
     { label: 'Quit', click: () => app.quit() },

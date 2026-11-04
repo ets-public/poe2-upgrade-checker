@@ -153,3 +153,6 @@ function renderSlots() {
   }));
   document.querySelectorAll('[data-custom]').forEach((b) => b.addEventListener('click', () => openFind(b.dataset.custom)));
 }
+
+// Discord community (sidebar and Settings → Startup & updates): opens poe2upgrade.com/discord in the browser
+document.querySelectorAll('[data-discord]').forEach((b) => b.addEventListener('click', () => window.api.openUrl('https://poe2upgrade.com/discord')));

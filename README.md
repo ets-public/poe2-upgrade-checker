@@ -248,7 +248,7 @@ Searches show their listings in a **results window** (always on top) instead of 
 
 ## Support
 
-Join the **[PoE Upgrade Checker Discord](https://discord.gg/Vgu7XMuaBj)** for news of new versions, help with setup, and to talk about bugs and ideas with other players.
+Join the **[PoE Upgrade Checker Discord](https://discord.gg/Vgu7XMuaBj)** for news of new versions, help with setup, and to talk about bugs and ideas with other players. In the app: tray menu → *Join our Discord*, or the link in the main window's sidebar.
 
 Questions, bugs or ideas: ask on Discord, email **[support@poe2upgrade.com](mailto:support@poe2upgrade.com)** or [open an issue](https://github.com/ets-public/poe2-upgrade-checker/issues). If F2 or a verdict looks wrong, attach the log (Tray → Open log) and, for a verdict, your pobb.in link.
 

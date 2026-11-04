@@ -22,6 +22,7 @@ body.app { display: grid; grid-template-columns: 224px minmax(0, 1fr); height: 1
 .side-nav button.active i { border-color: var(--gold); color: var(--gold-hi); box-shadow: 0 0 0 2px #000, 0 0 0 3px rgba(201, 164, 99, .55), 0 0 10px rgba(201, 164, 99, .45); }
 .side-foot { margin-top: auto; font-size: 13px; color: var(--ash); line-height: 1.45; padding: 10px 6px 0; border-top: 1px solid var(--iron-lo); }
 .side-foot b { color: var(--stone); }
+.side-community { font-size: 13px; padding: 6px 6px 0; }
 .main { overflow-y: auto; padding: 22px clamp(16px, 2.2vw, 36px) 44px; background: radial-gradient(110% 520px at 50% -60px, #142233 0%, var(--night) 22%, var(--void) 70%) no-repeat, var(--void); }
 .main > .tab { max-width: 1680px; margin: 0 auto; }
 .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin: 0 0 18px; padding-bottom: 12px; border-bottom: 1px solid var(--iron-lo); box-shadow: 0 1px 0 rgba(122, 101, 69, .18); }
@@ -63,6 +64,7 @@ textarea#testText { min-height: 260px; }
   .side-nav { flex-direction: row; flex-wrap: wrap; }
   .side-nav button { padding: 5px 8px; font-size: 13px; } .side-nav button i { display: none; }
   .side-foot { display: none; }
+  .side-community { padding: 0; }
   .filterbar { top: -22px; }
 }
 /* results window: cards flow into columns when it's big */
