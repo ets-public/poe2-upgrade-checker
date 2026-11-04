@@ -274,7 +274,7 @@ details{margin-bottom:20px}summary{cursor:pointer;color:#c9a86a;font-size:14px;m
 <h3>Each day</h3><div class="wrap">${activity}</div>${legend([{ label: 'new installs', color: C1 }, { label: 'returning', color: C2 }, { label: 'line: played (a game used)', color: CL }, { label: 'dashed: a release or event', color: '#8d8a82' }])}
 <details><summary>Day by day</summary><div class="wrap"><table><tr><th>Day</th><th>Active</th><th>Played</th><th>App open only</th><th>PoE2</th><th>PoE1</th><th>New installs</th></tr>${rows(daily, ['day', 'n', 'played', (r) => r.n - r.played, 'poe2', 'poe1', 'fresh'])}</table></div></details>
 <h3>From the website to a user (last 7 days)</h3><p class="n">Page views and Download clicks are counted by this site (a number per day). New installs are the first ping after the first-run guide, so people who stop before finishing it aren't in it. Google search clicks are in Search Console.</p>
-<div class="funnel"><div><b>${esc(wk('/'))}</b><span>home page views</span></div><div><b>${esc(wk('/path-of-building-poe2/'))}</b><span>Path of Building page views</span></div><div><b>${esc(wk('/linux/'))}</b><span>Linux page views</span></div><div><b>${esc(wk('download'))}</b><span>Download clicks</span></div><div><b>${esc(newWeek)}</b><span>new installs</span></div><div><b>${pct(newWeekBack, newWeekOld)}</b><span>of those (before today) came back</span></div></div>
+<div class="funnel"><div><b>${esc(wk('/'))}</b><span>home page views</span></div><div><b>${esc(wk('/path-of-building-poe2/'))}</b><span>Path of Building page views</span></div><div><b>${esc(wk('/linux/'))}</b><span>Linux page views</span></div><div><b>${esc(wk('download'))}</b><span>Download clicks</span></div><div><b>${esc(wk('discord'))}</b><span>Discord clicks</span></div><div><b>${esc(newWeek)}</b><span>new installs</span></div><div><b>${pct(newWeekBack, newWeekOld)}</b><span>of those (before today) came back</span></div></div>
 <p class="n">GitHub counts ${esc(dl)} installer downloads over all releases: that includes the app updating itself, so it's more than new users.</p>
 <details><summary>Day by day (last 14 days)</summary><div class="wrap"><table><tr><th>Day</th><th>Home</th><th>PoB page</th><th>Linux page</th><th>Download clicks</th><th>New installs</th></tr>${daily.filter((r) => r.day >= since(14)).map((r) => `<tr><td>${esc(r.day)}</td><td>${vis(r.day, '/')}</td><td>${vis(r.day, '/path-of-building-poe2/')}</td><td>${vis(r.day, '/linux/')}</td><td>${vis(r.day, 'download')}</td><td>${esc(r.fresh)}</td></tr>`).join('')}</table></div></details>
 <h3>Came back, by the day they were first counted</h3><p class="n">Of the installs first counted that day, how many used it again the next day, and on any day since. The newest days are still filling up.</p><details${cohorts.length > 10 ? '' : ' open'}><summary>By first day</summary><div class="wrap"><table><tr><th>First day</th><th>Installs</th><th>Next day</th><th>Any later day</th></tr>${retention.map((c) => `<tr><td>${esc(c.day)}</td><td>${esc(c.n)}</td><td>${c.day >= today_ ? '–' : `${esc(c.next_day)} (${pct(c.next_day, c.n)})${c.pending ? ' so far' : ''}`}</td><td>${c.day >= today_ ? '–' : `${esc(c.later)} (${pct(c.later, c.n)})`}</td></tr>`).join('')}</table></div></details>
@@ -293,6 +293,9 @@ ${Object.keys(stuckBy).length ? `<p class="n">Seen in the last 3 days on an olde
 <h3>Systems (last 7 days)</h3><table><tr><th>System</th><th>Installs</th></tr>${rows(platforms, ['platform', 'n'])}</table></main></body></html>`;
   return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
 }
+
+// ---------- /discord: the community server's invite (one place to change it) ----------
+const DISCORD_INVITE = 'https://discord.gg/Vgu7XMuaBj';
 
 // ---------- /download: the newest release, betas included ----------
 // GitHub's /releases/latest skips pre-releases, so the site and README link here instead. The answer
@@ -368,6 +371,7 @@ async function handle(request, env, ctx) {
       return ping(request, env).catch(() => json({ ok: false }, 500));
     }
     if (url.pathname === '/download' || url.pathname === '/download/') { countVisit(request, env, ctx, 'download'); return download(ctx); }
+    if (url.pathname === '/discord' || url.pathname === '/discord/') { countVisit(request, env, ctx, 'discord'); return Response.redirect(DISCORD_INVITE, 302); }
     if (request.method === 'GET' && (url.pathname === '/' || url.pathname === '/path-of-building-poe2/' || url.pathname === '/linux/')) countVisit(request, env, ctx, url.pathname);
     if (url.pathname === '/api/stats') {
       if (!await allowed(env, 'RL_STATS', request, 'stats')) return tooMany();

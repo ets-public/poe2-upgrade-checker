@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- **Discord community:** PoE Upgrade Checker now has a Discord server for news of new versions, help with setup, bug reports and feature ideas. Join at [poe2upgrade.com/discord](https://poe2upgrade.com/discord) (the link is in the website's menu, home page and footer, and in the README).
 - **Usage stats count trade search failures more fairly:** when the trade site says a search has too many filters, the app already tries again with fewer, and that smaller search usually works. Each of those refused tries was counted as a failed trade search in the anonymous usage stats, so one search could count as several failures. Now only a search that fails for good is counted. Nothing changes in how searches run.
 - **Loot filter editor: no edit is lost to Tiers by today's prices.** It used to save the edits it had read before fetching the prices, so an item you hid or restyled while poe.ninja was answering was undone. It now reads your edits again when the prices arrive, and the box waits while it works.
 - **Search string builder: Test can't freeze the app any more.** A typed search with a repeat inside a repeat, like `(a+)+`, could take minutes to test and froze the whole app (hotkeys, the popup, the overlays). The test now runs on its own and is stopped after 1.5 seconds, with a note on what to simplify.
