@@ -67,6 +67,7 @@
           { "@type": "Question", "name": "Does it work on Linux with Proton?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. There's a Linux AppImage (experimental) for Path of Exile 2 running through Steam with Proton, Lutris or Heroic, on X11 or Wayland. Path of Building runs inside the app, so verdicts are the same as on Windows. Windows 10 and 11 are fully supported. Setup: poe2upgrade.com/linux/" } },
           { "@type": "Question", "name": "Can I see what items really sold for (trade history)?", "acceptedAnswer": { "@type": "Answer", "text": "The official trade site only shows what is listed, not what sold. About 3 hours after you price check an item on the trade site, the app runs the same search again and counts the instant buyout listings that are gone, with their asking prices, so the next check shows what likely sold and for how much. Your own listings go on a For sale list that says if yours is still up and how many are cheaper now." } },
           { "@type": "Question", "name": "Does it use poe.ninja prices?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Currency, gems, divination cards and uniques are priced from poe.ninja, with the last 7 days, through this site's cache. Rares are priced from the official trade site. There's also a currency prices page on poe2upgrade.com/economy/. The app isn't made by or affiliated with poe.ninja." } },
+          { "@type": "Question", "name": "Is there a Discord?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Join the PoE Upgrade Checker Discord at poe2upgrade.com/discord for news of new versions, help with setup, bug reports and feature ideas." } },
           { "@type": "Question", "name": "Is it free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It's free and open source on GitHub, with no account and no ads, and it updates itself." } }
         ]
       }
@@ -83,6 +84,7 @@
       <a href="#poe1">PoE1</a>
       <a href="/economy/">Economy</a>
       <a href="#faq">FAQ</a>
+      <a href="/discord">Discord</a>
       <a class="btn small" href="/download">Download</a>
     </nav>
   </header>
@@ -96,6 +98,7 @@
         <div class="cta">
           <a class="btn main" href="/download">Download for Windows</a>
           <a class="btn" href="https://github.com/ets-public/poe2-upgrade-checker">View on GitHub</a>
+          <a class="btn" href="/discord">Join the Discord</a>
         </div>
         <p class="fine">Windows 10/11 · <a href="/linux/">Linux (experimental, Steam/Proton)</a> · PoE2 and PoE1 · Free and open source · Updates itself</p>
         <div class="leagues" aria-label="Next leagues">
@@ -276,6 +279,10 @@
           <p>Yes. Currency, gems, divination cards and uniques are priced from <a href="https://poe.ninja">poe.ninja</a>, with the last 7 days, through this site's cache. Rares are priced from the official trade site. There's also a <a href="/economy/">currency prices page</a>. The app isn't made by or affiliated with poe.ninja.</p>
         </details>
         <details>
+          <summary>Is there a Discord?</summary>
+          <p>Yes. <a href="/discord">Join the PoE Upgrade Checker Discord</a> for news of new versions, help with setup, bug reports and ideas for what to build next.</p>
+        </details>
+        <details>
           <summary>Is it free?</summary>
           <p>Yes. It's free and open source on GitHub, with no account and no ads, and it updates itself.</p>
         </details>
@@ -287,7 +294,7 @@
         <h2>Fair play and privacy</h2>
         <div class="cols">
           <p><b>Nothing touches the game.</b> It never reads game memory or injects anything. Its only input to the game is one Ctrl+C per key press, the same as copying an item yourself. The loot filter editor only changes filter files in the game's own Documents folder, never an online filter.</p>
-          <p><b>Your data stays on your PC.</b> It talks to the official trade site, poe.ninja's prices (cached on this site) and GitHub (for updates). Path of Building runs locally. This website counts visits with Cloudflare Web Analytics, which uses no cookies, and keeps one number per day of views of its pages and clicks on Download (nothing about you).</p>
+          <p><b>Your data stays on your PC.</b> It talks to the official trade site, poe.ninja's prices (cached on this site) and GitHub (for updates). Path of Building runs locally. This website counts visits with Cloudflare Web Analytics, which uses no cookies, and keeps one number per day of views of its pages and clicks on Download and Discord (nothing about you).</p>
           <p><b>Anonymous usage count.</b> So we know how many people use it, the app tells this site a random install number, its version, Windows or Linux, and which game you played that day, a few times a day. From version 0.5.3 it also sends how many times that day you used each part (item checks, price checks, trade searches, League start steps), how far it's set up (yes/no) and how many times something went wrong, so we know what to fix. Only numbers: no account, items, builds or searches, and no IP addresses are kept. Turn it off in Settings or the first-run guide.</p>
           <p><b>Fan-made.</b> Not affiliated with or endorsed by Grinding Gear Games. Free and open source on GitHub.</p>
         </div>
@@ -298,13 +305,14 @@
       <h2>Stop guessing. Press F2.</h2>
       <a class="btn main big" href="/download">Download PoE Upgrade Checker</a>
       <p class="fine">In the game, set Options → Graphics to <b>Windowed Fullscreen</b> so the overlay can draw over the game. The first-run guide does the rest.</p>
-      <p class="fine">Stuck or found a bug? Email <a href="mailto:support@poe2upgrade.com">support@poe2upgrade.com</a> or <a href="https://github.com/ets-public/poe2-upgrade-checker/issues">open an issue on GitHub</a>. Contributions are welcome.</p>
+      <p class="fine">Stuck or found a bug? Ask on <a href="/discord">our Discord</a>, email <a href="mailto:support@poe2upgrade.com">support@poe2upgrade.com</a> or <a href="https://github.com/ets-public/poe2-upgrade-checker/issues">open an issue on GitHub</a>. Contributions are welcome.</p>
+      <p class="fine"><b>Join the community on <a href="/discord">Discord</a>:</b> news of new versions, help with setup, bug reports and ideas for what to build next.</p>
     </section>
   </main>
 
   <footer>
     <p>PoE Upgrade Checker is a fan project, not affiliated with Grinding Gear Games. Path of Exile is a trademark of Grinding Gear Games.</p>
-    <p><a href="/path-of-building-poe2/">Path of Building for PoE2</a> · <a href="/economy/">PoE2 currency prices</a> · <a href="/linux/">PoE2 on Linux (Proton)</a> · <a href="https://github.com/ets-public/poe2-upgrade-checker">GitHub</a> · <a href="https://github.com/ets-public/poe2-upgrade-checker/releases">Releases</a> · <a href="https://github.com/ets-public/poe2-upgrade-checker/issues">Report a problem</a> · <a href="mailto:support@poe2upgrade.com">support@poe2upgrade.com</a> · Fonts: Alegreya Sans and Alegreya Sans SC (SIL Open Font License)</p>
+    <p><a href="/path-of-building-poe2/">Path of Building for PoE2</a> · <a href="/economy/">PoE2 currency prices</a> · <a href="/linux/">PoE2 on Linux (Proton)</a> · <a href="/discord">Discord</a> · <a href="https://github.com/ets-public/poe2-upgrade-checker">GitHub</a> · <a href="https://github.com/ets-public/poe2-upgrade-checker/releases">Releases</a> · <a href="https://github.com/ets-public/poe2-upgrade-checker/issues">Report a problem</a> · <a href="mailto:support@poe2upgrade.com">support@poe2upgrade.com</a> · Fonts: Alegreya Sans and Alegreya Sans SC (SIL Open Font License)</p>
   </footer>
   <script src="/countdown.js" defer></script>
 </body>
