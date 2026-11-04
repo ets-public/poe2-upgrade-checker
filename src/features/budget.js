@@ -159,7 +159,7 @@ module.exports = function (C) {
           q = trade.buildGearQuery(item, { ...opts, weights, ...LEVELS[level], ...SIZES[size] });
           if (!q.filters) return { ok: false, error: 'None of your build\'s stats for this slot could be matched on the trade site.' };
           trade.applyBudget(q.body, budget, C.tg());
-          r = await C.runSearch(league, q.body, `gear L${level}${size ? ` size${size}` : ''}`);
+          r = await C.runSearch(league, q.body, `gear L${level}${size ? ` size${size}` : ''}`, { shrinkable: size < SIZES.length - 1 });
           if (!(r && r.tooComplex) || size >= SIZES.length - 1) break;
           size++; shrunk = true;
           C.setGameSetting('gearSearchSize', { ...(C.store.settings.gearSearchSize || {}), [sizeKey]: Math.max(size, (C.store.settings.gearSearchSize || {})[sizeKey] || 0) });

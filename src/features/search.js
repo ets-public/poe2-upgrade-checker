@@ -307,7 +307,9 @@ module.exports = function (C) {
         if (/rate limit/i.test(msg)) { searchBlockedUntil = Math.max(searchBlockedUntil, Date.now() + 60000); return { ok: false, league, error: msg, rateLimited: true }; }
       }
     }
-    if (!o.background && C.usage) C.usage.problem('trade');
+    // a "too complex" answer the caller will retry with fewer filters (o.shrinkable) isn't a failure:
+    // the smaller search usually works. Counted only when nothing smaller is left to try.
+    if (!o.background && C.usage && !(complex && o.shrinkable)) C.usage.problem('trade');
     // the browser link would fail the same way: let the caller make the search smaller
     if (complex) return { ok: false, league, tooComplex: true, error: 'The trade site says this search has too many filters.' };
     // Last resort: a pre-filled search link (we can't know how many results).

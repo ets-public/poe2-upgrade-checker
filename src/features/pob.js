@@ -399,7 +399,7 @@ module.exports = function (C) {
       body.query.status = { option: trade.statusOpt(opts.status) };
       delete body.engine;
       trade.applyBudget(body, budget, tg());
-      r = await C.runSearch(league, body, `pob ${slot}${size ? ` size${size}` : ''}`);
+      r = await C.runSearch(league, body, `pob ${slot}${size ? ` size${size}` : ''}`, { shrinkable: size < SIZES.length - 1 });
       if (!(r && r.tooComplex) || size >= SIZES.length - 1) break;
       size++;
       setGameSetting('pobSearchSize', { ...(C.store.settings.pobSearchSize || {}), [sizeKey]: { size, at: Date.now() } });
