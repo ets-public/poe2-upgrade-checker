@@ -260,7 +260,7 @@ module.exports = function (C) {
       const q = C.trade.buildGearQuery(item, { ...opts, weights, share: 1.06, baseShare: 0.9, ...SIZES[size] });
       if (!q.filters) return null;
       C.trade.applyBudget(q.body, budget, C.tg());
-      const r = await C.runSearch(league, q.body, `spend gear ${slot}${size ? ` size${size}` : ''}`);
+      const r = await C.runSearch(league, q.body, `spend gear ${slot}${size ? ` size${size}` : ''}`, { shrinkable: size < SIZES.length - 1 });
       if (!(r && r.tooComplex) || size >= SIZES.length - 1) {
         if (!r || !r.ok) return r;
         return { ok: true, r, body: q.body, ctx: { item, mode: 'gear', body: q.body, searchKey: C.searchKey(q.body), title: `Better for your build than ${item.name}`, note: 'Listings your gear score rates above what you wear, best for your build first.' } };

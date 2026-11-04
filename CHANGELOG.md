@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- **Usage stats count trade search failures more fairly:** when the trade site says a search has too many filters, the app already tries again with fewer, and that smaller search usually works. Each of those refused tries was counted as a failed trade search in the anonymous usage stats, so one search could count as several failures. Now only a search that fails for good is counted. Nothing changes in how searches run.
 - **Loot filter editor: no edit is lost to Tiers by today's prices.** It used to save the edits it had read before fetching the prices, so an item you hid or restyled while poe.ninja was answering was undone. It now reads your edits again when the prices arrive, and the box waits while it works.
 - **Search string builder: Test can't freeze the app any more.** A typed search with a repeat inside a repeat, like `(a+)+`, could take minutes to test and froze the whole app (hotkeys, the popup, the overlays). The test now runs on its own and is stopped after 1.5 seconds, with a note on what to simplify.
 - **Linux: the loot filter editor finds your filters under Proton.** The game keeps its Documents folder inside Steam's folder there (`steamapps/compatdata/…`), so the editor found nothing in `~/Documents`. It now looks in every Steam library, and *Change folder* picks any other folder (Lutris, Heroic). League start finds Client.txt in your Steam libraries too, and *Make my filter* starts in the same folder.
