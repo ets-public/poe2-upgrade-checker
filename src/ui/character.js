@@ -59,8 +59,10 @@
     if (!r || !r.ok) { msg.textContent = (r && r.error) || ''; return; }
     const pobMain = r.list.find((c) => c.main && !r.pick) || null;
     const label = (c) => `${c.name}${c.default ? " (weapon's default attack)" : ''}${c.dps != null ? ` – ${c.dps >= 1e4 ? `${(c.dps / 1e3).toFixed(1)}k` : Math.round(c.dps).toLocaleString('en')} ${c.minion ? 'minion ' : ''}DPS` : ''}`;
+    // the first skill that matches your pick, like Path of Building's side does it
+    const picked = r.pick && !r.missing ? r.list.findIndex((c) => c.name === r.pick.name && (!r.pick.slot || c.slot === r.pick.slot)) : -1;
     sel.innerHTML = `<option value="">As in Path of Building${pobMain ? ` (${esc(pobMain.name)})` : ''}</option>`
-      + r.list.map((c, i) => `<option value="${i}" ${r.pick && !r.missing && c.name === r.pick.name && (!r.pick.slot || c.slot === r.pick.slot) ? 'selected' : ''}>${esc(label(c))}</option>`).join('');
+      + r.list.map((c, i) => `<option value="${i}" ${i === picked ? 'selected' : ''}>${esc(label(c))}</option>`).join('');
     if (!r.pick || r.missing) sel.value = '';
     sel.disabled = false;
     msg.textContent = r.missing ? `${r.pick.name} isn't in this build any more, so Path of Building's own main skill is used.` : '';

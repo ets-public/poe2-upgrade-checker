@@ -351,7 +351,8 @@ module.exports = function (C) {
     };
   }
   // Character page: which skill is the main one (judged for damage). The list has every active skill
-  // of the build, the weapon's default attack too, each with its damage as the main skill.
+  // of the build, the weapon's default attack too, each with its damage as the main skill; a skill the
+  // build has twice is listed once (its first copy, the one picking it uses).
   const mainSkillCache = new Map();
   ipcMain.handle('pob:mainSkills', async () => {
     if (!C.pobOn()) return { ok: false, error: 'Load your Path of Building build first (My gear).' };
@@ -361,7 +362,7 @@ module.exports = function (C) {
       const info = await C.pobEngine().ensureLoaded();
       const list = await C.pobEngine().skills(true);
       const pick = C.store.pobMain();
-      const r = { ok: true, pick, missing: !!(pick && info && info.mainPickMissing), list: list.map((c) => ({ name: c.name, slot: c.slot || null, default: !!c.default, main: !!c.main, dps: c.dps == null ? null : c.dps, minion: !!c.minion })) };
+      const r = { ok: true, pick, missing: !!(pick && info && info.mainPickMissing), list: pobVerdict.uniqueSkills(list.map((c) => ({ name: c.name, slot: c.slot || null, default: !!c.default, main: !!c.main, dps: c.dps == null ? null : c.dps, minion: !!c.minion }))) };
       mainSkillCache.clear(); mainSkillCache.set(key, r);
       return r;
     } catch (err) { return { ok: false, error: err.message }; }

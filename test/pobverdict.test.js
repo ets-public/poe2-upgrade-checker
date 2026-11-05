@@ -137,3 +137,24 @@ test('movement speed: a big loss breaks an upgrade, a gain adds to the score, an
   const tiny = V.judge(base, { ...base, MovementSpeedMod: 1.28 });
   assert.ok(!tiny.breaks.length);
 });
+
+test('main skill list: a skill the build has twice is listed once, as its first copy', () => {
+  const list = [
+    { name: 'Kelari, the Tainted Sands', slot: null, dps: 104239, minion: true },
+    { name: 'Navira, the Last Mirage', slot: null, dps: 5000, minion: true },
+    { name: 'Crossbow Shot', slot: 'Weapon 1', default: true, dps: 300 },
+    { name: 'Crossbow Shot', slot: 'Weapon 2', default: true, dps: 200 },
+    { name: 'Kelari, the Tainted Sands', slot: null, dps: 950, minion: true },
+    { name: 'Navira, the Last Mirage', slot: null, dps: 40, minion: true, main: true },
+  ];
+  const u = V.uniqueSkills(list);
+  assert.deepStrictEqual(u.map((c) => [c.name, c.slot, c.dps]), [
+    ['Kelari, the Tainted Sands', null, 104239],
+    ['Navira, the Last Mirage', null, 5000],
+    ['Crossbow Shot', 'Weapon 1', 300],
+    ['Crossbow Shot', 'Weapon 2', 200], // same name, other weapon: kept
+  ]);
+  assert.strictEqual(u[1].main, true); // PoB's main skill was the second copy: still marked
+  assert.strictEqual(list[1].main, undefined); // the input isn't changed
+  assert.deepStrictEqual(V.uniqueSkills(null), []);
+});
