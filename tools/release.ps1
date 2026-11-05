@@ -210,6 +210,14 @@ if ($ver -ne $current) {
   $pkgText = [regex]::new('("version"\s*:\s*")[^"]+(")').Replace($pkgText, ('${1}' + $ver + '${2}'), 1)
   Write-Text 'package.json' $pkgText
 }
+# package-lock.json carries the version too (at the top and for the root package, its first two
+# "version" keys). Left behind, npm rewrites it on the next build and the folder shows a change.
+$lockPath = Join-Path $root 'package-lock.json'
+if (Test-Path $lockPath) {
+  $lockText = Read-Text 'package-lock.json'
+  $lockNew = [regex]::new('("version"\s*:\s*")[^"]+(")').Replace($lockText, ('${1}' + $ver + '${2}'), 2)
+  if ($lockNew -ne $lockText) { Write-Text 'package-lock.json' $lockNew }
+}
 Say ''
 if ($Beta) { Say "Releasing beta $ver (a pre-release: only people who install it get it)" 'Cyan' } else { Say "Releasing version $ver" 'Cyan' }
 
