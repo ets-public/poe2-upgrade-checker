@@ -4,7 +4,6 @@
 @font-face { font-family: "Alegreya Sans SC"; src: url("fonts/AlegreyaSansSC-Medium.woff") format("woff"); font-weight: 500; font-display: swap; }
 @font-face { font-family: "Alegreya Sans SC"; src: url("fonts/AlegreyaSansSC-Bold.woff") format("woff"); font-weight: 700; font-display: swap; }
 @font-face { font-family: "Alegreya Sans"; src: url("fonts/AlegreyaSans-Regular.woff") format("woff"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Alegreya Sans"; src: url("fonts/AlegreyaSans-Italic.woff") format("woff"); font-weight: 400; font-style: italic; font-display: swap; }
 @font-face { font-family: "Alegreya Sans"; src: url("fonts/AlegreyaSans-Medium.woff") format("woff"); font-weight: 500 600; font-display: swap; }
 @font-face { font-family: "Alegreya Sans"; src: url("fonts/AlegreyaSans-Bold.woff") format("woff"); font-weight: 700 900; font-display: swap; }
 
@@ -31,6 +30,8 @@ img { max-width: 100%; height: auto; display: block; }
 a { color: #c8b48a; text-underline-offset: 3px; }
 a:hover { color: var(--light); }
 b { color: var(--value); font-weight: 500; }
+/* UI names and asides: no italics, a lighter colour instead */
+i, em { font-style: normal; color: var(--light); }
 code { font-size: .9em; color: var(--light); overflow-wrap: anywhere; }
 kbd { font: 700 .9em var(--f-head); color: var(--light); padding: 0 7px; border: 1px solid var(--btn-line); background: var(--btn); }
 :focus-visible { outline: 2px solid var(--title); outline-offset: 2px; }
@@ -177,11 +178,11 @@ footer p { margin: 4px 0; }
 .prose a, .faq-list a { overflow-wrap: anywhere; }
 
 /* next leagues, under the download buttons */
-.leagues { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
-.league { display: flex; flex-direction: column; padding: 8px 14px; background: var(--panel); border: 1px solid var(--line-hi); min-width: 170px; }
-.league .lg-name { font: 500 14px var(--f-head); color: var(--label); }
-.league .lg-when { font: 700 20px var(--f-head); color: var(--title); }
-.league.live .lg-when { color: var(--up, #8fd18f); }
+.leagues { display: flex; flex-wrap: wrap; gap: 12px 32px; margin-top: 24px; }
+.league { display: flex; flex-direction: column; gap: 2px; padding: 2px 0 2px 14px; border-left: 2px solid var(--btn-main-line); min-width: 170px; }
+.league .lg-name { font: 500 15px var(--f-head); color: var(--currency); }
+.league .lg-when { font: 700 19px var(--f-head); color: var(--title); font-variant-numeric: tabular-nums; }
+.league.live .lg-when { color: var(--better); }
 
 /* economy page (/economy/) */
 .eco-head { padding-top: 28px; margin-bottom: 28px; }
