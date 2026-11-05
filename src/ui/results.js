@@ -154,7 +154,7 @@ function render() {
     const cpn = $('#copyPriceNote');
     if (cpn) cpn.addEventListener('click', () => { window.api.copyText(cpn.dataset.note); cpn.textContent = 'Copied'; });
   } else $('#priceBanner').classList.add('hidden');
-  $('#save').textContent = data.saved ? '★ Saved' : '☆ Save search';
+  $('#save').textContent = data.saved ? 'Saved' : 'Save search';
   $('#save').disabled = !!data.saved;
   const all = data.listings || [];
   const list = sorted(all);

@@ -17,7 +17,7 @@ body.rxb { margin: 0; height: 100vh; display: flex; flex-direction: column; back
 .rxb-flags { display: flex; flex-wrap: wrap; gap: 6px 18px; }
 .rxb-flag { display: flex; gap: 3px; align-items: center; font-size: 13px; }
 .rxb-flag > span { margin-right: 4px; }
-.rxb-flag button, .rxb-mods button { padding: 1px 8px; font-size: 12px; }
+.rxb-flag button, .rxb-mods button { padding: 4px 10px 3px; font-size: 13px; }
 .rxb-flag button[aria-pressed="true"] { border-color: var(--gold); color: var(--gold-hi); }
 .rxb-mods { list-style: none; margin: 0; padding: 0; }
 .rxb-mods li { display: flex; gap: 6px; align-items: center; padding: 3px 6px; border-bottom: 1px solid var(--iron-lo); font-size: 13px; }
@@ -35,7 +35,7 @@ body.rxb { margin: 0; height: 100vh; display: flex; flex-direction: column; back
 .rxb-outrow { display: flex; gap: 8px; align-items: stretch; }
 .rxb-outrow textarea { flex: 1; resize: vertical; font-family: monospace; font-size: 13px; min-height: 42px; }
 .rxb-outbtns { display: flex; flex-direction: column; gap: 4px; }
-.rxb-meta { font-size: 12px; margin: 4px 0; }
+.rxb-meta { font-size: 13px; margin: 4px 0; }
 .rxb-notes { color: var(--warn); }
 .rxb-test { font-size: 13px; max-height: 120px; overflow-y: auto; }
 .rxb-test ul { margin: 4px 0; padding-left: 18px; }

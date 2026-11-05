@@ -76,7 +76,7 @@ async function load() {
   if (hp) {
     const probs = state.hotkeyProblems || [];
     hp.classList.toggle('hidden', !probs.length);
-    hp.innerHTML = probs.length ? `⚠ ${probs.length === 1 ? 'This hotkey doesn\'t work' : 'These hotkeys don\'t work'}: ${probs.map((x) => `<b>${esc(x.what)}</b> (${esc(x.key)})`).join(', ')}. Another program (often another overlay) already uses ${probs.length === 1 ? 'it' : 'them'}. <button class="link" id="hkFix">Pick other keys</button>` : '';
+    hp.innerHTML = probs.length ? `${window.ICON.warn} ${probs.length === 1 ? 'This hotkey doesn\'t work' : 'These hotkeys don\'t work'}: ${probs.map((x) => `<b>${esc(x.what)}</b> (${esc(x.key)})`).join(', ')}. Another program (often another overlay) already uses ${probs.length === 1 ? 'it' : 'them'}. <button class="link" id="hkFix">Pick other keys</button>` : '';
     const fix = hp.querySelector('#hkFix');
     if (fix) fix.addEventListener('click', () => showTab('options'));
   }

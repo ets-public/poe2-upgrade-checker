@@ -4,7 +4,7 @@
 
 (function () {
   const R = window.RENDER = window.RENDER || {}; // helpers shared by the render files
-  const MAPICON = { danger: '☠', warn: '⚠', ok: '✓', info: '·' };
+  const MAPICON = { danger: window.ICON.skull, warn: window.ICON.warn, ok: window.ICON.check, info: '·' };
   const NEXT = { '': 'd', d: 'w', w: 'g', g: '' };
   window.renderMapCard = function (el, r, opts) {
     opts = opts || {};
@@ -89,7 +89,7 @@
           <span class="fromto">${R.esc(R.fmt(row.oldValue).replace('+', ''))} → ${R.esc(R.fmt(row.newValue).replace('+', ''))}</span></td>
         ${gearMode ? '' : `<td class="w"><input class="weight" type="number" step="0.1" value="${row.weight || ''}" placeholder="0" data-key="${R.esc(row.key)}" title="Weight for this stat"></td>
         <td class="imp">${row.weight ? R.esc(R.fmt(row.impact)) : ''}</td>`}
-        <td class="ig"><button class="ignore" data-key="${R.esc(row.key)}" title="Ignore this stat (hide it from the score and from searches)">⊘</button></td>
+        <td class="ig"><button class="ignore" data-key="${R.esc(row.key)}" title="Ignore this stat (hide it from the score and from searches)" aria-label="Ignore this stat">${window.ICON.ban}</button></td>
       </tr>`).join('');
 
     const g = r.gear;

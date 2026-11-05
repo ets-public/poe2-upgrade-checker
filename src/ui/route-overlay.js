@@ -13,7 +13,7 @@
     const next = v.steps.slice(v.current + 1).find((x) => !x.hide);
     const act = s ? v.acts[s.act] : null;
     const head = `<div class="rov-head"><span class="rov-act">${esc(act ? act.name : 'Campaign done')}${s ? ` · step ${pos(v, v.current).n} of ${pos(v, v.current).of}` : ''}</span>
-      <button id="rovBack" title="Back one step">◀</button><button id="rovNext" title="Step done">▶</button><button id="rovClose" title="Hide (${esc(v.hotkey || 'League start tab')})">×</button></div>`;
+      <button id="rovBack" title="Back one step" aria-label="Back one step">${window.ICON.back}</button><button id="rovNext" title="Step done" aria-label="Step done">${window.ICON.next}</button><button id="rovClose" title="Hide (${esc(v.hotkey || 'League start tab')})">×</button></div>`;
     const now = s
       ? `<div class="rov-now">${s.o ? '<span class="dim">Optional: </span>' : ''}${esc(s.t)}${tags(s)}${s.l ? ` <span class="dim">(level ${esc(s.l)})</span>` : ''}${s.h ? `<span class="rov-hint">${esc(s.h)}</span>` : ''}</div>`
       + (s.gems ? `<div class="rov-gems">${esc(s.gems)}</div>` : '')

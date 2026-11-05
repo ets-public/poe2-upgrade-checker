@@ -26,7 +26,7 @@ Popup headers are tinted by rarity: rare `#3a3216`, unique `#3a2412`, magic `#23
 ## Type
 
 - **Headings: Alegreya Sans SC** (bundled, SIL OFL): real small caps for headings, item names, verdicts, buttons, navigation and table headers. No letter-spacing and no all-caps transforms.
-- **Text: Alegreya Sans** (bundled, SIL OFL): everything you read. 15 px base.
+- **Text: Alegreya Sans** (bundled, SIL OFL): everything you read. 15 px base, help text 14 px, nothing under 13 px except short tags (12 px). No italics for emphasis: use bold or colour.
 - Prices and big numbers are bold Alegreya Sans, so "ex", "div" and "chaos" stay readable.
 - Fontin, the PoE1 font, isn't bundled: its licence doesn't allow passing it on without the author's permission.
 
@@ -34,8 +34,14 @@ Popup headers are tinted by rarity: rare `#3a3216`, unique `#3a2412`, magic `#23
 
 - **Panels** are flat: a 1 px edge with a thin double line inside, like the games' panels. No corner ornaments, no gradient washes, no glow.
 - **Popups** are item tooltips: a centred, rarity-tinted header band (name, then base and class), thin separators, centred verdict.
-- **Verdicts** are a small-caps word in its colour with the number beside it (UPGRADE, LOSES RESISTANCE...). No boxes.
+- **Verdicts** are a small-caps word in its colour with the number beside it (UPGRADE, LOSES RESISTANCE...). No boxes, in the popup or in running text (`.vchip`).
 - **Square corners.** Flat chips, tiles and bars; resistance bars in the element's colour.
+
+## Icons
+
+- **One line set** in [`src/ui/icons.js`](src/ui/icons.js) (shapes from Lucide, ISC licence): 1.75 stroke, sized by the text around them (18 px in the sidebar), drawn in the colour of that text. In a template use `${window.ICON.warn}`; in static HTML `<i data-icon="warn"></i>`.
+- No symbol characters as icons (⚠ ☠ ⚔ ◀ ☆ and the like): Windows draws many of them as colour emoji. `test/ui-look.test.js` checks this, and that the CSS has no gradients, glow or spaced capitals.
+- Plain text marks stay text: ✓, →, ×, ▾.
 
 ## Buttons
 

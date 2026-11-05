@@ -51,18 +51,23 @@ b, strong { color: var(--bone); font-weight: 500; }
 ::-webkit-scrollbar-thumb { background: #1d2026; border: 2px solid var(--void); box-shadow: inset 0 0 0 1px var(--iron); }
 ::-webkit-scrollbar-thumb:hover { background: #2a2e35; }
 
+/* ---------- icons: one line set (src/ui/icons.js), sized by the text around them ---------- */
+.ico { width: 1em; height: 1em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.14em; }
+button .ico { margin: 0 4px; }
+button[aria-label] > i > .ico, button[aria-label] > .ico { margin: 0; }
+
 /* ---------- carved type: headings, names, verdicts ---------- */
 h2, h3, .page-head h2, .res-title, .modal-head h2, .brand span {
-  font-family: var(--f-carved); font-weight: 600; letter-spacing: .04em;
-  background: linear-gradient(180deg, var(--gold-hi) 0%, #d9bd85 45%, #a9824a 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  font-family: var(--f-carved); font-weight: 600; letter-spacing: 0;
+  color: var(--gold);
 }
 h3 { font-size: 15px; margin: 18px 0 8px; }
 
 /* ---------- buttons: iron, blood for the main action ---------- */
 button {
-  font: 600 12.5px/1.1 var(--f-carved); letter-spacing: .03em;
-  color: var(--bone); background: linear-gradient(#1c1f25, #101216); border: 1px solid var(--iron-hi); border-radius: 0;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), inset 0 0 0 1px #000; padding: 7px 11px 6px; cursor: pointer;
+  font: 600 13px/1.1 var(--f-carved); letter-spacing: 0;
+  color: var(--bone); background: #1e1a16; border: 1px solid var(--iron-hi); border-radius: 0;
+  padding: 7px 12px 6px; cursor: pointer;
 }
 button:hover:not(:disabled) { border-color: var(--gold); color: #fff; }
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
@@ -73,10 +78,9 @@ button.link {
 }
 button.link:hover:not(:disabled) { color: var(--gold-hi); }
 button.primary, button.find {
-  color: #ffe9d6; background: linear-gradient(var(--blood-hi), var(--blood) 55%, var(--blood-lo)); border: 1px solid var(--gold);
-  box-shadow: inset 0 0 0 1px #2b0505, 0 0 12px rgba(194, 47, 38, .3); text-shadow: 0 1px 0 #3a0606;
+  color: var(--gold-hi); background: var(--blood); border: 1px solid var(--blood-hi); box-shadow: inset 0 1px 0 #5a4126;
 }
-button.primary:hover:not(:disabled), button.find:hover:not(:disabled) { background: linear-gradient(#c52c23, #a01f1b 55%, #6a1010); color: #fff; border-color: var(--gold-hi); }
+button.primary:hover:not(:disabled), button.find:hover:not(:disabled) { background: #47331c; color: #fff; border-color: #b08a52; }
 input, textarea, select {
   font: inherit; font-family: var(--f-text); color: var(--bone); background: #050608; border: 1px solid var(--iron); border-radius: 0;
   box-shadow: inset 0 1px 3px #000; padding: 5px 7px;
@@ -84,16 +88,10 @@ input, textarea, select {
 select option { background: var(--abyss); color: var(--bone); }
 input[type=checkbox], input[type=radio] { accent-color: var(--gold); width: 14px; height: 14px; box-shadow: none; }
 input[type=range] { accent-color: var(--gold); box-shadow: none; border: none; background: none; }
-textarea { width: 100%; font-family: Consolas, "Cascadia Mono", monospace; font-size: 12px; }
+textarea { width: 100%; font-family: Consolas, "Cascadia Mono", monospace; font-size: 13px; }
 
 /* ---------- iron frames ---------- */
 .card, .card-p, .listing, .modal-box, .gs-panel {
-  position: relative; background: linear-gradient(180deg, rgba(19, 32, 46, .32), transparent 70px), var(--abyss);
+  position: relative; background: var(--abyss);
   border: 1px solid var(--iron); border-radius: 0; box-shadow: var(--frame), var(--frame-drop);
 }
-.card::before, .card::after, .card-p::before, .card-p::after, .listing::before, .listing::after, .modal-box::before, .modal-box::after {
-  content: ""; position: absolute; top: -5px; width: 8px; height: 8px; transform: rotate(45deg);
-  background: var(--abyss); border: 1px solid var(--gold); box-shadow: 0 0 5px rgba(201, 164, 99, .3); pointer-events: none; z-index: 1;
-}
-.card::before, .card-p::before, .listing::before, .modal-box::before { left: -5px; }
-.card::after, .card-p::after, .listing::after, .modal-box::after { right: -5px; }

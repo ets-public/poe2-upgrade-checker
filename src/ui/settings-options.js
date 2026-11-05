@@ -26,7 +26,7 @@ async function renderFilterStatus() {
     if (!st) { el.innerHTML = ''; return; }
     const when = new Date(st.at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
     el.innerHTML = !st.exists ? `<span class="warn">${esc(st.file)} is gone: make the filter again.</span>`
-      : st.upToDate === false ? `<span class="warn">⚠ ${esc(st.file)} (made ${esc(when)}) is out of date: your gear or build has changed since. Press <b>Remake</b>.</span>`
+      : st.upToDate === false ? `<span class="warn">${window.ICON.warn} ${esc(st.file)} (made ${esc(when)}) is out of date: your gear or build has changed since. Press <b>Remake</b>.</span>`
         : `<span class="dim">${esc(st.file)} made ${esc(when)}${st.source ? ` from ${esc(st.source)}` : ''}${st.upToDate ? ': up to date' : ''}.</span>`;
   } finally { filterStatusBusy = false; }
 }

@@ -169,7 +169,7 @@ async function renderPob(load) {
     <div class="dim">${m.dpsKey === 'MinionDPS' ? 'Minion DPS' : 'DPS'} <b>${kfmt(m.dps)}</b> · Effective HP <b>${kfmt(m.ehp)}</b> · ES <b>${kfmt(m.es)}</b>${m.spirit == null ? '' : ` · Spirit free <b>${m.spiritFree == null ? '–' : Math.round(m.spiritFree)}</b> of ${Math.round(m.spirit)}`}</div>
     <div class="dim">Resistances: ${res}</div>
     ${m.overridden && m.overridden.length ? `<div class="dim">Using your in-game copies for: ${esc(m.overridden.join(', '))}</div>` : ''}
-    ${m.mismatch.map((x) => `<div class="note">⚠ ${esc(x)}</div>`).join('')}`;
+    ${m.mismatch.map((x) => `<div class="note">${window.ICON.warn} ${esc(x)}</div>`).join('')}`;
 }
 // what "Better for my build" does depends on the build: PoB judges, or the gear score, or off
 function renderModeHints() {

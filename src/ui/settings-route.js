@@ -37,7 +37,7 @@
         <div class="route-sum">${sum}</div>
         ${timerHtml()}
       </div><div class="row">
-        <button id="routeBack" title="Back one step">◀ Back</button><button class="primary" id="routeNext" title="This step is done">Step done ▶</button>
+        <button id="routeBack" title="Back one step">${window.ICON.back}Back</button><button class="primary" id="routeNext" title="This step is done">Step done${window.ICON.next}</button>
       </div></div>`;
     const follow = `<div class="card-p route-log">
         <label><input type="checkbox" id="routeFollow" ${v.follow ? 'checked' : ''}> <b>Follow my zones</b>: move on by itself as I enter each area</label>

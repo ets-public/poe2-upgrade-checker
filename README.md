@@ -77,7 +77,7 @@
   - Several characters, each with their own gear and build.
 - **Gear score fallback:** without a PoB build, a 0–100 gear score from a profile for your kind of build (damage: melee, bows/crossbows/spears, spells, minions or any; defence: life with Armour, Evasion or both, Energy Shield, or hybrids) or your own stat weights.
 - **Built for playing:**
-  - Looks like the games' own item tooltips: rarity-coloured names, mods in the games' blue, no clutter.
+  - Looks like the games' own item tooltips: rarity-coloured names, mods in the games' blue, one set of line icons, no clutter.
   - Compact popup.
   - Pin it to the cursor or a screen edge, or drag it anywhere and it stays there.
   - Text size and colour-blind options.
