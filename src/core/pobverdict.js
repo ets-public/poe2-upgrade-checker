@@ -147,4 +147,18 @@ function best(list) {
 // Chaos Inoculation sets maximum life to 1 (and makes you immune to chaos damage)
 const hasCI = (stats) => !!stats && Number(stats.Life) > 0 && Number(stats.Life) <= 1;
 
-module.exports = { hasCI, judge, best, dpsOf, dpsKey, SLOT_TO_POB, DEFAULT_PRIORITIES, RES_POINT, DMG_LOSS, MS_LOSS, MS_POINT };
+// The Character page's main skill list: one entry per skill name and weapon slot. A build can
+// have the same skill twice (Disciple of Varashta's djinns: the socketed gem and a copy the
+// ascendancy grants), and picking a skill goes by name and slot, which always takes the first
+// copy, so the later copies are dropped and their DPS isn't shown.
+function uniqueSkills(list) {
+  const seen = new Map(); const out = [];
+  for (const c of list || []) {
+    const k = `${c.name}|${c.slot || ''}`;
+    if (seen.has(k)) { if (c.main) seen.get(k).main = true; continue; }
+    const e = { ...c }; seen.set(k, e); out.push(e);
+  }
+  return out;
+}
+
+module.exports = { hasCI, judge, best, dpsOf, dpsKey, uniqueSkills, SLOT_TO_POB, DEFAULT_PRIORITIES, RES_POINT, DMG_LOSS, MS_LOSS, MS_POINT };
