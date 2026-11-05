@@ -41,7 +41,7 @@
   const VERDICT = {
     upgrade: { text: 'UPGRADE', cls: 'up' },
     small: { text: 'SMALL UPGRADE', cls: 'up' },
-    risky: { text: 'UPGRADE ⚠', cls: 'risky' },
+    risky: { text: 'UPGRADE, BUT…', cls: 'risky' },
     resloss: { text: 'LOSES RESISTANCE', cls: 'down' },
     dmgloss: { text: 'LOSES DAMAGE', cls: 'down' },
     downgrade: { text: 'DOWNGRADE', cls: 'down' },

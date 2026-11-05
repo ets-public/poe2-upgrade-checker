@@ -12,7 +12,7 @@ function renderSetup() {
   box.innerHTML = `<div class="setup-head"><b>Set up your gear: ${have.length} of ${SETUP_SLOTS.length} slots saved</b>
       <div class="progress"><span id="setupBar"></span></div></div>
     <div class="help">In game, open your character screen (C), hover each item and press <b>${esc(hk)}</b>, then click <b>Set as …</b> in the popup. Or import everything from Path of Building below. After crafting on one of them, just check it again: it's saved as it is now by itself. Tip: pick a <b>Save as equipped</b> key in Settings, then hover each item you wear and press it: saved, no clicks.</div>
-    <div class="slotchips">${SETUP_SLOTS.map((s) => `<span class="chip ${state.equipped[s] ? 'done' : ''}">${state.equipped[s] ? '✓' : '○'} ${esc(s)}</span>`).join('')}</div>
+    <div class="slotchips">${SETUP_SLOTS.map((s) => `<span class="chip ${state.equipped[s] ? 'done' : ''}">${state.equipped[s] ? window.ICON.check : window.ICON.circle} ${esc(s)}</span>`).join('')}</div>
     <div class="row"><button class="link" id="setupHide">Hide this</button></div>`;
   $('#setupBar').style.width = `${Math.round((have.length / SETUP_SLOTS.length) * 100)}%`; // CSSOM is fine under the CSP
   $('#setupHide').addEventListener('click', async () => { await window.api.setSetting('setupHidden', true); load(); });
@@ -21,10 +21,10 @@ function renderSetup() {
 let wizStep = 0;
 const WIZ = [
   {
-    title: 'Welcome to PoE Upgrade Checker',
+    title: 'Set up PoE Upgrade Checker',
     body: () => `<p>Hover any item in game and press your hotkey: a popup tells you if it's an <b>upgrade for your build</b> – worked out by Path of Building with your own build – and finds better items on the trade site in one click.</p>
       <p class="help">This guide takes about a minute. You can run it again from <b>My gear → Setup guide</b>.</p>
-      <div class="warnbox">⚠ Set the game to <b>Windowed Fullscreen</b> (Options → Graphics). In fullscreen the popup can't show over the game: it's the most common reason it seems to do nothing.</div>
+      <div class="warnbox">${window.ICON.warn} Set the game to <b>Windowed Fullscreen</b> (Options → Graphics). In fullscreen the popup can't show over the game: it's the most common reason it seems to do nothing.</div>
       <p class="help"><label><input type="checkbox" id="wizStats" ${state.settings.usageStats !== false ? 'checked' : ''}> Send anonymous usage statistics</label>: a random install number, the app version, which game you play and how often you use each part (only counts), so we know how many people use it and what to fix. No account, items or builds. You can change this in Settings.</p>`,
     after: () => { $('#wizStats').addEventListener('change', async () => { await window.api.setSetting('usageStats', $('#wizStats').checked); const u = $('#usageStats'); if (u) u.checked = $('#wizStats').checked; }); },
   },
@@ -62,7 +62,7 @@ const WIZ = [
   },
   {
     title: 'Your build',
-    body: () => (state.pobOn ? `<p class="ok-line">✓ Your Path of Building build is loaded for this character, so every item is judged with it.</p><p class="help">To use another build, paste its export or pobb.in link:</p>` : '') + `<p${state.pobOn ? ' class="hidden"' : ''}><b>Best:</b> paste your <b>Path of Building</b> export (in Path of Building: Import/Export Build → Generate; Path of Building 2 for PoE2, Path of Building Community for PoE1) or a pobb.in link. The app then judges every item with Path of Building's own calculations for <i>your</i> build – any class, any skill – and loads your gear.</p>
+    body: () => (state.pobOn ? `<p class="ok-line">✓ Your Path of Building build is loaded for this character, so every item is judged with it.</p><p class="help">To use another build, paste its export or pobb.in link:</p>` : '') + `<p${state.pobOn ? ' class="hidden"' : ''}><b>Best:</b> paste your <b>Path of Building</b> export (in Path of Building: Import/Export Build → Generate; Path of Building 2 for PoE2, Path of Building Community for PoE1) or a pobb.in link. The app then judges every item with Path of Building's own calculations for <b>your</b> build – any class, any skill – and loads your gear.</p>
       <div class="row"><input id="wizPob" class="grow" placeholder="https://pobb.in/…  or  eNrt…"><button id="wizPobBtn" class="primary gilded">Import</button></div><div class="note" id="wizPobMsg"></div>
       ${state.pobOn ? '' : state.game === 'poe1' ? '<p class="help">Path of Exile 1 items are judged by Path of Building only, so this step is what makes the popup work. You can also do it later on <b>My gear</b>.</p>'
     : `<p class="help">No PoB? Pick the closest profile for a rough gear score instead, and save your gear in the next steps:</p>

@@ -14,16 +14,16 @@
 <body class="app">
   <aside class="side">
     <div class="brand"><img src="../../assets/icon.png" alt=""><span>PoE Upgrade<br>Checker</span></div>
-    <label class="side-char"><span>Character <span id="gameBeta" class="beta-tag hidden" title="Path of Exile 1 support is new: if something looks wrong, send the log (Tray → Open log) to support@poe2upgrade.com">PoE1 BETA</span></span><select id="profileSel"></select></label>
+    <label class="side-char"><span>Character <span id="gameBeta" class="beta-tag hidden" title="Path of Exile 1 support is new: if something looks wrong, send the log (Tray → Open log) to support@poe2upgrade.com">PoE1 beta</span></span><select id="profileSel"></select></label>
     <nav class="tabs side-nav" aria-label="Pages">
-      <button data-tab="gear" class="active"><i>⚔</i>My gear</button>
-      <button data-tab="char"><i>☰</i>Character</button>
-      <button data-tab="find"><i>⌕</i>Find upgrades</button>
-      <button data-tab="spend"><i>◈</i>Where to spend</button>
-      <button data-tab="route"><i>⚑</i>League start</button>
-      <button data-tab="build"><i>✦</i>Build &amp; stats</button>
-      <button data-tab="test"><i>✎</i>Check an item</button>
-      <button data-tab="options"><i>⚙</i>Settings</button>
+      <button data-tab="gear" class="active"><i data-icon="sword"></i>My gear</button>
+      <button data-tab="char"><i data-icon="user"></i>Character</button>
+      <button data-tab="find"><i data-icon="search"></i>Find upgrades</button>
+      <button data-tab="spend"><i data-icon="coins"></i>Where to spend</button>
+      <button data-tab="route"><i data-icon="flag"></i>League start</button>
+      <button data-tab="build"><i data-icon="sliders"></i>Build &amp; stats</button>
+      <button data-tab="test"><i data-icon="clipboard"></i>Check an item</button>
+      <button data-tab="options"><i data-icon="settings"></i>Settings</button>
     </nav>
     <div class="side-foot" id="hotkeyLine">Hover an item in game and press <b>F2</b>.</div>
     <div class="side-community"><button class="link" type="button" data-discord title="Opens poe2upgrade.com/discord in your browser">Join our Discord</button></div>
@@ -156,7 +156,7 @@
             <option value="any">Any (incl. offline)</option>
           </select></label>
           <label>League <select id="findLeague"></select></label>
-          <button id="tradeRefresh" title="Reload leagues and stat list from the trade site">↻</button>
+          <button id="tradeRefresh" title="Reload leagues and stat list from the trade site" aria-label="Reload leagues"><i data-icon="refresh"></i></button>
         </div>
         <div class="fb-row fb-sub">
           <span id="rateWrap">
@@ -234,7 +234,7 @@
               <button class="seg-btn" data-watch="recent" role="tab">Recent searches</button>
             </div>
             <div class="watch-pane" data-pane="saved">
-          <div class="help">Save a search from the results window (☆ Save search) or from Recent searches, and run it again with one click. Tick <b>Alert</b> to get a notification when something new is listed. Build-value alerts from <b>Where to spend</b> are here too.</div>
+          <div class="help">Save a search from the results window (<b>Save search</b>) or from Recent searches, and run it again with one click. Tick <b>Alert</b> to get a notification when something new is listed. Build-value alerts from <b>Where to spend</b> are here too.</div>
           <div class="row">
             <label>Check alerts every <select id="alertEvery">
               <option value="0">never</option><option value="5">5 min</option><option value="10">10 min</option><option value="20">20 min</option><option value="30">30 min</option><option value="60">hour</option>
@@ -339,16 +339,16 @@
           <span class="v"><input id="priceHotkey" class="hotkey" readonly placeholder="click, then press keys" aria-label="Price only hotkey"><button id="priceHotkeySave">Save</button><button class="link" id="priceHotkeyOff" title="No price-only hotkey">Turn off</button></span>
           <span id="priceHotkeyMsg" class="note"></span>
           <span class="k" title="Hover an item you wear (character screen, C) and press it: saved in its slot, no popup click">Save as equipped</span>
-          <span class="v"><input id="equipHotkey" class="hotkey" readonly placeholder="off: click, then press keys" aria-label="Save as equipped hotkey"><button id="equipHotkeySave">Save</button><button class="link" id="equipHotkeyOff" title="No save-as-equipped hotkey">Turn off</button></span>
+          <span class="v"><input id="equipHotkey" class="hotkey" readonly placeholder="Off: click to set" aria-label="Save as equipped hotkey"><button id="equipHotkeySave">Save</button><button class="link" id="equipHotkeyOff" title="No save-as-equipped hotkey">Turn off</button></span>
           <span id="equipHotkeyMsg" class="note"></span>
           <span class="k" title="Copies a search string for the game's search box (Ctrl+F): vendors and stash, maps without your dangerous mods, your own saved strings. Press again for the next.">Search strings</span>
-          <span class="v"><input id="stringsHotkey" class="hotkey" readonly placeholder="off: click, then press keys" aria-label="Search strings hotkey"><button id="stringsHotkeySave">Save</button><button class="link" id="stringsHotkeyOff" title="No search strings hotkey">Turn off</button></span>
+          <span class="v"><input id="stringsHotkey" class="hotkey" readonly placeholder="Off: click to set" aria-label="Search strings hotkey"><button id="stringsHotkeySave">Save</button><button class="link" id="stringsHotkeyOff" title="No search strings hotkey">Turn off</button></span>
           <span id="stringsHotkeyMsg" class="note"></span>
           <span class="k" title="Shows or hides the loot filter editor over the game">Loot filter editor</span>
-          <span class="v"><input id="filterHotkey" class="hotkey" readonly placeholder="off: click, then press keys" aria-label="Loot filter editor hotkey"><button id="filterHotkeySave">Save</button><button class="link" id="filterHotkeyOff" title="No loot filter editor hotkey">Turn off</button></span>
+          <span class="v"><input id="filterHotkey" class="hotkey" readonly placeholder="Off: click to set" aria-label="Loot filter editor hotkey"><button id="filterHotkeySave">Save</button><button class="link" id="filterHotkeyOff" title="No loot filter editor hotkey">Turn off</button></span>
           <span id="filterHotkeyMsg" class="note"></span>
           <span class="k" title="Shows or hides the search string builder over the game: build a search for maps, waystones or any item">Search string builder</span>
-          <span class="v"><input id="regexHotkey" class="hotkey" readonly placeholder="off: click, then press keys" aria-label="Search string builder hotkey"><button id="regexHotkeySave">Save</button><button class="link" id="regexHotkeyOff" title="No search string builder hotkey">Turn off</button></span>
+          <span class="v"><input id="regexHotkey" class="hotkey" readonly placeholder="Off: click to set" aria-label="Search string builder hotkey"><button id="regexHotkeySave">Save</button><button class="link" id="regexHotkeyOff" title="No search string builder hotkey">Turn off</button></span>
           <span id="regexHotkeyMsg" class="note"></span>
           <span class="k">Results window</span>
           <span class="v"><input id="resultsHotkey" class="hotkey" readonly placeholder="click, then press keys" aria-label="Show or hide the results window"><button id="resultsHotkeySave">Save</button></span>
@@ -434,7 +434,7 @@
   </main>
   <div id="wizard" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-box wizard-box">
-      <div class="modal-head"><h2 id="wizTitle">Welcome</h2><button id="wizClose" class="x" title="Close">×</button></div>
+      <div class="modal-head"><h2 id="wizTitle">Setup guide</h2><button id="wizClose" class="x" title="Close">×</button></div>
       <div id="wizBody"></div>
       <div class="row wiz-nav"><button id="wizBack">Back</button><span class="grow"></span><span class="dim" id="wizStep"></span><button id="wizNext" class="primary">Next</button></div>
     </div>
@@ -464,6 +464,7 @@
       <div id="pickerList" class="picker-list"></div>
     </div>
   </div>
+  <script src="icons.js"></script>
   <script src="../core/keepsell.js"></script>
   <script src="render.js"></script>
   <script src="render-blocks.js"></script>

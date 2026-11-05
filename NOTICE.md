@@ -53,6 +53,7 @@ modified version of it.
 - **League start route data** (src/data/routes): the routes come from exile-leveling by HeartofPhos
   (PoE1, with its quest gem rewards and vendors) and Splitstone by its contributors (PoE2), both MIT licence; their notices are in
   src/data/routes/LICENSES.md.
+- **Icons** (src/ui/icons.js): drawn from Lucide (lucide.dev), ISC licence.
 - **Fonts** Alegreya Sans and Alegreya Sans SC (assets/fonts, site/fonts): SIL Open Font License.
 - **Electron, electron-updater** and other npm packages: their own licences (mostly MIT).
 - **Path of Exile game data** (passive tree data, item and mod names, art referenced from the

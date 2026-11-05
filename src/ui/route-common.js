@@ -12,7 +12,7 @@
     if (k.includes('trial')) out.push(`<span class="rtag trial" title="${esc(s.r || 'Labyrinth trial: needed for the Labyrinth')}">${s.r && /Ascendancy/.test(s.r) ? 'Ascendancy' : 'Trial'}</span>`);
     if (k.includes('lab')) out.push(`<span class="rtag lab" title="${esc(s.r || '')}">Ascendancy</span>`);
     if (k.includes('spirit')) { const m = String(s.r || '').match(/\+(\d+) Spirit/); out.push(`<span class="rtag spirit" title="${esc(s.r || '')}">${m ? `+${m[1]} Spirit` : 'Spirit'}</span>`); }
-    if (k.includes('res')) out.push(`<span class="rtag res" title="${esc(s.r || '')}">${/−|-30%/.test(s.r || '') ? '−30% res' : 'Resistance'}</span>`);
+    if (k.includes('res')) out.push(`${/−|-30%/.test(s.r || '') ? `<span class="rtag res neg" title="${esc(s.r || '')}">−30% res</span>` : `<span class="rtag res" title="${esc(s.r || '')}">Resistance</span>`}`);
     if (k.includes('choice')) out.push(`<span class="rtag" title="${esc(s.r || '')}">Choice</span>`);
     return out.join('');
   }

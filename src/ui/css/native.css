@@ -43,7 +43,7 @@ body.popup .card > .name.magic + .meta { background: #23233c; border-bottom-colo
 .score { font: 700 19px/1 var(--f-carved); }
 body.popup .card > .verdict { justify-content: center; text-align: center; }
 body.popup .card > .verdict .vs { margin-left: 0; width: 100%; text-align: center; }
-.vchip, .pob-tag, .beta-tag, .ribbon { font-family: var(--f-carved); letter-spacing: 0; text-transform: none; font-size: 13px; background: none; box-shadow: none; }
+.pob-tag, .beta-tag, .ribbon { font-family: var(--f-carved); letter-spacing: 0; text-transform: none; font-size: 13px; background: none; box-shadow: none; }
 .ribbon { color: var(--gold-hi); background: #3b2a17; border: 1px solid #8a6a3c; padding: 3px 8px 2px; }
 .ribbon.pick { color: #fff; background: #23233c; border-color: #6b6bc0; }
 .pob-tag { color: #c8b48a; border-color: #5a4a30; }
@@ -61,13 +61,16 @@ details.fold > summary { color: var(--gold); font-size: 15px; }
 /* results window and app shell: flat ground, no washes */
 body.results { background: var(--void); }
 .res-head { background: var(--void); box-shadow: none; }
-.price-banner, .suggest, .setup:not(:empty) { border: 1px solid var(--iron-hi); background: var(--abyss); box-shadow: var(--frame); }
+.price-banner, .suggest { border: 1px solid var(--iron-hi); background: var(--abyss); box-shadow: var(--frame); }
+/* a box inside a panel gets one quiet line, not a second double frame */
+.setup:not(:empty) { border: 1px solid var(--iron); background: var(--abyss-2); box-shadow: none; }
 .price { font: 700 21px/1.1 var(--f-carved); color: #fff; }
 .price-answer { font: 700 23px/1.2 var(--f-text); color: #fff; }
 .side { background: #0a0908; box-shadow: none; }
 .brand img { filter: none; }
 .side-nav button { font: 500 16px/1 var(--f-carved); letter-spacing: 0; color: var(--bronze-text); border-left: 2px solid transparent; }
-.side-nav button i { border: 0; background: none; box-shadow: none; color: #6f675b; }
+.side-nav button i { width: 18px; height: 18px; border: 0; background: none; box-shadow: none; color: var(--ash); }
+.side-nav button i .ico { width: 18px; height: 18px; }
 .side-nav button:hover:not(.active):not(:disabled) { color: var(--gold-hi); background: #15120f; }
 .side-nav button.active { color: var(--gold-hi); background: #1d1813; border-color: transparent; border-left-color: var(--gold); font-weight: 700; }
 .side-nav button.active i { border: 0; box-shadow: none; color: var(--gold); }

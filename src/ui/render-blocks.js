@@ -17,7 +17,7 @@
       const capped = (v) => (v >= r.cap ? `${r.cap}%${v > r.cap ? ` (+${n(v - r.cap)} over)` : ''}` : `${n(v)}%`);
       // only matters when it crosses or sits below the cap
       const matters = r.under || r.wasUnder || (r.thin && r.delta < 0);
-      items.push({ cls: r.under && r.delta < 0 ? 'neg warn' : r.thin && r.delta < 0 ? 'neg warn' : r.wasUnder && r.delta > 0 ? 'pos' : 'dim', html: `${R.esc(r.label)} ${capped(r.from)} → <b>${capped(r.to)}</b>${r.under ? ' ⚠ below cap' : r.thin && r.delta < 0 ? ' ⚠ barely capped' : ''}`, minor: !matters });
+      items.push({ cls: r.under && r.delta < 0 ? 'neg warn' : r.thin && r.delta < 0 ? 'neg warn' : r.wasUnder && r.delta > 0 ? 'pos' : 'dim', html: `${R.esc(r.label)} ${capped(r.from)} → <b>${capped(r.to)}</b>${r.under ? ` ${window.ICON.warn} below cap` : r.thin && r.delta < 0 ? ` ${window.ICON.warn} barely capped` : ''}`, minor: !matters });
     }
     for (const l of ch.lines || []) items.push({ cls: l.delta > 0 ? 'pos' : 'neg', html: `${R.esc(l.label)} ${n(l.from)} → <b>${n(l.to)}</b> <span class="dim">(${sg(l.delta)})</span>` });
     if (!items.length && !(opts.risks && opts.risks.length)) return opts.empty ? '<div class="charch dim">No change to your totals.</div>' : '';
@@ -25,7 +25,7 @@
     const losses = (ch.res || []).filter((r) => r.from != null && r.delta < 0 && r.under && (r.el !== 'chaos' || !r.wasUnder));
     const banner = window.resLossBanner && losses.length && !opts.noBanner ? window.resLossBanner(losses) : '';
     const otherRisks = (opts.risks || []).filter((x) => !/res (drops below|goes further under) the cap/.test(x));
-    const risk = banner + (otherRisks.length ? `<div class="risks">⚠ ${otherRisks.map(R.esc).join(' · ')}</div>` : '');
+    const risk = banner + (otherRisks.length ? `<div class="risks">${window.ICON.warn} ${otherRisks.map(R.esc).join(' · ')}</div>` : '');
     if (!shown.length) return risk;
     return `${risk}<div class="charch"><span class="dim" title="Totals from your saved gear; resistances use the totals from Path of Building / My gear">If you equip it:</span> ${shown.map((x) => `<span class="cc ${x.cls}">${x.html}</span>`).join('')}</div>`;
   };
@@ -40,14 +40,14 @@
       const from = Math.round(r.from); const to = Math.round(r.to);
       return `<b>${R.esc(el)}</b> ${Math.min(from, max)}% → <b>${to}%</b> <span>(${to - Math.min(from, max)} ${from >= max ? 'off the cap' : 'further under the cap'})</span>`;
     }).join(' · ');
-    return o && o.plain ? `<div class="loss-line">${txt}</div>` : `<div class="res-loss-banner">⚠ LOSES RESISTANCE: ${txt}</div>`;
+    return o && o.plain ? `<div class="loss-line">${txt}</div>` : `<div class="res-loss-banner">${window.ICON.warn} Loses resistance: ${txt}</div>`;
   };
   // the same for an item that costs a big part of your damage (e.g. a ring without your minion mods)
   window.dmgLossBanner = function (d, o) {
     if (!d) return '';
     const n = (v) => (v >= 1000 ? Math.round(v).toLocaleString('en') : Math.round(v));
     if (o && o.plain) return `<div class="loss-line"><b>${d.minion ? 'Minion DPS' : 'DPS'} ${n(d.from)} → ${n(d.to)}</b> (−${Math.abs(d.pct)}%: it doesn't have the damage mods your item gives)</div>`;
-    return `<div class="res-loss-banner">⚠ LOSES DAMAGE: <b>${d.minion ? 'Minion DPS' : 'DPS'} ${n(d.from)} → ${n(d.to)}</b> <span>(−${Math.abs(d.pct)}%: it doesn't have the damage mods your item gives)</span></div>`;
+    return `<div class="res-loss-banner">${window.ICON.warn} Loses damage: <b>${d.minion ? 'Minion DPS' : 'DPS'} ${n(d.from)} → ${n(d.to)}</b> <span>(−${Math.abs(d.pct)}%: it doesn't have the damage mods your item gives)</span></div>`;
   };
 
   // "At 20% quality: +6.1% (UPGRADE)": the same item judged again by Path of Building with 20% quality
@@ -96,7 +96,7 @@
       .filter((r) => !(opts.lossShown && ((r.wasCapped && !r.capped) || (p.resLoss || []).some((x) => x.el === r.el)))) // said in the loss line
       .map((r) => {
       const bad = r.wasCapped && !r.capped; const good = !r.wasCapped && r.capped;
-      return `<span class="cc ${bad || (!r.capped && r.to < r.from) ? 'neg warn' : good || r.to > r.from ? 'pos' : 'dim'}">${R.esc(r.el)} res ${Math.round(r.from)}% → <b>${Math.round(r.to)}%</b>${bad ? ' ⚠ off the cap' : good ? ' ✓ capped' : !r.capped ? ' (under cap)' : ''}</span>`;
+      return `<span class="cc ${bad || (!r.capped && r.to < r.from) ? 'neg warn' : good || r.to > r.from ? 'pos' : 'dim'}">${R.esc(r.el)} res ${Math.round(r.from)}% → <b>${Math.round(r.to)}%</b>${bad ? ` ${window.ICON.warn} off the cap` : good ? ' ✓ capped' : !r.capped ? ' (under cap)' : ''}</span>`;
     }).join('');
     const hitLabel = p.dpsKey === 'MinionDPS' ? 'Minion hit' : 'Hit';
     const hit = p.hit && !p.noDamage && Math.abs(p.hit.delta) / Math.max(1, p.hit.from) >= 0.005
@@ -108,7 +108,7 @@
     const lossBanner = opts.noBanner ? '' : window.resLossBanner(p.resLoss) + window.dmgLossBanner(p.dmgLoss);
     const capLine = p.resCapped && p.resCapped.length ? `<div class="res-cap">✓ Caps your ${R.esc(p.resCapped.join(' and ').toLowerCase())} resistance</div>` : '';
     const other = (p.breaks || []).filter((b) => !/res (drops off|goes further under)|^(Minion damage|Damage) drops/.test(b));
-    const risk = other.length ? `<div class="risks">⚠ ${other.map(R.esc).join(' · ')}</div>` : '';
+    const risk = other.length ? `<div class="risks">${window.ICON.warn} ${other.map(R.esc).join(' · ')}</div>` : '';
     return `${lossBanner}${capLine}${head ? `<div class="pob">${head}</div>` : ''}${risk}${parts.length ? `<div class="charch">${opts.compact ? parts.slice(0, 5).join('') : parts.join('')}</div>` : ''}`;
   };
 
@@ -143,10 +143,10 @@
     }
     return `<div class="gs-explain">
       ${opts.pobOn ? '<p class="note">Your Path of Building build is loaded, so <b>verdicts come from Path of Building</b> (the change to your damage, effective HP and resistances). The gear score below is a rough guide shown alongside, and is used for anything PoB can\'t check (e.g. jewels).</p>' : ''}
-      <p><b>Gear score (0–100)</b> is how good an item is <i>for your build, in that slot</i>. 100 is about the best that slot can roll for you: your build's most important stats there, at top rolls.</p>
+      <p><b>Gear score (0–100)</b> is how good an item is <b>for your build, in that slot</b>. 100 is about the best that slot can roll for you: your build's most important stats there, at top rolls.</p>
       <ul>
         <li><b>How it's worked out:</b> every stat your build cares about counts by how important it is (Build &amp; stats page) × how good the roll is. A 50% roll of an important stat beats a perfect roll of a minor one.</li>
-        <li><b>What doesn't count:</b> stats your build doesn't use, stats you've ignored, and resistance past your cap. Rune bonuses count half, because you can swap runes. Conditional mods (<i>"…if you've Hit Recently"</i>) count a bit less.</li>
+        <li><b>What doesn't count:</b> stats your build doesn't use, stats you've ignored, and resistance past your cap. Rune bonuses count half, because you can swap runes. Conditional mods (<b>"…if you've Hit Recently"</b>) count a bit less.</li>
         <li><b>Grades:</b> <span class="gs g-S">S</span> 85+ <span class="gs g-A">A</span> 70+ <span class="gs g-B">B</span> 55+ <span class="gs g-C">C</span> 40+ <span class="gs g-D">D</span> below. Uniques aren't rated.</li>
         <li><b>The verdict</b> compares it with what you wear in that slot (for rings, charms and jewels, your weakest one):
           <span class="vchip up">UPGRADE</span> +6 or more ·
@@ -155,7 +155,7 @@
           <span class="vchip down">DOWNGRADE</span> −3 or worse ·
           <span class="vchip risky">UPGRADE, BUT…</span> better, but it costs Spirit or reservation, links, a resistance below the cap, or minion levels ·
           <span class="vchip down">LOSES RESISTANCE</span> a resistance drops off the cap, or further under it ·
-          <span class="vchip down">LOSES DAMAGE</span> your damage drops (when <i>Never lose damage</i> is on); both go to the bottom of the results.</li>
+          <span class="vchip down">LOSES DAMAGE</span> your damage drops (when <b>Never lose damage</b> is on); both go to the bottom of the results.</li>
         ${opts.pobOn
     ? `<li><b>The verdicts use your whole build.</b> Path of Building knows your passive tree, skill gems and Configuration, so the verdict and the PoB line under each listing show the real change to your damage, effective HP and resistances${opts.where ? `. The gear score is tuned on the ${opts.where}` : ''}.</li>`
     : `<li><b>It isn't a damage calculator.</b> It doesn't know your passive tree or skill gems. Check <b>If you equip it</b> under each listing for what changes on your character${opts.where ? `, and tune what each stat is worth on the ${opts.where}` : ''}. Add your Path of Building build on My gear for exact verdicts.</li>`}

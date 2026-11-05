@@ -135,7 +135,7 @@ async function renderHistory() {
   $('#historyClear').classList.toggle('hidden', !list.length);
   $('#historyList').innerHTML = list.length ? list.map((x) => `<tr>
       <td><b>${esc(x.title)}</b><div class="dim">${esc(x.league || '')}${x.total != null ? ` · ${esc(x.total)} listed` : ''} · ${esc(ago(x.at))}</div><div class="note" data-histmsg="${esc(x.searchKey)}">${esc(histMsgs[x.searchKey] || '')}</div></td>
-      <td class="nowrap"><button class="primary gilded" data-hrun="${esc(x.id)}" data-hkey="${esc(x.searchKey)}">Run again</button> ${x.saved ? '<span class="dim small">saved</span>' : `<button data-hsave="${esc(x.id)}">☆ Save</button>`}</td></tr>`).join('')
+      <td class="nowrap"><button class="primary gilded" data-hrun="${esc(x.id)}" data-hkey="${esc(x.searchKey)}">Run again</button> ${x.saved ? '<span class="dim small">saved</span>' : `<button data-hsave="${esc(x.id)}">Save</button>`}</td></tr>`).join('')
     : '<tr><td class="dim">Searches you run show up here.</td></tr>';
   document.querySelectorAll('[data-hrun]').forEach((b) => b.addEventListener('click', async () => {
     const key = b.dataset.hkey;
