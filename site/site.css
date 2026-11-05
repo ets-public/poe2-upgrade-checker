@@ -62,6 +62,13 @@ section { margin: 0 0 88px; }
 figure.frame { padding: 6px; }
 figcaption { font-size: 15px; color: var(--label); padding: 8px 4px 2px; }
 
+/* click a screenshot to see it larger (zoom.js): the whole picture on a dark backdrop, click or Esc closes */
+img.zoomable { cursor: zoom-in; }
+dialog.zoom { max-width: none; max-height: none; width: 100vw; height: 100vh; margin: 0; padding: 16px; border: 0; background: transparent; cursor: zoom-out; }
+dialog.zoom[open] { display: flex; align-items: center; justify-content: center; }
+dialog.zoom::backdrop { background: rgba(8, 6, 5, .92); }
+dialog.zoom img { max-width: 100%; max-height: 100%; width: auto; height: auto; border: 1px solid var(--line-hi); background: var(--panel-solid); }
+
 /* buttons: worn leather, the main one a little warmer */
 .btn {
   display: inline-flex; align-items: center; min-height: 44px; font: 700 17px/1 var(--f-head); text-decoration: none; color: #d8cfbd;
