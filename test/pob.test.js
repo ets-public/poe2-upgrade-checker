@@ -112,3 +112,29 @@ test('a unique with variants keeps only the selected variant', () => {
   // no "Selected Variant": PoB uses the last one
   assert.doesNotMatch(convertItem(raw.replace('Selected Variant: 2\n', ''), 'Body Armour').text, /Fire Resistance/);
 });
+
+test('main skill list: a skill the build holds twice is listed once, as the copy really used', () => {
+  // your socketed Kelari, the copy an ascendancy passive grants, and one granted by a weapon
+  const list = [
+    { name: 'Kelari', slot: null, dps: 104239, minion: true },
+    { name: 'Skeletal Warrior', slot: null, dps: 4015, minion: true },
+    { name: 'Kelari', slot: null, dps: 950, minion: true },
+    { name: 'Skeletal Warrior', slot: 'Weapon 1', dps: 4015, minion: true },
+  ];
+  const r = P.mainSkillOptions(list, { name: 'Kelari', slot: null });
+  assert.deepStrictEqual(r.list.map((c) => [c.name, c.slot, c.dps]), [['Kelari', null, 104239], ['Skeletal Warrior', null, 4015], ['Skeletal Warrior', 'Weapon 1', 4015]]);
+  assert.strictEqual(r.pickIndex, 0);
+  assert.strictEqual(list.length, 4); // the list passed in is left as it was
+  // same choices as setMain in pob/server.lua: the slot if it's given, else the first with that name
+  assert.strictEqual(P.mainSkillOptions(list, { name: 'Skeletal Warrior', slot: 'Weapon 1' }).pickIndex, 2);
+  assert.strictEqual(P.mainSkillOptions(list, { name: 'Skeletal Warrior', slot: null }).pickIndex, 1);
+  assert.strictEqual(P.mainSkillOptions(list, { name: 'Kelari', slot: 'Weapon 2' }).pickIndex, 0);
+  assert.strictEqual(P.mainSkillOptions(list, { name: 'Gone', slot: null }).pickIndex, -1);
+  assert.strictEqual(P.mainSkillOptions(list, null).pickIndex, -1);
+});
+
+test('main skill list: Path of Building\'s main skill keeps its mark when it was the left-out copy', () => {
+  const r = P.mainSkillOptions([{ name: 'Kelari', slot: null }, { name: 'Kelari', slot: null, main: true }], null);
+  assert.strictEqual(r.list.length, 1);
+  assert.strictEqual(r.list[0].main, true);
+});

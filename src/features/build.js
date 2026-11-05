@@ -361,7 +361,8 @@ module.exports = function (C) {
       const info = await C.pobEngine().ensureLoaded();
       const list = await C.pobEngine().skills(true);
       const pick = C.store.pobMain();
-      const r = { ok: true, pick, missing: !!(pick && info && info.mainPickMissing), list: list.map((c) => ({ name: c.name, slot: c.slot || null, default: !!c.default, main: !!c.main, dps: c.dps == null ? null : c.dps, minion: !!c.minion })) };
+      const options = pobLib.mainSkillOptions(list.map((c) => ({ name: c.name, slot: c.slot || null, default: !!c.default, main: !!c.main, dps: c.dps == null ? null : c.dps, minion: !!c.minion })), pick);
+      const r = { ok: true, pick, missing: !!(pick && info && info.mainPickMissing), list: options.list, pickIndex: options.pickIndex };
       mainSkillCache.clear(); mainSkillCache.set(key, r);
       return r;
     } catch (err) { return { ok: false, error: err.message }; }

@@ -200,4 +200,23 @@ function pobbinRawUrl(input) {
   return m ? `https://pobb.in/${m[1]}/raw` : null;
 }
 
-module.exports = { decodeCode, parsePob, convertItem, pobbinRawUrl, SLOT_MAP };
+// The main skill list on the Character page. A build can hold a skill twice, like your socketed gem and
+// the copy an ascendancy passive grants, each with its own damage. Picking one sets it by name and slot,
+// and Path of Building takes the first match (setMain in pob/server.lua), so a later copy with the same
+// name and slot can't be reached: it's left out, and only the copy really in use is the selected one.
+// list: [{ name, slot, main, ... }], pick: { name, slot } | null -> { list, pickIndex (-1: none) }
+function mainSkillOptions(list, pick) {
+  const out = []; const seen = new Map();
+  for (const c of list || []) {
+    const key = `${c.name}|${c.slot || ''}`;
+    if (!seen.has(key)) { seen.set(key, out.length); out.push({ ...c }); } else if (c.main) out[seen.get(key)].main = true; // PoB's main skill still gets named
+  }
+  let pickIndex = -1;
+  if (pick && pick.name) {
+    pickIndex = out.findIndex((c) => c.name === pick.name && (!pick.slot || c.slot === pick.slot));
+    if (pickIndex < 0) pickIndex = out.findIndex((c) => c.name === pick.name);
+  }
+  return { list: out, pickIndex };
+}
+
+module.exports = { decodeCode, parsePob, convertItem, pobbinRawUrl, SLOT_MAP, mainSkillOptions };
