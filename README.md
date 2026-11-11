@@ -26,6 +26,8 @@
 2. In PoE2, go to **Options → Graphics** and set **Windowed Fullscreen**, so the overlay can draw over the game.
 3. Hover an item and press **F2**. The first-run guide walks you through adding your Path of Building build and your gear.
 
+The whole setup, step by step (build import from Path of Building or poe.ninja, prices, hotkeys, settings, troubleshooting, and what every line of the popup means), is in the **[setup guide](https://poe2upgrade.com/setup/)** on the website.
+
 **On Linux?** See [Linux (experimental)](#linux-experimental).
 
 **Had "PoE2 Upgrade Checker"?** It's the same app, renamed when it started supporting PoE1. It updates itself to the new name, and your characters, builds and settings stay as they are.
@@ -120,7 +122,7 @@
 
 ## First-time setup
 
-The **setup guide** opens on first run. You can reopen it from **My gear → Setup guide**.
+The **setup guide** opens on first run. You can reopen it from **My gear → Setup guide**. The website has a longer [setup guide](https://poe2upgrade.com/setup/) too.
 
 1. **Paste your Path of Building export** (PoB2: *Import/Export Build → Generate*, or a pobb.in link) on *My gear*. This is what makes the verdicts exact, for **any class and skill**: the app runs Path of Building's calculations on your build. It also fills your gear slots.
 2. **Copy what you wear:** open your character screen, hover each item, press **F2**, then click **Set as …** in the popup. Items copied in game replace PoB's in the calculation, so it uses exactly what you have on.
@@ -251,7 +253,7 @@ Searches show their listings in a **results window** (always on top) instead of 
 
 Join the **[PoE Upgrade Checker Discord](https://discord.gg/Vgu7XMuaBj)** for news of new versions, help with setup, and to talk about bugs and ideas with other players. In the app: tray menu → *Join our Discord*, or the link in the main window's sidebar.
 
-Questions, bugs or ideas: ask on Discord, email **[support@poe2upgrade.com](mailto:support@poe2upgrade.com)** or [open an issue](https://github.com/ets-public/poe2-upgrade-checker/issues). If F2 or a verdict looks wrong, attach the log (Tray → Open log) and, for a verdict, your pobb.in link.
+Most setup questions are answered in the [setup guide](https://poe2upgrade.com/setup/). Questions, bugs or ideas: ask on Discord, email **[support@poe2upgrade.com](mailto:support@poe2upgrade.com)** or [open an issue](https://github.com/ets-public/poe2-upgrade-checker/issues). If F2 or a verdict looks wrong, attach the log (Tray → Open log) and, for a verdict, your pobb.in link.
 
 ## Hotkey & troubleshooting
 

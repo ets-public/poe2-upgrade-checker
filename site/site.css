@@ -319,3 +319,22 @@ footer.plain-foot { text-align: center; padding-top: 28px; padding-bottom: 32px;
   .cta .btn { flex: 1 1 100%; }
   .foot { grid-template-columns: 1fr; }
 }
+
+/* setup guide (/setup/) */
+.toc { columns: 2; column-gap: 40px; padding-left: 26px; margin: 0; font-size: 18px; }
+.toc li { margin-bottom: 6px; break-inside: avoid; }
+.prose h2[id] { scroll-margin-top: 92px; }
+.prose h3 { margin-top: 32px; margin-bottom: 10px; color: var(--light); }
+.prose figure.frame { margin: 24px 0 32px; }
+.prose .ticks { margin-bottom: 20px; }
+.table-wrap { overflow-x: auto; margin: 8px 0 20px; }
+.keys { width: 100%; border-collapse: collapse; font-size: 17px; }
+.keys th { text-align: left; font: 700 16px var(--f-head); color: var(--title); padding: 8px 12px; border-bottom: 1px solid var(--line-hi); }
+.keys td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.keys td:first-child { white-space: nowrap; color: var(--label); }
+@media (max-width: 600px) { .toc { columns: 1; } .keys td:first-child { white-space: normal; } }
+.legend { margin: 8px 0 24px; border-top: 1px solid var(--line); }
+.legend > div { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 4px 20px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.legend dt { font-size: 17px; }
+.legend dd { margin: 0; font-size: 17px; }
+@media (max-width: 600px) { .legend > div { grid-template-columns: 1fr; } }
