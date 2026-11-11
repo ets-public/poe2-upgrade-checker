@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Setup Guide: PoE Upgrade Checker for PoE2 and PoE1 (Build Import, Price Check, Hotkeys)</title>
+  <meta name="description" content="How to set up PoE Upgrade Checker for Path of Exile 2 and Path of Exile 1: install, first launch, importing your Path of Building or poe.ninja build, poe.ninja prices, the F2 upgrade check, the F3 price check, trade search, hotkeys, settings and troubleshooting.">
+  <link rel="canonical" href="https://poe2upgrade.com/setup/">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta property="og:site_name" content="PoE Upgrade Checker">
+  <meta property="og:title" content="PoE Upgrade Checker setup guide: from install to your first F2">
+  <meta property="og:description" content="Install, import your Path of Building or poe.ninja build, then check upgrades with F2 and prices with F3, in Path of Exile 2 and Path of Exile 1.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://poe2upgrade.com/setup/">
+  <meta property="og:image" content="https://poe2upgrade.com/img/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PoE Upgrade Checker setup guide: from install to your first F2">
+  <meta name="twitter:description" content="Install, import your Path of Building or poe.ninja build, then check upgrades with F2 and prices with F3, in Path of Exile 2 and Path of Exile 1.">
+  <meta name="twitter:image" content="https://poe2upgrade.com/img/og.png">
+  <meta name="theme-color" content="#0e0c0a">
+  <link rel="icon" href="/img/icon-64.png">
+  <link rel="apple-touch-icon" href="/img/icon-180.png">
+  <link rel="preload" href="/fonts/AlegreyaSansSC-Bold.woff" as="font" type="font/woff" crossorigin>
+  <link rel="stylesheet" href="/site.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "HowTo",
+        "@id": "https://poe2upgrade.com/setup/#howto",
+        "name": "Set up PoE Upgrade Checker for Path of Exile 2 or Path of Exile 1",
+        "description": "Install PoE Upgrade Checker, import your Path of Building or poe.ninja build, save your gear and check items in game with F2 (upgrade check) and F3 (price check).",
+        "inLanguage": "en",
+        "totalTime": "PT5M",
+        "image": "https://poe2upgrade.com/img/my-gear.webp",
+        "tool": [
+          { "@type": "HowToTool", "name": "Windows 10 or 11 (or desktop Linux with Steam Proton)" },
+          { "@type": "HowToTool", "name": "Path of Exile 2 or Path of Exile 1" },
+          { "@type": "HowToTool", "name": "Your build as a Path of Building code, pobb.in link or poe.ninja character" }
+        ],
+        "step": [
+          { "@type": "HowToStep", "position": 1, "url": "https://poe2upgrade.com/setup/#install", "name": "Install the app", "text": "Download PoE-Upgrade-Checker-Setup.exe from poe2upgrade.com/download and run it. It installs for your Windows user, needs no admin rights and updates itself. If Windows warns about an unrecognised app, click More info, then Run anyway." },
+          { "@type": "HowToStep", "position": 2, "url": "https://poe2upgrade.com/setup/#game", "name": "Set the game to Windowed Fullscreen", "text": "In Path of Exile 2 or Path of Exile 1, open Options, Graphics and set Windowed Fullscreen so the popup can show over the game. Start the game normally, not as administrator." },
+          { "@type": "HowToStep", "position": 3, "url": "https://poe2upgrade.com/setup/#first-launch", "name": "Follow the first-run guide", "text": "Pick your game and league, choose whether to send anonymous usage counts, and check that the F2 hotkey works with Show a test popup." },
+          { "@type": "HowToStep", "position": 4, "url": "https://poe2upgrade.com/setup/#build", "name": "Import your build", "text": "On My gear, paste your Path of Building export code (Import/Export Build, Generate), a pobb.in link, or the Path of Building code from your character on poe.ninja builds, and click Import." },
+          { "@type": "HowToStep", "position": 5, "url": "https://poe2upgrade.com/setup/#gear", "name": "Save what you wear", "text": "In game, open your character screen, hover each equipped item, press F2 and click Set as in the popup." },
+          { "@type": "HowToStep", "position": 6, "url": "https://poe2upgrade.com/setup/#upgrade-check", "name": "Check items with F2 and F3", "text": "Hover any item and press F2: Path of Building says whether it is an upgrade for your build. Press F3 for just its price, from poe.ninja or the trade site." }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "PoE Upgrade Checker", "item": "https://poe2upgrade.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Setup guide", "item": "https://poe2upgrade.com/setup/" }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "I press F2 and nothing happens. What do I check?", "acceptedAnswer": { "@type": "Answer", "text": "Set the game to Windowed Fullscreen, check the tray menu says Hotkey: F2, and start the game normally rather than as administrator (Windows then blocks the app's Ctrl+C). Settings, Show a test popup checks the popup can draw, and Open log file says what happened on each press." } },
+          { "@type": "Question", "name": "How do I import a build from poe.ninja?", "acceptedAnswer": { "@type": "Answer", "text": "Open the character on poe.ninja builds, use its Path of Building export to copy the build code, then paste it on My gear in the app and click Import. Path of Building then judges every item with that exact build." } },
+          { "@type": "Question", "name": "Do I need to set up poe.ninja for prices?", "acceptedAnswer": { "@type": "Answer", "text": "No. Prices come from poe.ninja by themselves, through a cache on poe2upgrade.com, for the league you picked in the first-run guide or on Find upgrades. There's no account or key to set up." } },
+          { "@type": "Question", "name": "Do I need Path of Building installed?", "acceptedAnswer": { "@type": "Answer", "text": "No. The app bundles Path of Building's calculation engine. You only need your build's export code or a pobb.in link, which you can make in Path of Building or copy from poe.ninja." } },
+          { "@type": "Question", "name": "Does it work for Path of Exile 1?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The first F2 in Path of Exile 1 makes a PoE1 character. Paste your Path of Building Community export there: PoE1 items are judged by Path of Building only. Each game keeps its own characters, league, prices and saved searches." } },
+          { "@type": "Question", "name": "The verdicts look wrong for my build. Why?", "acceptedAnswer": { "@type": "Answer", "text": "The verdicts are only as good as the build you give it. Check the main skill on the Character page, Path of Building's Configuration tab (charms, buffs, enemy settings), and that you saved the items you really wear with Set as." } }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/"><img src="/img/icon-64.png" alt="PoE Upgrade Checker logo" width="28" height="28"><span>PoE Upgrade Checker</span></a>
+    <nav aria-label="Main">
+      <a href="/#how">How it works</a>
+      <a href="/#features">Features</a>
+      <a href="/setup/" aria-current="page">Setup guide</a>
+      <a href="/economy/">Economy</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/discord">Discord</a>
+    </nav>
+    <a class="btn main small" href="/download">Download</a>
+  </header>
+
+  <main id="top" class="article">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="/">PoE Upgrade Checker</a> › Setup guide</nav>
+
+    <section class="hero">
+      <div class="hero-text">
+        <p class="kicker">Setup guide</p>
+        <h1>Set up PoE Upgrade Checker <span>in about five minutes.</span></h1>
+        <p class="lead">Everything from the download to your first <kbd>F2</kbd>: importing your build from Path of Building or poe.ninja, prices, the upgrade check, the price check, hotkeys and settings, for Path of Exile 2 and Path of Exile 1.</p>
+        <div class="cta">
+          <a class="btn main" href="/download">Download</a>
+          <a class="btn" href="#install">Start the guide</a>
+        </div>
+      </div>
+      <figure class="frame"><img src="/img/popup.webp" alt="The PoE Upgrade Checker popup in Path of Exile 2: Path of Building's verdict on a pair of gloves, next to the item" width="800" height="786"></figure>
+    </section>
+
+    <section class="prose">
+      <h2 id="contents">In this guide</h2>
+      <ol class="toc">
+        <li><a href="#need">What you need</a></li>
+        <li><a href="#install">Install</a></li>
+        <li><a href="#game">Set up the game</a></li>
+        <li><a href="#first-launch">First launch</a></li>
+        <li><a href="#build">Import your build</a></li>
+        <li><a href="#poe-ninja">poe.ninja: prices and builds</a></li>
+        <li><a href="#gear">Save your gear</a></li>
+        <li><a href="#poe2">Path of Exile 2</a></li>
+        <li><a href="#poe1">Path of Exile 1</a></li>
+        <li><a href="#upgrade-check">Use the upgrade checker</a></li>
+        <li><a href="#trade">Find upgrades on trade</a></li>
+        <li><a href="#price-check">Use the price checker</a></li>
+        <li><a href="#hotkeys">Hotkeys</a></li>
+        <li><a href="#settings">Settings</a></li>
+        <li><a href="#troubleshooting">Troubleshooting</a></li>
+      </ol>
+
+      <h2 id="need">What you need</h2>
+      <ul class="ticks">
+        <li><b>Windows 10 or 11.</b> Desktop Linux with Steam Proton, Lutris or Heroic works too (experimental): see <a href="/linux/">Path of Exile 2 on Linux</a>.</li>
+        <li><b>Path of Exile 2 or Path of Exile 1.</b> One install covers both: the app knows which game you're in on every key press.</li>
+        <li><b>Your build</b>, as a Path of Building export code, a pobb.in link or a character on poe.ninja. You don't need Path of Building installed: its calculation engine is inside the app. In PoE2 the app can also give a rough gear score with no build at all.</li>
+      </ul>
+
+      <h2 id="install">1. Install</h2>
+      <ol class="plain">
+        <li><b>Download</b> <i>PoE-Upgrade-Checker-Setup-x.y.z.exe</i> from the <a href="/download">newest release</a> and run it. It installs for your Windows user only, so it needs no admin rights, and it <b>updates itself</b>.</li>
+        <li><b>Windows SmartScreen</b> may say it doesn't recognise the app, because the installer isn't code-signed. Click <i>More info</i>, then <i>Run anyway</i>. The app is <a href="https://github.com/ets-public/poe2-upgrade-checker">open source on GitHub</a>, and every release is built there by GitHub Actions.</li>
+        <li>Prefer nothing installed? The <b>Portable</b> .exe on the same page runs from anywhere, but doesn't update itself.</li>
+      </ol>
+      <p>The app lives in the system tray (by the clock). Closing the main window keeps it running there; right-click the tray icon for its menu: <i>Settings &amp; gear…</i> opens the main window, and it also has the results window, the loot filter editor, the search string builder, <i>Open log</i>, <i>Pause watching</i> and <i>Quit</i>.</p>
+      <p class="fine">Had <i>PoE2 Upgrade Checker</i>? It's the same app, renamed when it started supporting PoE1. It updates itself to the new name and keeps your characters, builds and settings.</p>
+
+      <h2 id="game">2. Set up the game</h2>
+      <ol class="plain">
+        <li>In the game, open <b>Options → Graphics</b> and set <b>Windowed Fullscreen</b>. In exclusive fullscreen the popup can't show over the game: it's the most common reason the app seems to do nothing.</li>
+        <li><b>Start the game normally,</b> not <i>as administrator</i>. Windows doesn't let a normal app send Ctrl+C to a game running as administrator.</li>
+        <li>Optional: turn on <b>advanced item descriptions</b> in the app (<i>Settings → Use advanced copy</i>). The app then copies with Ctrl+Alt+C, and the popup shows each mod's tier and roll, and open prefixes and suffixes for crafting.</li>
+      </ol>
+
+      <h2 id="first-launch">3. First launch: the setup guide</h2>
+      <p>The first time it starts, a short guide opens. You can run it again any time from <b>My gear → Setup guide</b>.</p>
+      <ol class="plain">
+        <li><b>Welcome:</b> the Windowed Fullscreen reminder, and a tick box for anonymous usage counts (numbers only, no account, items or builds; you can turn it off here or in Settings).</li>
+        <li><b>Your game and league:</b> pick Path of Exile 2 or Path of Exile 1, and the league for prices and trade searches. Leave it on <i>The current league</i> and the app moves to the next league by itself; pick Standard or a Hardcore league if that's where you play.</li>
+        <li><b>Your build:</b> paste your Path of Building code or pobb.in link (more in the <a href="#build">next section</a>). No build in PoE2? Pick the closest gear score profile instead.</li>
+        <li><b>Your hotkey:</b> it says whether <kbd>F2</kbd> is working, lets you pick where the popup appears, and <i>Show a test popup</i> checks it can draw.</li>
+        <li><b>Your gear:</b> how to save what you're wearing.</li>
+        <li><b>You're set:</b> it waits for your first item. Hover one in game and press <kbd>F2</kbd>: it says <i>It works</i> when the app got it.</li>
+      </ol>
+
+      <h2 id="build">4. Import your build</h2>
+      <p>This is the step that makes the verdicts exact. With your build loaded, the app runs <b>Path of Building's own calculations</b> on every item: what it does to your damage (or your minions'), effective HP, resistances, Spirit or mana, for any class and any skill.</p>
+      <figure class="frame"><img src="/img/my-gear.webp" alt="My gear: every slot with its gear score, and Your build in Path of Building with the box to paste a pobb.in link or export code, and Import" loading="lazy" width="1600" height="800"><figcaption>My gear: paste the code or link on the right and click Import.</figcaption></figure>
+
+      <h3>From Path of Building</h3>
+      <ol class="plain">
+        <li>Open your build in <b>Path of Building 2</b> (PoE2) or <b>Path of Building Community</b> (PoE1). New to it? See <a href="/path-of-building-poe2/">Path of Building for PoE2</a>.</li>
+        <li>Click <b>Import/Export Build</b>, then <b>Generate</b>, then <b>Copy</b>. Or share it to pobb.in and copy that link.</li>
+        <li>In the app, open <b>My gear</b>, paste it in <i>Your build in Path of Building</i> and click <b>Import</b>. The first import takes a few seconds while Path of Building starts.</li>
+      </ol>
+      <p><b>Keep it in sync:</b> a pobb.in link can be read again with one click. Or use <i>Or link a build file…</i> and pick the file Path of Building saves (<i>Documents\Path of Building\Builds</i>): the app reads it again every time you save in Path of Building.</p>
+
+      <h3>From poe.ninja builds</h3>
+      <p>Copying a league starter or a top player's character? Find it on <a href="https://poe.ninja/poe2/builds">poe.ninja builds</a> (PoE2) or <a href="https://poe.ninja/builds">poe.ninja builds for PoE1</a>, open the character, and use its <b>Path of Building</b> export to copy the build code. Paste that on <b>My gear</b> and click <b>Import</b>. The app then judges every item against that exact character's tree, skills and gear. The <i>Build &amp; stats</i> page links to poe.ninja builds too.</p>
+
+      <h3>From a guide's .build file</h3>
+      <p>Following an in-game build guide with no Path of Building link? Use <i>Or link a build file…</i> and pick the guide's Build Planner file (<i>Documents\My Games\Path of Exile 2\BuildPlanner</i>). The tree, skills and the guide's gear become a Path of Building build, with a stage picker for levelling guides, or <i>Follow my level</i>.</p>
+
+      <h3>Then check two things</h3>
+      <ul class="ticks">
+        <li><b>The main skill:</b> open <b>Character</b> and pick the skill your damage really comes from. Every skill is listed with its DPS, and the one you pick is what items, Find upgrades and Where to spend judge your damage with.</li>
+        <li><b>Path of Building's Configuration:</b> charms, buffs and enemy settings ticked in Path of Building change the numbers. If Path of Building's resistances disagree with your character sheet, My gear says so; that's usually something ticked in Configuration.</li>
+      </ul>
+      <p><b>Several characters?</b> Use <b>+ New character</b> on My gear and the character picker in the sidebar. Each one keeps its own build, gear, resistances and League start progress.</p>
+
+      <h2 id="poe-ninja">5. poe.ninja: prices and builds</h2>
+      <p>There's nothing to sign up for. The app gets <a href="https://poe.ninja">poe.ninja</a>'s prices by itself:</p>
+      <ul class="ticks">
+        <li><b>Which prices:</b> currency, fragments, essences, runes, divination cards, gems and uniques, with their 7-day trend. Rare items aren't on poe.ninja, so those are priced from the official trade site.</li>
+        <li><b>Which league:</b> the one you picked in the setup guide. Change it on <b>Find upgrades</b> (the <i>League</i> box) or from the popup; each game remembers its own.</li>
+        <li><b>How:</b> through a small cache on poe2upgrade.com, as poe.ninja asks desktop apps to do, so prices load fast and poe.ninja isn't asked by every PC. If the cache is down, the app asks poe.ninja directly.</li>
+        <li><b>Divine and exalted rates</b> come from poe.ninja too (refreshed hourly), so a price range in divines also finds listings priced in exalts or chaos.</li>
+        <li><b>Builds:</b> import any poe.ninja character as described <a href="#build">above</a>.</li>
+      </ul>
+      <p>For a look at the whole market, the site has a free <a href="/economy/">currency prices page</a> for both games, from the same cache. PoE Upgrade Checker isn't made by or affiliated with poe.ninja.</p>
+
+      <h2 id="gear">6. Save your gear</h2>
+      <p>Importing a build fills your slots with Path of Building's items. To compare against what you really wear:</p>
+      <ol class="plain">
+        <li>Open your character screen in game (<kbd>C</kbd>).</li>
+        <li>Hover each equipped item, press <kbd>F2</kbd> and click <b>Set as …</b> in the popup. Items you copy in game replace Path of Building's in the calculation.</li>
+        <li>My gear shows a checklist of the slots you've saved.</li>
+      </ol>
+      <p><b>Faster:</b> pick a <i>Save as equipped</i> key in Settings, then hover an item you wear and press it: it's saved in its slot with no click. And when you craft on a saved item, checking it again saves it as it is now.</p>
+
+      <h2 id="poe2">7. Path of Exile 2 setup</h2>
+      <ul class="ticks">
+        <li>Export from <b>Path of Building 2</b> (the PoE2 version), or a pobb.in link for a PoE2 build.</li>
+        <li><b>No build?</b> Pick a gear score profile on <b>Build &amp; stats</b>: what your damage is (melee, bows/crossbows/spears, spells, minions) and how you stay alive (life, Armour, Evasion, Energy Shield). Items then get a 0–100 score. It's a rough guide; a build is far better.</li>
+        <li>Spirit is checked: an item that leaves you short of Spirit for your minions or auras is flagged.</li>
+        <li><b>Best runes and soul cores</b> and <b>Best anoint</b> are on the Character page once your build is in.</li>
+        <li>Prices show in exalts and divines, with the chaos value next to them.</li>
+      </ul>
+
+      <h2 id="poe1">8. Path of Exile 1 setup</h2>
+      <p>PoE1 is fully supported, and set up the same way:</p>
+      <ul class="ticks">
+        <li><b>The first <kbd>F2</kbd> in PoE1</b> makes a PoE1 character for you. Each game has its own characters, league, prices and saved searches, so you can play both without changing anything.</li>
+        <li>Paste your <b>Path of Building Community</b> export or pobb.in link on <b>My gear</b>. PoE1 items are judged by Path of Building only (the gear score is for PoE2), so this step is what makes the popup work.</li>
+        <li>Prices are in chaos and divines, from poe.ninja's PoE1 rates, and trade searches use the PoE1 trade site.</li>
+        <li><b>Links and flasks:</b> an item with fewer links than the gems you use in that slot is flagged, and flasks are tried in your flask slots.</li>
+        <li><b>Boss check</b> on the Character page says how many of each big boss hit you can take, and League start says which quest gem to take and buy for your build.</li>
+        <li>Not judged yet: cluster jewels and timeless jewels (they're still priced).</li>
+      </ul>
+
+      <h2 id="upgrade-check">9. Use the upgrade checker (F2)</h2>
+      <p>Hover any item, in your stash, inventory, a vendor's window or on the ground, and press <kbd>F2</kbd>. The app presses Ctrl+C once for you, reads the item, swaps it into your build in Path of Building, and shows the popup next to it. While it works the popup says <i>Reading item…</i>, then <i>CHECKING…</i> for a moment while Path of Building calculates.</p>
+      <figure class="frame"><img src="/img/popup-warnings.webp" alt="Two popups: LOSES RESISTANCE, lightning resistance 75% to 54%; and LOSES DAMAGE, minion DPS down 15.3%" loading="lazy" width="1660" height="904"><figcaption>Two red verdicts: the first item drops lightning resistance off the cap, the second costs 15% of the build's minion damage.</figcaption></figure>
+      <p>Here is everything the popup can show, from top to bottom.</p>
+
+      <h3>The item's name</h3>
+      <p>The name in the game's rarity colour, then the base type, the item class and the item level (<i>ilvl</i>). It's the item you copied, so you can tell you checked the right one.</p>
+
+      <h3>The verdict</h3>
+      <p>The big word is Path of Building's answer to <i>is this better than what I wear in that slot?</i></p>
+      <dl class="legend">
+        <div><dt><span class="verd up">UPGRADE</span></dt><dd>Clearly better for your build: +3 points or more. Wear it.</dd></div>
+        <div><dt><span class="verd up">SMALL UPGRADE</span></dt><dd>A little better: +1 to +3 points. Worth it if it's cheap or you have nothing better to spend on.</dd></div>
+        <div><dt><span class="verd same">SIDEGRADE</span></dt><dd>About the same: within 1 point either way. It's better in some ways and worse in others, and they cancel out.</dd></div>
+        <div><dt><span class="verd dn">DOWNGRADE</span></dt><dd>Worse than what you wear.</dd></div>
+        <div><dt><span class="verd same">UPGRADE, BUT…</span></dt><dd>The numbers go up, but something breaks: you'd be short of Spirit for your minions or auras, you couldn't meet an attribute requirement, you'd lose 3% or more movement speed, or (PoE1) it has fewer links than the gems you socket there. The reason is written under it.</dd></div>
+        <div><dt><span class="verd dn">LOSES RESISTANCE</span></dt><dd>It drops a resistance off the cap (or further under it). Never called an upgrade, however good the rest is: an uncapped resistance gets you killed. The line under it says exactly what drops.</dd></div>
+        <div><dt><span class="verd dn">LOSES DAMAGE</span></dt><dd>It costs more than 5% of your damage, usually because it's missing a damage mod your item has. Never called an upgrade, however much life or resistance it adds.</dd></div>
+        <div><dt><span class="verd up">EMPTY SLOT</span></dt><dd>You have nothing saved in that slot, so anything is better. Click <i>Set as …</i> if you're wearing it.</dd></div>
+        <div><dt><span class="verd same">EQUIPPED</span></dt><dd>It's the item you have saved in that slot.</dd></div>
+        <div><dt><span class="verd same">NOT JUDGED</span></dt><dd>The app can't judge this kind of item (for example a PoE1 cluster or timeless jewel, or an unidentified item). It can still price it.</dd></div>
+        <div><dt><span class="verd same">UNIQUE</span></dt><dd>A unique with no build loaded: uniques have fixed mods, so they get no gear score. Load your build and they get a real verdict.</dd></div>
+      </dl>
+      <p>You can turn each safety check off under <b>My gear → Priorities</b>: <i>Cap my resistances first</i>, <i>Never lose damage</i>, <i>Never run short of Spirit</i>, <i>Keep attribute requirements met</i> and <i>Keep my movement speed</i>.</p>
+
+      <h3>The score: "+12.4 pts for your build"</h3>
+      <p>Next to the verdict is Path of Building's score for the item. It's the % change to your <b>damage</b> and your <b>effective HP</b>, weighted 60/40 by default, plus half a point for every resistance point it adds toward a cap you're short of. So <i>+12.4 pts</i> means roughly a 12% better build. Move the <b>Damage – Survivability</b> slider on My gear to weigh them differently, for example toward survivability for Hardcore.</p>
+      <p>Under it, <b>vs Doom Vise</b> names the item it was compared with. Rings are tried in both ring slots and compared with the one it beats more; jewels are tried in every jewel socket on your tree, and the verdict says which socket (<i>vs Entropy Star (Socket #2)</i>). A two-handed weapon is compared with your weapon and offhand together.</p>
+
+      <h3>Red lines: what you'd lose</h3>
+      <ul class="ticks">
+        <li><b>Lightning 75% → 38% (−37 off the cap):</b> the resistance you'd have with this item, and how far it falls. <i>further under the cap</i> means you're already short and it gets worse.</li>
+        <li><b>Minion DPS 104,000 → 88,000 (−15%: it doesn't have the damage mods your item gives):</b> the damage you'd lose.</li>
+      </ul>
+      <p>A popup with a red border always has one of these. On the trade results these items go to the bottom.</p>
+
+      <h3>Path of Building's numbers</h3>
+      <p>The line marked <b>PoB</b> is what Path of Building calculated with your build, compared with what you wear now:</p>
+      <ul class="ticks">
+        <li><b>DPS (your skill) +4.2%</b> or <b>Minion DPS +4.2%</b>: the change to your damage, on the main skill you picked on the Character page (or Path of Building's Full DPS when your build adds skills together).</li>
+        <li><b>Effective HP −1.1%</b>: Path of Building's effective HP, which counts life, energy shield, resistances, armour, evasion and other mitigation together.</li>
+        <li><b>+12 res to cap</b>: resistance points it adds toward caps you're short of (with <i>Cap my resistances first</i> on).</li>
+        <li><b>✓ Caps your fire resistance</b>: with this item that resistance reaches its cap. These go to the top of trade results.</li>
+        <li><b>no damage to compare</b>: your main skill in Path of Building deals no damage. Pick your damage skill on the Character page.</li>
+        <li><b>No change to damage or effective HP</b>: the item doesn't move either, for example a flask or a pure utility item.</li>
+      </ul>
+      <p>Under that come the totals that change, each as <i>before → after</i>: <b>Speed</b> (movement speed), <b>Hit</b> (your skill's average hit), <b>ES</b>, <b>Life</b>, <b>Runic Ward</b> (Ward in PoE1), <b>Spirit</b>, <b>Mana</b>, and each resistance, marked <i>✓ capped</i>, <i>(under cap)</i> or <i>off the cap</i>. A line starting with a warning sign lists anything else that breaks, such as running short of Spirit or an attribute requirement.</p>
+      <p><b>Colours:</b> blue is better, red is worse, grey is a change your build doesn't care about. With <i>Settings → Colour-blind friendly colours</i>, worse is orange instead of red.</p>
+
+      <h3>At 20% quality</h3>
+      <p>Armour and weapons under 20% quality are judged a second time at 20%: <i>At 20% quality: +6.1% for your build (UPGRADE) · 8% now</i>. That's what a few Armourer's Scraps, Blacksmith's Whetstones or Arcanist's Etchers would make it.</p>
+
+      <h3>Price and keep, sell or vendor</h3>
+      <ul class="ticks">
+        <li><b>NINJA ≈ 2.5 div (480 ex · 36 chaos)</b>: poe.ninja's price, when it has one (uniques, gems, currency). <i>7 days +12%</i> and the little line show how it moved this week. <i>few listed</i> means a rough guess; <i>price of the … version?</i> means the unique comes in versions the app can't tell apart.</li>
+        <li><span class="verd up">KEEP</span>: it's an upgrade for you (or fills an empty slot).</li>
+        <li><span class="verd up">SELL</span>: not an upgrade, but worth listing: <i>poe.ninja says about 3 div</i> or <i>similar items sell for about 40 ex</i>.</li>
+        <li><span class="verd same">VENDOR</span>: not an upgrade and worth less than about 2% of a divine, or a magic or normal item, which rarely sell.</li>
+        <li><span class="verd same">PRICE CHECK</span>: a rare or unique the app has no price for yet. Press <i>What's it worth?</i> before you vendor it.</li>
+        <li><b>List it at 4 divine · Copy price note</b>: a price just under the market, and the <code>~price</code> note to paste on it in a premium stash tab.</li>
+      </ul>
+
+      <h3>Gear score (PoE2, without a build)</h3>
+      <p>Without a Path of Building build, PoE2 items get a <b>gear score</b> from 0 to 100 instead: how good the item is in that slot for your kind of build, where 100 is about the best it can roll. The grade is <b>S</b> (85+), <b>A</b> (70+), <b>B</b> (55+), <b>C</b> (40+) or <b>D</b>. <i>45 C · gear score · yours 56</i> means it scores 45 and the item you wear scores 56. Click <b>why?</b> for the points each stat gave, how high each rolled, what's missing and which mods do nothing for you. Resistances only count up to your cap.</p>
+
+      <h3>Crafting lines</h3>
+      <p>With <i>advanced copy</i> on (Settings), the popup knows the item's affixes:</p>
+      <ul class="ticks">
+        <li><b>Open: 2 prefixes, 1 suffix – craftable</b>: free affix slots you can fill with an Exalted Orb, an essence or a craft. <i>All 6 affixes taken</i> means it's full.</li>
+        <li><b>Best mods to add</b>: Path of Building tries every mod that can roll in those free slots on your build and lists the best eight. <i>P T1</i> or <i>S T2</i> is a prefix or suffix and its tier; the number is what the item would be for your build with that mod, and the one in brackets is the gain over the item as it is now.</li>
+        <li><b>Mods and tiers</b> (under <i>More</i>): each mod with its tier, <b>T1</b> being the best roll range, and how high in that range it rolled, as a %.</li>
+      </ul>
+
+      <h3>The buttons</h3>
+      <ul class="ticks">
+        <li><b>Find upgrades 5–20 div</b>: searches the trade site in your price range for something better than what you wear in that slot. For an item you don't wear it's <b>Find items like this</b>.</li>
+        <li><b>What's it worth?</b> prices the item from the trade site (see the <a href="#price-check">price checker</a>), and <b>Price by chosen stats…</b> lets you pick which stats to match.</li>
+        <li>Uniques get <b>What's it worth?</b> and <b>Find cheaper copies</b>.</li>
+        <li><b>Set as …</b> saves the item as what you wear in that slot (for rings: Ring 1 or Ring 2).</li>
+        <li><b>League: … · change</b>: the league its searches and prices use.</li>
+        <li><b>More ▾</b> opens the rest: the full table of every stat that changes (old → new, with <b>⊘</b> to ignore a stat from now on), mods and tiers, <i>Set as …</i>, and more searches: <i>Like this item</i>, <i>As good as my …</i>, <i>By my weights</i>, <i>Craftable bases</i> and <i>Pick stats…</i>, plus links to the wiki and poedb. <i>Settings → Popup → Detail</i> can open it every time.</li>
+      </ul>
+      <p>The popup closes when you move the mouse away, click <b>×</b>, or after the time set in Settings. <kbd>Esc</kbd> is left to the game.</p>
+
+      <h3>Other things F2 works on</h3>
+      <ul class="ticks">
+        <li><b>Maps, waystones and tablets:</b> <span class="verd dn">DANGER</span>, <span class="verd same">CAREFUL</span> or <span class="verd up">LOOKS FINE</span> for your character, with each mod worked out by Path of Building (<i>–12% max resistances: effective HP –14%</i>). Click a mod to mark it dangerous, careful or fine for every map from then on.</li>
+        <li><b>Skill and support gems:</b> if your build uses that gem, Path of Building tries this one's level and quality and shows the damage and effective HP change.</li>
+        <li><b>Currency, fragments, cards and other stackables:</b> the poe.ninja price, each and for the stack.</li>
+        <li><b>Your own gear after crafting:</b> check a saved item again and it says <i>✓ Saved as your Ring 1</i>, judged against how it was before.</li>
+      </ul>
+
+      <h2 id="trade">10. Find upgrades on trade</h2>
+      <figure class="frame"><img src="/img/results.webp" alt="Trade results judged by Path of Building, each listing with its verdict, resistances first" loading="lazy" width="1200" height="1520"><figcaption>Every listing is checked with your build before you see it.</figcaption></figure>
+      <ol class="plain">
+        <li>Click <b>Find upgrades</b> in the popup, or next to any slot on My gear. Path of Building weights the search by what every mod is worth to your build, and checks each listing exactly.</li>
+        <li>Set a <b>price range</b> on the <b>Find upgrades</b> page, for example 5 to 20 divines, and the sellers: <i>Instant Buyout + In Person</i> by default.</li>
+        <li>Results open in the app's results window, sorted resistances first or by best upgrade, best value, or cheapest. <i>Upgrades only</i> hides the rest.</li>
+        <li><b>Travel to hideout</b> on Instant Buyout listings, or <b>Copy whisper</b> for the rest. <kbd>Esc</kbd> hides the window and <kbd>Ctrl+Shift+D</kbd> brings it back.</li>
+      </ol>
+      <p><b>Sign in (optional):</b> <i>Settings → Trade site account</i> opens pathofexile.com's own login in a separate window. Signed in, searches can weigh more stats and <i>Travel to hideout</i> works. Without it everything else still works.</p>
+      <p><b>More ways to search:</b> <i>Same stats or better</i>, <i>Craftable bases</i>, <i>Custom search</i>, <i>Best uniques</i>, and <b>Where to spend</b> in the sidebar, which searches every slot in your budget and ranks what each divine buys you. Save a search and tick <i>Alert</i> to get a notification when new listings appear.</p>
+
+      <h2 id="price-check">11. Use the price checker (F3)</h2>
+      <figure class="frame"><img src="/img/price-card.webp" alt="Price card for a stack of Divine Orbs: the poe.ninja price, its 7-day change and a suggested listing price" loading="lazy" width="800" height="524"><figcaption>F3 on a stack of currency: the poe.ninja price, the stack's worth and the trend.</figcaption></figure>
+      <ol class="plain">
+        <li>Hover an item and press <kbd>F3</kbd>. A small popup shows only its price, without the upgrade check.</li>
+        <li><b>Currency, fragments, gems, divination cards and uniques</b> are priced from poe.ninja: each, the whole stack, and the 7-day trend.</li>
+        <li><b>Rares, waystones, maps and tablets</b> are priced from the trade site, searched the way buyers search (total resistances, life, attributes, defences or DPS, and the worthwhile mods). Only recent listings from sellers who are online count, and price-fixing baits are left out.</li>
+        <li>It says how sure it is: <b>solid price</b> (plenty of close, recent listings at similar prices), <b>rough price</b>, or <b>a guess</b>. When nothing close is listed you get a range instead of one made-up number.</li>
+        <li>Every listing is compared with your item, so better ones don't push your price up, and your own listing is left out. The same item again within an hour answers at once.</li>
+      </ol>
+      <p><b>F2 or F3?</b> <kbd>F2</kbd> does everything: the upgrade verdict, then the price on the same popup when you click <i>What's it worth?</i>. <kbd>F3</kbd> skips the build check for a quick answer while you sort loot. Change or turn off F3 under <i>Settings → Hotkeys</i>.</p>
+      <p><b>Too low / About right / Too high</b> under a price tells the app how far off it was, which helps tune the price checks.</p>
+      <p><b>Selling it:</b> the popup suggests a listing price just under the market and <b>Copy price note</b> (<code>~price 4 divine</code>) to paste into the item's note in a premium stash tab. Items you copy a note for go on the <b>For sale</b> list (<i>Check an item</i> page), which checks whether they're still listed and how your price compares.</p>
+      <p><b>Picking the stats yourself:</b> in the full popup, <i>Price by chosen stats…</i> lets you choose exactly which stats and minimums to match. And about 3 hours after a trade price check the app looks again and tells you how many of those listings were gone: what sold, and at what asking prices.</p>
+
+      <h2 id="hotkeys">12. Hotkeys</h2>
+      <p>Change any of them under <b>Settings → Hotkeys</b>: click the box, press the keys, then <i>Save</i>. F-keys work best: with WASD movement, a letter key would also move your character.</p>
+      <div class="table-wrap">
+        <table class="keys">
+          <thead><tr><th>Key</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><kbd>F2</kbd></td><td>Check item: the upgrade verdict, price and trade buttons for the item under the mouse</td></tr>
+            <tr><td><kbd>F3</kbd></td><td>Price only: a small popup with just the item's price</td></tr>
+            <tr><td><kbd>Ctrl+Shift+D</kbd></td><td>Show or hide the trade results window</td></tr>
+            <tr><td><kbd>Ctrl+Shift+L</kbd></td><td>Show or hide the League start overlay (set on the League start page)</td></tr>
+            <tr><td>Off until you pick one</td><td>Save as equipped: save the item you wear under the mouse in its slot</td></tr>
+            <tr><td>Off until you pick one</td><td>Search strings: copy a search for the game's search box, press again for the next</td></tr>
+            <tr><td>Off until you pick one</td><td>Loot filter editor and Search string builder overlays</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The only key the app sends to the game is one copy (Ctrl+C, or Ctrl+Alt+C with advanced copy) per press. Search strings and chat commands only go on your clipboard for you to paste. If another program holds a key, the app tells you and offers <i>Pick other keys</i>.</p>
+
+      <h2 id="settings">13. Settings</h2>
+      <ul class="ticks">
+        <li><b>Hotkeys:</b> the keys above, <i>Also check gear when I press Ctrl+C myself</i>, and <i>Use advanced copy</i>.</li>
+        <li><b>Trade site account:</b> sign in to pathofexile.com for bigger searches and Travel to hideout, or sign out.</li>
+        <li><b>Popup:</b> where it appears (next to the mouse, or the left, right or top of the screen), how long it stays, compact or full detail, text size, colour-blind colours (blue better, orange worse), and the currencies prices are shown in. You can also drag the popup by its name: it stays where you put it.</li>
+        <li><b>Usage statistics:</b> the anonymous counts, on or off.</li>
+        <li><b>Startup &amp; updates:</b> start with Windows (quietly in the tray), whether the main window opens on start, and <i>What's new</i>.</li>
+        <li><b>Back up &amp; restore:</b> one file with your characters, gear, builds, priorities, saved searches, hotkeys and League start progress, for a new PC or a reinstall.</li>
+        <li><b>Troubleshooting:</b> <i>Show a test popup</i>, <i>Open log file</i>, and <i>Pause</i> to ignore the hotkeys for a while.</li>
+      </ul>
+      <p>Your data stays on your PC in <i>%APPDATA%\PoE2 Upgrade Checker</i>. More in <a href="/#fair-play">Fair play and privacy</a>.</p>
+    </section>
+
+    <section id="troubleshooting" class="faq split band">
+      <div class="faq-side">
+        <h2>Troubleshooting</h2>
+        <p>Still stuck? Ask on <a href="/discord">our Discord</a> with a screenshot and the log (tray → <i>Open log</i>), or email <a href="mailto:support@poe2upgrade.com">support@poe2upgrade.com</a>.</p>
+      </div>
+      <div class="faq-list">
+        <details>
+          <summary>I press F2 and nothing happens</summary>
+          <p>Set the game to <b>Windowed Fullscreen</b>, check the tray menu says <i>Hotkey: F2</i>, and start the game normally, not as administrator. <i>Settings → Show a test popup</i> checks the popup can draw at all, and the log (tray → <i>Open log</i>) says what happened on each press. When F2 finds nothing, the popup usually says why: the game wasn't the active window, or the mouse wasn't over the game.</p>
+        </details>
+        <details>
+          <summary>The app says the hotkey is taken</summary>
+          <p>Another overlay or tool has registered the same key. Click <i>Pick other keys</i> in the warning, or set another key under <i>Settings → Hotkeys</i>. F-keys nobody else uses (F4–F8) are a good choice.</p>
+        </details>
+        <details>
+          <summary>The import fails or says it can't read the build</summary>
+          <p>Paste the whole code, from Path of Building 2 for PoE2 or Path of Building Community for PoE1, and make sure the character in the app is for the same game. A pobb.in link must be the build's page, like <code>https://pobb.in/abc123</code>. The first import takes a few seconds while Path of Building starts; if it still fails, send the log on Discord.</p>
+        </details>
+        <details>
+          <summary>The verdicts look wrong for my build</summary>
+          <p>They're only as good as the build you give it. Pick the right <b>main skill</b> on the Character page, check Path of Building's Configuration tab (charms, buffs, enemy settings), and save the items you really wear with <i>Set as …</i>. If it still looks wrong, share your pobb.in link and the item on Discord.</p>
+        </details>
+        <details>
+          <summary>Prices are missing or look old</summary>
+          <p>Check the league on <b>Find upgrades</b>: prices are for that league only. Rare items aren't on poe.ninja, so they're priced from the trade site; if the trade site is busy, try again in a minute. Early in a new league poe.ninja has little data, so prices move a lot.</p>
+        </details>
+        <details>
+          <summary>Trade searches fail or say "rate limited"</summary>
+          <p>The trade site limits how often anyone can search. The app paces itself to those limits, so wait a minute and try again. Signing in under <i>Settings → Trade site account</i> allows bigger searches.</p>
+        </details>
+        <details>
+          <summary>The popup covers the item tooltip</summary>
+          <p>Pick a side of the screen under <i>Settings → Popup → Position</i>, or drag the popup by its name: it stays where you put it.</p>
+        </details>
+        <details>
+          <summary>Windows warned me about the installer</summary>
+          <p>The installer isn't code-signed, so SmartScreen doesn't know it yet. Click <i>More info</i>, then <i>Run anyway</i>. The source and the release builds are on <a href="https://github.com/ets-public/poe2-upgrade-checker">GitHub</a>.</p>
+        </details>
+        <details>
+          <summary>Is it safe? Can I get banned?</summary>
+          <p>It never reads game memory, never changes game files and never injects anything. Its only input to the game is one Ctrl+C per key press, the same as copying an item yourself. It's a fan project, not affiliated with Grinding Gear Games. More in <a href="/#fair-play">Fair play and privacy</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="final">
+      <h2>Set up? Press F2.</h2>
+      <a class="btn main big" href="/download">Download PoE Upgrade Checker</a>
+      <p class="fine">Free and open source. Windows 10/11, <a href="/linux/">Linux (experimental)</a>. Path of Exile 2 and Path of Exile 1. Questions? <a href="/discord">Join our Discord</a>.</p>
+    </section>
+  </main>
+
+  <footer class="plain-foot">
+    <p>PoE Upgrade Checker is a fan project, not affiliated with Grinding Gear Games, poe.ninja or the Path of Building Community team. Path of Exile is a trademark of Grinding Gear Games.</p>
+    <p><a href="/">Home</a> · <a href="/path-of-building-poe2/">Path of Building for PoE2</a> · <a href="/linux/">PoE2 on Linux</a> · <a href="/economy/">PoE2 currency prices</a> · <a href="/discord">Discord</a> · <a href="https://github.com/ets-public/poe2-upgrade-checker">GitHub</a> · <a href="https://github.com/ets-public/poe2-upgrade-checker/issues">Report a problem</a> · <a href="mailto:support@poe2upgrade.com">support@poe2upgrade.com</a></p>
+  </footer>
+  <script src="/zoom.js" defer></script>
+</body>
+</html>
