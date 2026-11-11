@@ -2,6 +2,8 @@
 
 ## Unreleased
 - **Website redesign (poe2upgrade.com):** a new home page. The top shows the F2 popup over a stash tab, the way it looks in game; the 28 features are sorted into six groups (Is it an upgrade?, Trade and prices, Maps and bosses, Loot filter, League start and leveling, Your characters and the app) with links to jump to each; the screenshots are in one gallery; the questions, Discord and Fair play each have their own section; and on a phone the menu links stay reachable in a row under the name. Nothing was removed.
+- **Website: the Path of Exile 1 section is up to date.** It now lists what 0.5.5 added for PoE1: patch 3.30 (Atlas Drops, More Threads, Soul Cores) and the price checks for cluster jewels, caster weapons, fractured mods, magic flasks and tier 17 maps. The question *Does it work with Path of Exile 1?* says so too.
+- **Path of Exile 1 support is out of beta.** The *PoE1 beta* marks are gone from the main window, the trade results window, the tray menu and the first-run guide, and the website and README no longer call it a beta.
 
 ## 0.5.5 - 2026-11-11
 - **Path of Exile 1, patch 3.30 (Covens of Umbra):** maps are read with the new *Atlas Drops* line (it replaced Item Quantity) and *More Threads* (Threads replaced Scarabs), in price checks, the map check and the search string builder. Threads and the new Soul Cores are looked up on poe.ninja, and the new *Item Tier* line on rare and magic items isn't taken for a mod. If the trade site files one of these under a new name, the app uses whichever name the site's own lists have, and leaves out a number the site doesn't have rather than sending a search the site would refuse.

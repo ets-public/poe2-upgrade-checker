@@ -154,7 +154,7 @@ body.cb .up { color: #4aa3ff; } body.cb .down { color: #ff9a3c; }
 
 /* ---------- Path of Building verdict ---------- */
 .pob { margin: 7px 0 2px; font-size: 13.5px; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-/* PoE1 support is in beta: a small mark wherever a PoE1 character is in use */
+/* a small mark wherever a character of a game still in beta is in use (games.js beta: true; none now) */
 .price-card .price-big { font-size: 1.25em; margin: 6px 0 2px; }
 .ninja { margin: 4px 0; }
 .kv.spend th { text-align: left; font-weight: 600; color: var(--ash); padding: 4px 6px 4px 0; }

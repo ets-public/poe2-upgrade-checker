@@ -32,7 +32,7 @@ const WIZ = [
     title: 'Your game and league',
     body: () => `<p>Which game are you playing? (Copying an item from the other game later switches by itself, each game with its own character.)</p>
       <div class="row"><label><input type="radio" name="wizGame" value="poe2" ${state.game !== 'poe1' ? 'checked' : ''}> Path of Exile 2</label>
-        <label><input type="radio" name="wizGame" value="poe1" ${state.game === 'poe1' ? 'checked' : ''}> Path of Exile 1 <span class="beta-tag">BETA</span></label></div>
+        <label><input type="radio" name="wizGame" value="poe1" ${state.game === 'poe1' ? 'checked' : ''}> Path of Exile 1</label></div>
       <p>League for trade searches and prices:</p>
       <div class="row"><select id="wizLeague"><option>Loading…</option></select></div>
       <p class="help">Pick the league you play in (Standard is the permanent one). You can change it any time on <b>Find upgrades</b>, or from the popup.</p>`,
@@ -134,7 +134,6 @@ async function renderProfiles() {
   // with characters from both games, group them by game
   const opt = (p) => `<option value="${esc(p.id)}" ${p.active ? 'selected' : ''}>${esc(p.name)}</option>`;
   const games = [...new Set(list.map((p) => p.game || 'poe2'))];
-  if ($('#gameBeta')) $('#gameBeta').classList.toggle('hidden', state.game !== 'poe1');
   // with one game only, each name says which game it's for
   const tagged = (p) => `<option value="${esc(p.id)}" ${p.active ? 'selected' : ''}>${esc(p.name)}${/PoE ?[12]/i.test(p.name || '') ? '' : ` (${(p.game || 'poe2') === 'poe1' ? 'PoE1' : 'PoE2'})`}</option>`;
   $('#profileSel').innerHTML = games.length < 2 ? list.map(tagged).join('')

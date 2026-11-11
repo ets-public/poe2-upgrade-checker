@@ -61,7 +61,7 @@
         "@type": "FAQPage",
         "mainEntity": [
           { "@type": "Question", "name": "Is it safe to use? Can it get me banned?", "acceptedAnswer": { "@type": "Answer", "text": "It's built to stay within the rules for third-party tools: it never reads game memory or changes game files (the only one it can read is the game's log, and only if you switch on Follow my zones or automatic character switching in League start), and its only input to the game is one Ctrl+C per key press, the same as copying an item yourself. Trade searches use the official trade site, slowing down whenever the site asks. It's a fan project, not affiliated with or endorsed by Grinding Gear Games." } },
-          { "@type": "Question", "name": "Does it work with Path of Exile 1?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, since version 0.5.1 (still marked beta while it gets more testing). It uses Path of Building Community for PoE1 and checks links, flasks and anoints too. It knows which game you're playing and keeps separate characters, leagues and prices for each." } },
+          { "@type": "Question", "name": "Does it work with Path of Exile 1?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, since version 0.5.1, and it's out of beta. It uses Path of Building Community for PoE1 and checks links, flasks and anoints too. Version 0.5.5 is ready for patch 3.30 and prices cluster jewels, caster weapons, fractured mods and tier 17 maps properly. It knows which game you're playing and keeps separate characters, leagues and prices for each." } },
           { "@type": "Question", "name": "Do I need Path of Building?", "acceptedAnswer": { "@type": "Answer", "text": "You don't need to install it: the app bundles Path of Building's calculation engine. You paste your Path of Building export or a pobb.in link once, and every item is judged with your passive tree, gems and configuration. In PoE2 it can also give a rough gear score without a build." } },
           { "@type": "Question", "name": "How do I price check items in Path of Exile 2?", "acceptedAnswer": { "@type": "Answer", "text": "Hover the item and press F3 (or F2 for the full check). Currency, gems, cards and uniques show their poe.ninja price with the last 7 days. Rares, waystones and tablets are priced from the trade site, on listings compared with your item: better ones and your own listing are left out, and when nothing listed is close you get a range instead of one made-up number." } },
           { "@type": "Question", "name": "Does it work on Linux with Proton?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. There's a Linux AppImage (experimental) for Path of Exile 2 running through Steam with Proton, Lutris or Heroic, on X11 or Wayland. Path of Building runs inside the app, so verdicts are the same as on Windows. Windows 10 and 11 are fully supported. Setup: poe2upgrade.com/linux/" } },
@@ -290,9 +290,12 @@
           <li><b>Flasks</b> are tried in your flask slots, and life and mana flasks compared on recovery.</li>
           <li><b>Anoints:</b> an amulet without yours is called out, so you know to anoint it again.</li>
           <li><b>Prices in chaos and divines</b> from poe.ninja, and the PoE1 trade site, league or Standard.</li>
+          <li><b>Ready for 3.30:</b> maps are read with Atlas Drops and More Threads, and Threads and Soul Cores are priced from poe.ninja.</li>
+          <li><b>Cluster jewels priced as cluster jewels:</b> by size, number of passives, small passive bonus and your notables.</li>
+          <li><b>Price checks that know PoE1's items:</b> caster weapons by their mods, not their DPS; fractured mods as fractured; a magic flask as its own kind; a tier 17 map only from listings of the same map.</li>
         </ul>
         <p><a class="btn" href="/download">Download</a></p>
-        <p class="fine">New in 0.5.1. Still marked beta in the app while it gets more testing.</p>
+        <p class="fine">In the app since 0.5.1 and out of beta, with patch 3.30 and the PoE1 price checks in 0.5.5. Cluster and timeless jewels are priced but not yet judged for your build.</p>
       </div>
     </section>
 
@@ -344,7 +347,7 @@
         </details>
         <details>
           <summary>Does it work with Path of Exile 1?</summary>
-          <p>Yes, since version 0.5.1 (still marked beta while it gets more testing). It uses Path of Building Community for PoE1 and checks links, flasks and anoints too. It knows which game you're playing and keeps separate characters, leagues and prices for each.</p>
+          <p>Yes, since version 0.5.1, and it's out of beta. It uses Path of Building Community for PoE1 and checks links, flasks and anoints too. Version 0.5.5 is ready for patch 3.30 and prices cluster jewels, caster weapons, fractured mods and tier 17 maps properly. It knows which game you're playing and keeps separate characters, leagues and prices for each.</p>
         </details>
         <details>
           <summary>Do I need Path of Building?</summary>
