@@ -91,14 +91,15 @@ const PROPS = {
     { id: 'drop', label: 'Waystone drop chance', frag: 'drop chance: \\+', unit: '%' },
     { id: 'quant', label: 'Item quantity', frag: 'tity: \\+', unit: '%' },
   ],
+  // 3.30: Item Quantity on maps became Atlas Drops, and Scarabs became Threads; either wording matches
   poe1: [
     { id: 'tier', label: 'Map tier', frag: 'tier: ', unit: '' },
-    { id: 'quant', label: 'Item quantity', frag: 'tity: \\+', unit: '%' },
+    { id: 'quant', label: 'Atlas drops (item quantity)', frag: '(tity|drops): \\+', unit: '%' },
     { id: 'rarity', label: 'Item rarity', frag: 'm rarity: \\+', unit: '%' },
     { id: 'pack', label: 'Monster pack size', frag: 'ck size: \\+', unit: '%' },
     { id: 'currency', label: 'More currency', frag: 'currency: \\+', unit: '%' },
     { id: 'maps', label: 'More maps', frag: 'maps: \\+', unit: '%' },
-    { id: 'scarabs', label: 'More scarabs', frag: 'scarabs: \\+', unit: '%' },
+    { id: 'scarabs', label: 'More threads (scarabs)', frag: '(scarab|thread)s: \\+', unit: '%' },
     { id: 'divcards', label: 'More divination cards', frag: 'cards: \\+', unit: '%' },
     { id: 'quality', label: 'Quality', frag: 'quality: \\+', unit: '%' },
   ],

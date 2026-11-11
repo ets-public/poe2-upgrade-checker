@@ -15,7 +15,7 @@ const DIRECT = 'https://poe.ninja';
 // /{game}/api/economy/exchange/current/overview?type=… (bulk-traded things)
 const EXCHANGE_TYPES = {
   poe2: ['Currency', 'Fragments', 'Abyss', 'UncutGems', 'LineageSupportGems', 'Essences', 'SoulCores', 'Idols', 'Runes', 'Ritual', 'Expedition', 'Delirium', 'Breach', 'Verisium'],
-  poe1: ['Currency', 'Fragment', 'Runegraft', 'AllflameEmber', 'Tattoo', 'Omen', 'DjinnCoin', 'Ducat', 'EnshroudingCrystal', 'DivinationCard', 'Artifact', 'Oil', 'DeliriumOrb', 'Scarab', 'Astrolabe', 'Fossil', 'Resonator', 'Essence'],
+  poe1: ['Currency', 'Fragment', 'Runegraft', 'AllflameEmber', 'Tattoo', 'Omen', 'DjinnCoin', 'Ducat', 'EnshroudingCrystal', 'DivinationCard', 'Artifact', 'Oil', 'DeliriumOrb', 'Scarab', 'Thread', 'SoulCore', 'Astrolabe', 'Fossil', 'Resonator', 'Essence'],
 };
 // /{game}/api/economy/stash/current/item/overview?type=… (one-off items)
 const UNIQUE_TYPES = {
@@ -101,15 +101,21 @@ function history(s) {
 }
 
 // from one exchange answer: { name(lowercase) -> { name, value(primary), change, volume, category } }
+// Memoised per answer object: answers are cached and never changed, and a price lookup goes through up
+// to 18 of them, so building each index once is enough.
+const exchangeIndexCache = new WeakMap();
 function exchangeIndex(data) {
+  if (!data || typeof data !== 'object' || !Array.isArray(data.lines)) return new Map();
+  const cached = exchangeIndexCache.get(data);
+  if (cached) return cached;
   const out = new Map();
-  if (!data || !Array.isArray(data.lines)) return out;
   const items = new Map([...((data.core && data.core.items) || []), ...(data.items || [])].map((i) => [i.id, i]));
   for (const l of data.lines) {
     const it = items.get(l.id);
     if (!it || !it.name || !(Number(l.primaryValue) > 0)) continue;
     out.set(it.name.toLowerCase(), { name: it.name, value: Number(l.primaryValue), change: change(l.sparkline || l.sparkLine), history: history(l.sparkline || l.sparkLine), volume: Number(l.volumePrimaryValue) || null, category: it.category || null, core: data.core || null });
   }
+  exchangeIndexCache.set(data, out);
   return out;
 }
 

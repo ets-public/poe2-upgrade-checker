@@ -16,6 +16,7 @@
 //   - looser in steps until there are enough listings to judge
 
 const trade = require('./trade');
+const { expand } = require('./parser');
 
 // three steps, each a search: how close the values must be, how many stats may be missing, and how
 // recent the listings must be
@@ -68,6 +69,153 @@ const KEY = /Movement Speed|Level of all .*Skills|Level of all .*Gems|\bSpirit\b
 
 const isUnique = (item) => /unique/i.test(item.rarity || '');
 
+// The pseudo stat ids here are the trade site's own; if it ever drops or renames one, a search that
+// asks for it is rejected as a whole. So an id the loaded stat list lacks is not searched on, but
+// only when the list has others of its kind (pseudo_total_..., pseudo_map_...): a list with none of
+// that kind isn't the site's full list (a list that failed to load in part, or a test's few stats),
+// and the id is used as before.
+const pseudoIdSets = new WeakMap();
+function pseudoMissing(id, statIndex) {
+  if (!statIndex || !Array.isArray(statIndex.all) || !statIndex.all.length) return false;
+  let ids = pseudoIdSets.get(statIndex);
+  if (!ids) { ids = new Set(statIndex.all.filter((e) => /^pseudo\./.test(e.id || '')).map((e) => e.id)); pseudoIdSets.set(statIndex, ids); }
+  if (ids.has(id)) return false;
+  const kind = (String(id).match(/^pseudo\.pseudo_(?:total|increased|number_of|map)_/) || [])[0];
+  return !!kind && [...ids].some((x) => x.startsWith(kind));
+}
+
+// ---------- PoE1 cluster jewels ----------
+// A cluster jewel sells on its size, how many passives it adds, what its small passives grant (the
+// enchant) and its notables, none of which are ordinary mods: searched as the base type, the passive
+// count, the grant's option and one filter per notable, all matched by their text on the trade
+// site's stat list. A plain or magic one without notables is a crafting base: its item level bracket
+// decides which notables it can roll.
+const CLUSTER_ILVL = [84, 75, 68, 50, 1];
+const CLUSTER_LABELS = [
+  'the same passives, small passive bonus and all its notables, listed in the last 3 days',
+  'the same passives, small passive bonus and all its notables, listed in the last week',
+  'the same passives and small passive bonus, one notable missing at most, listed in the last week',
+  'the same passives and small passive bonus, any notables, listed in the last 2 weeks',
+];
+function clusterBase(item) {
+  if (!item) return null;
+  const m = String(`${item.baseType || ''} ${item.name || ''}`).match(/\b(Small|Medium|Large) Cluster Jewel\b/);
+  if (m) return `${m[1]} Cluster Jewel`;
+  const size = item.cluster && item.cluster.size;
+  return size ? `${size.charAt(0).toUpperCase()}${size.slice(1)} Cluster Jewel` : null;
+}
+const isCluster = (item) => !!item && !isUnique(item) && (!!item.cluster || /^jewels$/i.test(String(item.itemClass || '').trim())) && !!clusterBase(item);
+const optNorm = (t) => String(t || '').split(/\r?\n/).map((x) => x.replace(/\s+/g, ' ').trim().toLowerCase()).filter(Boolean);
+// the enchant's small passive bonus: the "grant:" lines ("also grant:" lines are rolled mods)
+function clusterGrant(item) {
+  const out = [];
+  for (const l of item.lines || []) {
+    const m = String(l.text || '').replace(/\s*\(enchant\)\s*$/i, '').match(/^Added Small Passive Skills grant: (.+)$/i);
+    if (m) out.push(m[1].trim());
+  }
+  return out;
+}
+// what a cluster jewel is searched and compared on, matched on the trade site's stat list
+function clusterParts(item, statIndex) {
+  const c = item.cluster || {};
+  const skipped = [];
+  let passives = null;
+  if (c.passives > 0) {
+    const m = trade.matchStat('Adds # Passive Skills', statIndex, { type: 'enchant' });
+    if (m && m.kind === 'stat') passives = { id: m.id, value: c.passives };
+    else skipped.push(`Adds ${c.passives} Passive Skills (not on the trade site)`);
+  }
+  let grant = null;
+  const g = clusterGrant(item);
+  if (g.length) {
+    const m = trade.matchStat('Added Small Passive Skills grant: #', statIndex, { type: 'enchant' });
+    // an option can be several lines ("...Axe Attacks...\n...Sword Attacks..."): the same lines, any order
+    const want = optNorm(g.join('\n')).sort().join('\n');
+    const opt = m && m.kind === 'stat' && (m.options || []).find((o) => o && o.id != null && optNorm(o.text).sort().join('\n') === want);
+    if (opt) grant = { id: m.id, option: opt.id, label: g.join(' / ') };
+    else skipped.push(`Small passives grant: ${g.join(' / ')} (${m && m.kind === 'stat' ? 'no such option on the trade site' : 'not on the trade site'})`);
+  }
+  const notables = [];
+  for (const name of c.notables || []) {
+    const m = trade.matchStat(`1 Added Passive Skill is ${name}`, statIndex, { type: 'explicit' });
+    if (m && m.kind === 'stat') { if (!notables.some((x) => x.id === m.id)) notables.push({ id: m.id, name }); } else skipped.push(`${name} (notable not on the trade site)`);
+  }
+  return { base: clusterBase(item), passives, grant, notables, skipped };
+}
+// for comparables.js: the passive count (fewer small passives is the better jewel: more of them
+// dilute the notables) and each notable
+function clusterStats(item, opts) {
+  const c = item.cluster || {};
+  const stats = [];
+  const p = clusterParts(item, opts.statIndex);
+  if (c.passives > 0) stats.push({ id: p.passives ? p.passives.id : 'cluster.passives', value: c.passives, label: 'Passive skills', kind: 'cluster', fewer: true });
+  for (const name of c.notables || []) {
+    const n = p.notables.find((x) => x.name === name);
+    const id = n ? n.id : `cluster.notable.${String(name).toLowerCase()}`;
+    if (!stats.some((x) => x.id === id)) stats.push({ id, value: 1, label: name, kind: 'notable' });
+  }
+  return { stats, equip: [], skipped: p.skipped };
+}
+function clusterQueryAt(item, opts, lv) {
+  const L = LEVELS[lv];
+  const last = lv === LEVELS.length - 1;
+  const p = clusterParts(item, opts.statIndex);
+  const base = [];
+  if (p.passives) base.push({ id: p.passives.id, value: { min: p.passives.value, max: p.passives.value }, disabled: false });
+  if (p.grant) base.push({ id: p.grant.id, value: { option: p.grant.option }, disabled: false });
+  const nf = last ? [] : p.notables.map((n) => ({ id: n.id, disabled: false }));
+  // all its notables first (the closest searches), then one may be missing (never fewer than one)
+  const nNeed = lv <= 1 || nf.length < 2 ? nf.length : nf.length - 1;
+  const groups = [];
+  if (nNeed === nf.length) { if (base.length + nf.length) groups.push({ type: 'and', filters: base.concat(nf) }); } else {
+    if (base.length) groups.push({ type: 'and', filters: base });
+    groups.push({ type: 'count', value: { min: nNeed }, filters: nf });
+  }
+  const qf = { type_filters: { filters: {} } };
+  const cat = trade.categoryFor(item.itemClass || 'Jewels', opts.filtersData);
+  if (cat) qf.type_filters.filters.category = { option: cat };
+  const rar = String(item.rarity || '').toLowerCase();
+  if (['rare', 'magic', 'normal'].includes(rar)) qf.type_filters.filters.rarity = { option: rar };
+  qf.misc_filters = { filters: { corrupted: { option: item.corrupted ? 'true' : 'false' } } };
+  const labels = [p.base];
+  if (p.passives) labels.push(`${p.passives.value} passives`);
+  if (p.grant) labels.push(p.grant.label);
+  for (const f of nf) labels.push(p.notables.find((n) => n.id === f.id).name);
+  // a crafting base (no notables yet): its item level bracket decides what it can roll
+  if (['normal', 'magic'].includes(rar) && !(item.cluster && item.cluster.notables && item.cluster.notables.length) && item.itemLevel > 0) {
+    const b = CLUSTER_ILVL.find((x) => item.itemLevel >= x);
+    if (b) { qf.misc_filters.filters.ilvl = { min: b }; labels.push(`item level ${b}+`); }
+  }
+  qf.trade_filters = { filters: { indexed: { option: L.indexed } } };
+  const query = { status: { option: 'available' }, type: p.base, stats: groups, filters: qf };
+  return {
+    body: { query, sort: { price: 'asc' } }, need: base.length + nNeed, total: base.length + p.notables.length, level: lv, levels: LEVELS.length,
+    levelLabel: CLUSTER_LABELS[lv] || L.label, labels, skipped: p.skipped, drivers: false,
+  };
+}
+function buildClusterQuery(item, opts, lv) {
+  const q = clusterQueryAt(item, opts, lv);
+  // a step that would search exactly as the one before it (no notables to leave out) is skipped
+  if (lv > 0 && LEVELS[lv - 1].indexed === LEVELS[lv].indexed
+    && JSON.stringify(clusterQueryAt(item, opts, lv - 1).body.query.stats) === JSON.stringify(q.body.query.stats)) return { skip: true, level: lv, levels: LEVELS.length, levelLabel: q.levelLabel, drivers: false };
+  return q;
+}
+
+// PoE1 wands, sceptres, daggers and staves all have attack damage, but most are caster weapons sold
+// on their spell mods: their DPS only counts when a mod adds to it
+const POE1_CASTER_CLASS = /^(wands|sceptres|daggers|rune daggers|staves)$/i;
+const POE1_PHYS_LOCAL = /^(#% increased Physical Damage|Adds # to # Physical Damage)$/i;
+const POE1_ELE_LOCAL = /^Adds # to # (Fire|Cold|Lightning) Damage$/i;
+
+// a PoE1 magic flask's base, from its name ("Alchemist's Quicksilver Flask of the Cheetah")
+function poe1FlaskBase(item) {
+  if (!item || item.baseType || !/flask/i.test(String(item.itemClass || ''))) return null;
+  const n = String(item.name || '');
+  const m = n.match(/\b(Quicksilver|Bismuth|Stibnite|Amethyst|Ruby|Sapphire|Topaz|Granite|Jade|Quartz|Sulphur|Basalt|Aquamarine|Silver|Diamond|Gold|Corundum|Iron) Flask\b/)
+    || n.match(/\b(Small|Medium|Large|Greater|Grand|Giant|Colossal|Sacred|Hallowed|Sanctified|Divine|Eternal) (Life|Mana|Hybrid) Flask\b/);
+  return m ? m[0] : null;
+}
+
 // the mods an item sells on: null without tiers (a plain copy); else the keys of its T1-T2 mods and
 // of the mods without a tier in an advanced copy (special mods: desecrated, corrupted, essence...)
 function driverKeys(item) {
@@ -78,7 +226,12 @@ function driverKeys(item) {
 
 // the stats this item is priced on: [{ id, value, label, kind }]
 function priceStats(item, opts = {}) {
+  if (opts.game === 'poe1' && isCluster(item)) return clusterStats(item, opts);
   const sources = trade.statSources(item);
+  const poe1 = opts.game === 'poe1';
+  // PoE1: a fractured mod is its own stat on the trade site (fractured.*), not the explicit one
+  const fracturedKeys = new Set();
+  if (poe1) for (const l of item.lines || []) if (l.tag === 'fractured' && l.key && l.value != null) for (const [k] of expand(l.key, l.value)) fracturedKeys.add(k);
   const armourOrWeapon = !!opts.preferLocal;
   const totals = new Map();
   const mods = [];
@@ -89,9 +242,10 @@ function priceStats(item, opts = {}) {
     if (s.source === 'base') { base[s.key] = s.value; continue; }
     if (s.source === 'socket') { skipped.push(`${s.key} (socketed)`); continue; } // runes and soul cores: anyone can add them
     const local = trade.localFor(s.key, item.itemClass, armourOrWeapon);
+    // (a total the trade site's list doesn't have: the mod on its own, as any other)
     const p = PSEUDO.find((x) => x.re.test(s.key));
-    if (p) { add(p.id, p.label, s.value); continue; }
-    if (/^# to maximum Energy Shield$/i.test(s.key) && !local) { add(PSEUDO_ES.id, PSEUDO_ES.label, s.value); continue; }
+    if (p && !pseudoMissing(p.id, opts.statIndex)) { add(p.id, p.label, s.value); continue; }
+    if (/^# to maximum Energy Shield$/i.test(s.key) && !local && !pseudoMissing(PSEUDO_ES.id, opts.statIndex)) { add(PSEUDO_ES.id, PSEUDO_ES.label, s.value); continue; }
     if (local) { skipped.push(`${s.key} (local: in the item's defences or DPS)`); continue; } // in the item's defences or DPS, searched as those
     if (s.source === 'implicit') { skipped.push(`${s.key} (implicit)`); continue; } // comes with the base
     if (FILLER.test(s.key)) { skipped.push(`${s.key} (filler)`); continue; }
@@ -109,7 +263,7 @@ function priceStats(item, opts = {}) {
     else skipped.push(`${t.label} ${t.value} (under ${PSEUDO_MIN[t.id]}: too small to price on)`);
   }
   for (const s of mods) {
-    const m = trade.matchStat(s.key, opts.statIndex, { preferLocal: false, type: 'explicit' }) || trade.matchStat(s.key, opts.statIndex, {});
+    const m = trade.matchStat(s.key, opts.statIndex, { preferLocal: false, type: fracturedKeys.has(s.key) ? 'fractured' : 'explicit' }) || trade.matchStat(s.key, opts.statIndex, {});
     if (!m || m.kind !== 'stat') { skipped.push(`${s.key} (not on the trade site)`); continue; }
     const value = m.invert ? -s.value : s.value;
     if (!(value > 0)) { skipped.push(`${s.key} ${s.value} (a downside)`); continue; } // a downside, or a "reduced" mod the trade site counts as negative
@@ -123,7 +277,13 @@ function priceStats(item, opts = {}) {
     const v = base[k] != null ? trade.baseWithoutSockets(k, base[k], sources) : 0;
     if (v > 0) equip.push({ f, value: v });
   }
-  const pd = base['[Weapon] Physical DPS'] || 0; const ed = base['[Weapon] Elemental DPS'] || 0;
+  let pd = base['[Weapon] Physical DPS'] || 0; let ed = base['[Weapon] Elemental DPS'] || 0;
+  if (poe1 && POE1_CASTER_CLASS.test(String(item.itemClass || '').trim())) {
+    // a mod of its own (not the implicit, not a bench craft) that adds to the weapon's damage
+    const own = (re) => sources.some((s) => s.source === 'mod' && re.test(s.key));
+    if (!own(POE1_PHYS_LOCAL)) { if (pd > 0) skipped.push('Physical DPS (no physical damage mod: a caster weapon)'); pd = 0; }
+    if (!own(POE1_ELE_LOCAL)) { if (ed > 0) skipped.push('Elemental DPS (no added elemental damage mod: a caster weapon)'); ed = 0; }
+  }
   if (pd + ed > 0) {
     if (pd >= 0.2 * (pd + ed)) equip.push({ f: 'pdps', value: pd });
     if (ed >= 0.2 * (pd + ed)) equip.push({ f: 'edps', value: ed });
@@ -137,6 +297,7 @@ const round = (x) => (x >= 10 ? Math.floor(x) : Math.round(x * 10) / 10);
 function buildPriceQuery(item, opts = {}) {
   const lv = Math.max(0, Math.min(LEVELS.length - 1, opts.level || 0));
   const L = LEVELS[lv];
+  if (opts.game === 'poe1' && isCluster(item)) return buildClusterQuery(item, opts, lv);
   const all = priceStats(item, opts);
   const { equip, skipped } = all;
   let stats = all.stats;
@@ -187,14 +348,18 @@ function buildPriceQuery(item, opts = {}) {
   if (keyF.length) groups.push({ type: 'and', filters: keyF });
   if (r && restNeed > 0) groups.push({ type: 'count', value: { min: restNeed }, filters: restF });
   const query = { status: { option: 'available' }, stats: groups, filters: qf };
+  // PoE1: a magic flask has no base type line, and "any flask with these mods" isn't its market
+  const flaskBase = opts.game === 'poe1' ? poe1FlaskBase(item) : null;
+  if (flaskBase) query.type = flaskBase;
   return {
     body: { query, sort: { price: 'asc' } }, need, total: n, level: lv, levels: LEVELS.length, levelLabel: L.label, skipped, drivers: !!L.drivers,
     labels: stats.map((s) => s.label).concat(equip.map((e) => ({ ar: 'Armour', ev: 'Evasion', es: 'Energy Shield', spirit: 'Spirit', pdps: 'Physical DPS', edps: 'Elemental DPS' })[e.f])),
   };
 }
 
-// rare / magic gear and jewels get this search; uniques, gems, maps and the rest keep the old one
-const usesPriceQuery = (item) => !!item && !isUnique(item) && /^(rare|magic)$/i.test(item.rarity || '');
+// rare / magic gear and jewels get this search, and PoE1 cluster jewels of any rarity but unique
+// (a plain one is a crafting base); uniques, gems, maps and the rest keep the old one
+const usesPriceQuery = (item) => !!item && !isUnique(item) && (/^(rare|magic)$/i.test(item.rarity || '') || (/^normal$/i.test(item.rarity || '') && !!item.cluster && !!clusterBase(item)));
 
 // ---------- maps, waystones and precursor tablets ----------
 // A waystone (or PoE1 map) sells on its tier, its numbers (item rarity, pack size, monster rarity,
@@ -227,15 +392,18 @@ const MAP_PROPS = {
   poe2: [[/^Item Rarity:\s*\+?(\d+)%/i, 'map_iir'], [/^(?:Monster )?Pack Size:\s*\+?(\d+)%/i, 'map_packsize'], [/^Waystone Drop Chance:\s*\+?(\d+)%/i, 'map_bonus'],
     [/^Monster Rarity:\s*\+?(\d+)%/i, 'map_rare_monsters'], [/^Monster Effectiveness:\s*\+?(\d+)%/i, 'map_magic_monsters'],
     [/^(?:Waystone )?Gold(?: Found)?:\s*\+?(\d+)%/i, 'map_gold'], [/^(?:Waystone )?Experience(?: Gained)?:\s*\+?(\d+)%/i, 'map_experience']],
-  poe1: [[/^Item Quantity:\s*\+?(\d+)%/i, 'map_iiq'], [/^Item Rarity:\s*\+?(\d+)%/i, 'map_iir'], [/^Monster Pack Size:\s*\+?(\d+)%/i, 'map_packsize']],
+  poe1: [[/^(?:Item Quantity|Atlas Drops):\s*\+?(\d+)%/i, 'map_iiq', ['map_atlas_drops']], [/^Item Rarity:\s*\+?(\d+)%/i, 'map_iir'], [/^Monster Pack Size:\s*\+?(\d+)%/i, 'map_packsize']],
 };
 // PoE1 map numbers the trade site has as stats rather than map filters: an Originator map's "More
-// Scarabs: +40%", and the kind of map quality ("Quality (Currency): +20%")
+// Scarabs: +40%", and the kind of map quality ("Quality (Currency): +20%").
+// 3.30 renamed two things on maps: Item Quantity became Atlas Drops and Scarabs became Threads. Both
+// wordings are read. The third entry of a row is other ids the trade site may file the number under;
+// mapId() below takes whichever one the site's own lists have, so a renamed id needs no app update.
 const MAP_PSEUDO = {
-  poe1: [[/^More Maps:\s*\+?(\d+)%/i, 'pseudo.pseudo_map_more_map_drops'], [/^More Scarabs:\s*\+?(\d+)%/i, 'pseudo.pseudo_map_more_scarab_drops'],
+  poe1: [[/^More Maps:\s*\+?(\d+)%/i, 'pseudo.pseudo_map_more_map_drops'], [/^More (?:Scarabs|Threads):\s*\+?(\d+)%/i, 'pseudo.pseudo_map_more_scarab_drops', ['pseudo.pseudo_map_more_thread_drops']],
     [/^More Currency:\s*\+?(\d+)%/i, 'pseudo.pseudo_map_more_currency_drops'], [/^More Divination Cards:\s*\+?(\d+)%/i, 'pseudo.pseudo_map_more_card_drops'],
     [/^Quality \(Rarity\):\s*\+?(\d+)%/i, 'pseudo.pseudo_map_quality_rarity'], [/^Quality \(Pack Size\):\s*\+?(\d+)%/i, 'pseudo.pseudo_map_quality_pack_size'],
-    [/^Quality \(Divination Cards\):\s*\+?(\d+)%/i, 'pseudo.pseudo_map_quality_cards'], [/^Quality \(Scarabs\):\s*\+?(\d+)%/i, 'pseudo.pseudo_map_quality_scarabs'],
+    [/^Quality \(Divination Cards\):\s*\+?(\d+)%/i, 'pseudo.pseudo_map_quality_cards'], [/^Quality \((?:Scarabs|Threads)\):\s*\+?(\d+)%/i, 'pseudo.pseudo_map_quality_scarabs', ['pseudo.pseudo_map_quality_threads']],
     [/^Quality \(Currency\):\s*\+?(\d+)%/i, 'pseudo.pseudo_map_quality_currency']],
   poe2: [],
 };
@@ -275,12 +443,27 @@ function mapMods(item, statIndex) {
 function mapNumbers(item, game) {
   const lines = String(item.raw || item.listingText || '').split(/\r?\n/).map((x) => x.trim());
   const out = [];
-  for (const [re, id] of [...MAP_PROPS[game], ...MAP_PSEUDO[game]]) {
+  for (const [re, id, alt] of [...MAP_PROPS[game], ...MAP_PSEUDO[game]]) {
     const line = lines.find((x) => re.test(x));
     const v = line ? Number(line.match(re)[1]) : 0;
-    if (v > 0) out.push({ id, value: v, label: line.replace(/\s*\(augmented\)/i, '').replace(/:.*$/, '') });
+    if (v > 0) out.push({ id, alt: alt || [], value: v, label: line.replace(/\s*\(augmented\)/i, '').replace(/:.*$/, '') });
   }
   return out;
+}
+// the id to search a map number under: the one the trade site's own lists have (its stat list for a
+// pseudo stat, its map filters for the others). null = the site has none of them, so it's left out
+// of the search rather than sent as a filter the site would refuse. A list that isn't loaded (or a
+// test's few entries) can't tell, and the usual id is used.
+function mapId(x, opts) {
+  const ids = [x.id, ...(x.alt || [])];
+  if (/^pseudo\./.test(x.id)) {
+    const all = opts.statIndex && Array.isArray(opts.statIndex.all) ? opts.statIndex.all : [];
+    return ids.find((i) => all.some((e) => e.id === i)) || (pseudoMissing(x.id, opts.statIndex) ? null : x.id);
+  }
+  const group = ((opts.filtersData && opts.filtersData.result) || []).find((g) => g && g.id === 'map_filters');
+  const known = ((group && group.filters) || []).map((f) => f && f.id).filter(Boolean);
+  if (!known.length) return x.id;
+  return ids.find((i) => known.includes(i)) || null;
 }
 // how many mods it has, as the trade site counts them: affixes, not lines (a hybrid affix has two
 // lines; the Barren Compass waystone's 8 mods have 9 lines and was searched as "9+ mods")
@@ -314,13 +497,15 @@ function buildMapPriceQuery(item, opts = {}) {
   const query = { status: { option: 'available' }, stats: [], filters: qf };
   const labels = [];
   let unmatched = [];
+  const noPseudo = []; // not searched: the trade site's stat list lacks its pseudo stat
   let need = 0; let total = 0;
   if (unique && item.name) { query.name = item.name; if (item.baseType && item.baseType !== item.name) query.type = item.baseType; }
   if (tablet) {
     const base = tabletBase(item);
     if (base && !unique) { query.type = base; labels.push(base); }
     const uses = (String(item.raw || '').match(/(\d+) uses? remaining/i) || [])[1];
-    if (uses) { query.stats.push({ type: 'and', filters: [{ id: 'pseudo.pseudo_number_of_uses_remaining', value: { min: Number(uses) }, disabled: false }] }); labels.push(`${uses} uses`); }
+    if (uses && pseudoMissing('pseudo.pseudo_number_of_uses_remaining', opts.statIndex)) noPseudo.push(`${uses} uses (not on the trade site's stat list)`);
+    else if (uses) { query.stats.push({ type: 'and', filters: [{ id: 'pseudo.pseudo_number_of_uses_remaining', value: { min: Number(uses) }, disabled: false }] }); labels.push(`${uses} uses`); }
     need = total = labels.length;
     // a tablet's mods are what it is: every one the trade site knows
     if (!unique) {
@@ -356,10 +541,13 @@ function buildMapPriceQuery(item, opts = {}) {
       // how many mods (an 8-mod corrupted waystone is another item than a 6-mod one): at least
       // as many as yours, one fewer in the looser steps
       const n = modCount(item);
-      if (n > 1) { query.stats.push({ type: 'and', filters: [{ id: 'pseudo.pseudo_number_of_affix_mods', value: { min: Math.max(1, n - L.count) }, disabled: false }] }); labels.push(`${n - L.count}+ mods`); }
+      if (n > 1 && pseudoMissing('pseudo.pseudo_number_of_affix_mods', opts.statIndex)) noPseudo.push(`${n} mods (not on the trade site's stat list)`);
+      else if (n > 1) { query.stats.push({ type: 'and', filters: [{ id: 'pseudo.pseudo_number_of_affix_mods', value: { min: Math.max(1, n - L.count) }, disabled: false }] }); labels.push(`${n - L.count}+ mods`); }
       if (L.props) {
         const pf = [];
-        for (const x of mapNumbers(item, game)) {
+        for (const x0 of mapNumbers(item, game)) {
+          const x = { ...x0, id: mapId(x0, opts) };
+          if (!x.id) { noPseudo.push(`${x.label} ${x.value}% (not on the trade site's ${/^pseudo\./.test(x0.id) ? 'stat' : 'filter'} list)`); continue; }
           const range = { min: Math.floor(x.value * L.lo) || 1 };
           if (L.hi) range.max = Math.ceil(x.value * L.hi);
           if (/^pseudo\./.test(x.id)) pf.push({ id: x.id, value: range, disabled: false }); else mfl[x.id] = range;
@@ -373,7 +561,8 @@ function buildMapPriceQuery(item, opts = {}) {
     // its mods are in its numbers; they're logged, not searched
     if (!unique) { const r = mapMods(item, opts.statIndex); unmatched = r.unmatched; }
   }
+  unmatched = noPseudo.concat(unmatched);
   return { body: { query, sort: { price: 'asc' } }, need, total, level: lv, levels: LV.length, levelLabel: L.label, labels, ...(unmatched.length ? { unmatched } : {}) };
 }
 
-module.exports = { buildPriceQuery, buildMapPriceQuery, mapStats, TABLET_LEVELS, priceStats, usesPriceQuery, usesMapPriceQuery, isTablet, LEVELS, MAP_LEVELS, ENOUGH, MIN, FILLER };
+module.exports = { buildPriceQuery, buildMapPriceQuery, mapStats, mapTier, isCluster, poe1FlaskBase, TABLET_LEVELS, priceStats, usesPriceQuery, usesMapPriceQuery, isTablet, LEVELS, MAP_LEVELS, ENOUGH, MIN, FILLER };

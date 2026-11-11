@@ -11,7 +11,7 @@ const ALLOWED = /^\/ninja\/(poe1|poe2)\/(leagues|exchange\/current\/overview|sta
 const ALL = /^\/ninja\/(poe1|poe2)\/exchange\/all$/;
 const EXCHANGE_TYPES = {
   poe2: ['Currency', 'Fragments', 'Abyss', 'UncutGems', 'LineageSupportGems', 'Essences', 'SoulCores', 'Idols', 'Runes', 'Ritual', 'Expedition', 'Delirium', 'Breach', 'Verisium'],
-  poe1: ['Currency', 'Fragment', 'Runegraft', 'AllflameEmber', 'Tattoo', 'Omen', 'DjinnCoin', 'Ducat', 'EnshroudingCrystal', 'DivinationCard', 'Artifact', 'Oil', 'DeliriumOrb', 'Scarab', 'Astrolabe', 'Fossil', 'Resonator', 'Essence'],
+  poe1: ['Currency', 'Fragment', 'Runegraft', 'AllflameEmber', 'Tattoo', 'Omen', 'DjinnCoin', 'Ducat', 'EnshroudingCrystal', 'DivinationCard', 'Artifact', 'Oil', 'DeliriumOrb', 'Scarab', 'Thread', 'SoulCore', 'Astrolabe', 'Fossil', 'Resonator', 'Essence'],
 };
 const QUERY = ['league', 'type'];
 // the lists the app reads (src/core/ninja.js): any other "type" would be one more poe.ninja call

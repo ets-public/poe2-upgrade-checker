@@ -10,6 +10,7 @@ const priceLib = require('../core/price');
 const priceQuery = require('../core/pricequery');
 const ninjaLib = require('../core/ninja');
 const comparables = require('../core/comparables');
+const priceSteps = require('../core/pricesteps');
 
 module.exports = function (C) {
   // ---------- price check ("What's it worth?") ----------
@@ -238,12 +239,12 @@ module.exports = function (C) {
     let r = null; let q = null;
     // you chose the stats in the popup: exactly those, at your minimums (with the same rarity,
     // corruption, links and influences as the item), one search
-    const chosen = Array.isArray(picks) ? picks.filter((p) => p && typeof p.key === 'string').slice(0, 20) : null;
+    const chosen = Array.isArray(picks) ? priceSteps.cleanPicks(picks, 20) : null;
     // rare and magic gear: the market search (pricequery.js); uniques and the rest: the like-for-like one
     // maps, waystones and tablets: their tier / kind and numbers (pricequery.js)
     const mapish = !chosen && priceQuery.usesMapPriceQuery(item);
     const market = !chosen && !mapish && priceQuery.usesPriceQuery(item);
-    const levels = chosen ? 1 : mapish ? (priceQuery.isTablet(item) ? priceQuery.TABLET_LEVELS : priceQuery.MAP_LEVELS).length : market ? priceQuery.LEVELS.length : 3;
+    const levels = chosen ? 1 : mapish ? (priceQuery.isTablet(item) ? priceQuery.TABLET_LEVELS : priceQuery.MAP_LEVELS).length : market ? priceQuery.LEVELS.length : /unique/i.test(item.rarity || '') ? trade.RELAX.length : 3; // a unique goes on to the last RELAX level: its name alone
     // the closest search with enough listings to judge wins. A market search goes on loosening until
     // there are ENOUGH (three asking prices from three days is too few to price on: the Eagle
     // Splinter jewel came out at 5 div from 2, 5 and 13 div); the looser matches that aren't like
@@ -254,6 +255,8 @@ module.exports = function (C) {
     // the item itself, so the same check can be run again from the log
     if (item.raw) C.log(`price item: ${String(item.raw).replace(/\r?\n/g, ' / ').slice(0, 1500)}`);
     const steps = [];
+    // each search that worked, so a later level that fails (or finds fewer) can't throw away a closer one's listings
+    const good = []; let failed = null;
     for (let level = 0; level < levels; level++) {
       q = mapish ? priceQuery.buildMapPriceQuery(item, { ...opts, level }) : market ? priceQuery.buildPriceQuery(item, { ...opts, level }) : trade.buildSimilarQuery(item, { ...opts, level });
       if (q.skip) { C.log(`price L${level}: skipped (${q.drivers ? 'no top-tier or special mods to search on alone, or the copy has no tiers' : 'nothing to search'})`); continue; }
@@ -265,15 +268,25 @@ module.exports = function (C) {
         q.levelLabel = 'the stats you chose'; q.need = chosen.length - c.unmatched.length; q.total = chosen.length;
         if (c.unmatched.length) q.unmatched = c.unmatched;
       }
+      // never search the whole market (a gem or currency item has nothing to match on here)
+      if (!priceSteps.searchable(q.body)) { if (!good.length) return { ok: false, error: "There's nothing on this item the trade site can be searched for, so it can't be priced there." }; break; }
       q.body.sort = { price: 'asc' };
       r = await C.runSearch(league, q.body, chosen ? 'price chosen' : `price L${level}`);
       logQuery(q, level, r && r.ok ? r.total : null, enough);
       steps.push({ level, total: r && r.ok ? r.total : null, labels: q.labels, query: q.body.query, drivers: q.drivers || undefined });
-      if (!r.ok || r.total == null || r.total >= enough) break;
-      if (r.near) break;
+      if (r.switched) return r;
+      if (!r.ok || r.total == null) { failed = r; break; }
+      good.push({ r, q, level, total: r.total });
+      if (r.total >= enough || r.near) break;
       // (no fixed pause before the next level: runSearch waits for a slot under the trade site's own
       // rate limit, keeping one search spare)
     }
+    const pick = priceSteps.pickStep(good, enough);
+    if (pick) {
+      if (failed) C.log(`price check: a looser search failed (${failed.error || 'no total'}), using L${pick.level} with ${pick.total} listings`);
+      r = pick.r; q = pick.q;
+    } else if (failed) r = failed;
+    else if (good.length) { const last = good[good.length - 1]; r = last.r; q = last.q; } // searched fine, nothing listed
     if (!r || !r.ok) return { ok: false, error: (r && r.error) || 'Search failed.' };
     // the search itself failed (only a pre-filled link came back): open that rather than saying "nothing listed"
     if (r.total == null) return { ok: true, mode: 'price', total: null, league, item: item.name, url: r.url, fallback: true, levelLabel: q.levelLabel }; // a button, never a browser by itself
@@ -285,14 +298,14 @@ module.exports = function (C) {
     if (!opts0.window) {
       // just the price: the first 40 listings read, nothing shown, nothing judged
       const rates = { ...(C.store.settings.currencyRates || {}), ...(C.store.settings.divineRate ? { divine: C.store.settings.divineRate } : {}) };
-      const raw = r.ids && r.ids.length ? await C.fetchListings(league, r.searchId, r.ids.slice(0, 40), C.tg()) : [];
+      const raw = r.ids && r.ids.length ? await C.fetchListings(league, r.searchId, r.ids.slice(0, 40), C.tg(), { partial: true }) : [];
       let listings = raw.map((x) => listingLib.summarise(x, item.itemClass, rates, C.G().base));
       const cmp = compareWith(item, opts, market, mapish, q.level || 0, !!q.drivers);
       let summary = priceSummary(listings, league, q.level || 0, cmp);
       // few of the cheapest 40 are like yours: the ones like it are often a little dearer, so 40 more
       // are read (one more round of the trade site's fetches) before judging
-      if (cmp && summary && summary.group && summary.group !== 'alike' && r.ids.length > 40 && C.sameGame()) {
-        const more = await C.fetchListings(league, r.searchId, r.ids.slice(40, 80), C.tg()).catch((err) => { C.log('price check: could not read more listings: ' + err.message); return []; });
+      if (cmp && summary && summary.group && summary.group !== 'alike' && r.ids.length > 40 && !raw.failed && C.sameGame()) {
+        const more = await C.fetchListings(league, r.searchId, r.ids.slice(40, 80), C.tg(), { partial: true }).catch((err) => { C.log('price check: could not read more listings: ' + err.message); return []; });
         if (more.length) {
           C.log(`price check: only ${summary.group === 'weaker' ? 'weaker' : 'a few'} listings like yours in the first 40: read ${more.length} more`);
           listings = listings.concat(more.map((x) => listingLib.summarise(x, item.itemClass, rates, C.G().base)));

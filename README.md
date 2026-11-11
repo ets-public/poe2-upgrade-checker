@@ -139,6 +139,7 @@ The app works for **Path of Exile 1** too. It knows which game you're in on ever
 - **The first F2 in PoE1** makes a PoE1 character. Paste your **Path of Building Community** export (or pobb.in link) on *My gear*: PoE1 items are judged by Path of Building only (the gear score is for PoE2 builds).
 - **Verdicts, Find upgrades and What's it worth?** work as in PoE2, on the PoE1 trade site, with prices in chaos and divines (poe.ninja's PoE1 rates).
 - **Links and flasks:** an item with fewer links than the gems you use in that slot is flagged, and flasks are tried in your flask slots.
+- **Price checks know PoE1's items:** cluster jewels are priced by size, passives, small passive bonus and notables, caster weapons by their mods (not their DPS), fractured mods as fractured, and tier 17 maps by their own map. Patch 3.30's Atlas Drops, Threads and Soul Cores are understood.
 - **Not judged yet:** cluster jewels and timeless jewels. *Craftable bases* is PoE2 only for now.
 - It's new: if something looks wrong, email support@poe2upgrade.com with the log (Tray → Open log).
 
