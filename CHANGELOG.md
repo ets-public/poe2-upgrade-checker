@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- **Website redesign (poe2upgrade.com):** a new home page. The top shows the F2 popup over a stash tab, the way it looks in game; the 28 features are sorted into six groups (Is it an upgrade?, Trade and prices, Maps and bosses, Loot filter, League start and leveling, Your characters and the app) with links to jump to each; the screenshots are in one gallery; the questions, Discord and Fair play each have their own section; and on a phone the menu links stay reachable in a row under the name. Nothing was removed.
+
 ## 0.5.5 - 2026-11-11
 - **Path of Exile 1, patch 3.30 (Covens of Umbra):** maps are read with the new *Atlas Drops* line (it replaced Item Quantity) and *More Threads* (Threads replaced Scarabs), in price checks, the map check and the search string builder. Threads and the new Soul Cores are looked up on poe.ninja, and the new *Item Tier* line on rare and magic items isn't taken for a mod. If the trade site files one of these under a new name, the app uses whichever name the site's own lists have, and leaves out a number the site doesn't have rather than sending a search the site would refuse.
 - **PoE1 price check: cluster jewels are priced as cluster jewels.** *What's it worth?* searched them as any rare jewel, so the price meant nothing. It now searches the same size, the same number of passives, the same small passive bonus and your notables (all of them first, then one fewer), and compares listings on those. Magic and plain cluster jewels are recognised too, and one without notables is searched by its item level bracket (84, 75, 68, 50).
