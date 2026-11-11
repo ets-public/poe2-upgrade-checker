@@ -152,7 +152,7 @@ function check(item, pob, marks = {}) {
   const usesLine = ((item && item.lines) || []).map((l) => String(l.text || '')).find((t) => USES.test(t));
   const life = monster.extraLife(mods);
   // what the map gives (its header lines): rarity, pack size, more rare monsters…
-  const REWARD = /^(Item Rarity|Item Quantity|Monster Pack Size|Pack Size|Rare Monsters|Magic Monsters|Waystone Drop Chance|Revives Available|Monster Effectiveness):\s*(.+?)(?:\s*\(augmented\))?$/i;
+  const REWARD = /^(Item Rarity|Item Quantity|Atlas Drops|Monster Pack Size|Pack Size|Rare Monsters|Magic Monsters|Waystone Drop Chance|Revives Available|Monster Effectiveness):\s*(.+?)(?:\s*\(augmented\))?$/i;
   const reward = ((item && item.lines) || []).map((l) => String(l.text || '').match(REWARD)).filter(Boolean).map((m) => `${m[1]} ${m[2]}`);
   // a tablet: what it adds ("Adds a Kalguuran Expedition to a Map") and, in a few words, what its mods are for
   let summary = null;

@@ -59,8 +59,11 @@ module.exports = function (C) {
     return run;
   }
   let loggedSample = false;
-  async function fetchListings(league, searchId, ids, game = C.tg()) {
+  // opts.partial: if a later chunk fails after some were read, return what was read (out.failed = how many
+  // ids were not read) instead of throwing it all away
+  async function fetchListings(league, searchId, ids, game = C.tg(), opts = {}) {
     const out = [];
+    let failed = 0;
     for (let i = 0; i < ids.length; i += 10) {
       const chunk = ids.slice(i, i + 10);
       let got = null; let lastErr = null;
@@ -71,10 +74,14 @@ module.exports = function (C) {
           try { got = await fn(league, searchId, chunk, game); break; } catch (err) { lastErr = err; C.log(`fetch via ${fn.name} failed: ${err.message || err}`); if (err.rateLimited) break; }
         }
       });
-      if (!got) throw lastErr || new Error('fetch failed');
+      if (!got) {
+        if (opts.partial && i > 0) { failed = ids.length - i; C.log(`fetch: stopped after ${i} of ${ids.length} listings: ${(lastErr && lastErr.message) || lastErr || 'failed'}`); break; }
+        throw lastErr || new Error('fetch failed');
+      }
       if (!loggedSample && got[0]) { loggedSample = true; C.log('fetch sample: ' + JSON.stringify({ item: got[0].item, price: got[0].listing && got[0].listing.price }).slice(0, 1500)); } // not the seller's account or character
       out.push(...got.filter(Boolean));
     }
+    Object.defineProperty(out, 'failed', { value: failed, enumerable: false, writable: true, configurable: true });
     return out;
   }
 
@@ -158,8 +165,8 @@ module.exports = function (C) {
   async function loadMoreListings(count, st = resultsState) {
     const ids = st.r.ids.slice(st.next, st.next + count);
     if (!ids.length) return;
-    const raw = await fetchListings(st.r.league, st.r.searchId, ids, st.r.game);
-    st.next += ids.length;
+    const raw = await fetchListings(st.r.league, st.r.searchId, ids, st.r.game, { partial: true });
+    st.next += ids.length - (raw.failed || 0); // the ones not read are fetched again by the next "Load more"
     if (st.r.game && st.r.game !== C.store.activeGame()) throw new Error('you changed game'); // never judged against the other game's character
     const rates = st.rates;
     for (const res of raw) {
@@ -169,7 +176,7 @@ module.exports = function (C) {
       st.listings.push(scoreListing(s));
     }
     // judge the new ones with Path of Building (one request for all of them)
-    await pobListings(st.listings.slice(-raw.length));
+    if (raw.length) await pobListings(st.listings.slice(-raw.length));
   }
 
   // Show the results window where you'll see it: a minimised one is restored (showInactive alone

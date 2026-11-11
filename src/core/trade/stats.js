@@ -57,6 +57,9 @@ function buildStatIndex(statsData) {
     for (const e of group.entries || []) {
       const type = e.type || group.id || '';
       const entry = { id: e.id, text: e.text, type, local: /\(local\)/i.test(e.text) };
+      // a stat whose value is one of a list (PoE1 cluster jewels: "Added Small Passive Skills grant: #"
+      // takes an option id, not a number): the list, for matching the item's text to an option
+      if (e.option && Array.isArray(e.option.options)) entry.options = e.option.options;
       all.push(entry);
       const k = norm(e.text);
       if (!index.has(k)) index.set(k, []);
@@ -124,7 +127,7 @@ function matchStat(key, statIndex, opts) {
     return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
   });
   const best = sorted[0];
-  return { kind: 'stat', id: best.id, text: best.text, type: best.type };
+  return { kind: 'stat', id: best.id, text: best.text, type: best.type, ...(best.options ? { options: best.options } : {}) };
 }
 
 // Which "(Local)" stats really are local depends on the item: on weapons the attack stats

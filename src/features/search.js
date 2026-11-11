@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const { app, BrowserWindow, ipcMain, net, shell } = require('electron');
 const trade = require('../core/trade');
+const priceSteps = require('../core/pricesteps');
 const ninjaLib = require('../core/ninja');
 
 module.exports = function (C) {
@@ -56,7 +57,11 @@ module.exports = function (C) {
           getJson(trade.apiUrl(game, 'data/filters')).catch(() => null),
           getJson(trade.apiUrl(game, 'data/leagues')).catch(() => null),
         ]);
-        tradeData = { stats, filters, leagues, fetchedAt: Date.now() };
+        // a failed or empty filters / leagues fetch must not replace good cached ones (no leagues = 'Standard' prices)
+        const m = priceSteps.mergeTradeData(tradeData, { stats, filters, leagues }, Date.now());
+        if (m.keptFilters) C.log('trade data: the filters did not load, keeping the earlier ones');
+        if (m.keptLeagues) C.log('trade data: the leagues did not load, keeping the earlier ones');
+        tradeData = m.data;
         try { fs.writeFileSync(cacheFile, JSON.stringify(tradeData)); } catch (_) { /* ignore */ }
       } catch (err) {
         // Offline or the site is down: keep using an older cache if we have one.
@@ -100,6 +105,7 @@ module.exports = function (C) {
   // ---------- poe.ninja prices (currency, gems, maps, divination cards, uniques...) ----------
   // ---------- map / waystone check ----------
   ipcMain.handle('trade:search', C.inGame(async (_e, req) => {
+    if (!req || typeof req !== 'object') return { ok: false, error: 'Bad search request.' };
     const item = C.resolveItem(req.target || req.slot);
     if (!item) return { ok: false, error: 'No item for that slot.' };
     let d;
@@ -107,15 +113,15 @@ module.exports = function (C) {
       return { ok: false, error: 'Could not load trade site data: ' + (err.message || err) };
     }
     const armourOrWeapon = ['Weapon', 'Offhand', 'Helmet', 'Body Armour', 'Gloves', 'Boots'].includes(item.slot);
-    const { body, unmatched, excluded } = trade.buildQuery(req.picks || [], {
+    const { body, unmatched, excluded } = trade.buildQuery(priceSteps.cleanPicks(req.picks), {
       itemClass: item.itemClass, baseType: item.baseType, matchBase: !!req.matchBase,
-      status: req.status || C.store.settings.status, statIndex: d.index, filtersData: d.filters,
+      status: trade.STATUSES.includes(req.status) ? req.status : C.store.settings.status, statIndex: d.index, filtersData: d.filters,
       ignoreRules: C.ignoreRules(),
       preferLocal: armourOrWeapon,
     });
     if (!C.sameGame()) return C.SWITCHED();
     if (req.league && leagueOk(d, req.league)) C.setGameSetting('league', req.league);
-    if (req.status) C.store.setSetting('status', req.status);
+    if (trade.STATUSES.includes(req.status)) C.store.setSetting('status', req.status);
     if (req.budget !== undefined) C.setGameSetting('budget', req.budget);
     await C.refreshDivineRate(false);
     const budget = C.budgetNow(req.budget !== undefined ? req.budget : C.store.settings.budget);
@@ -137,7 +143,7 @@ module.exports = function (C) {
     if (wanted && leagueOk(d, wanted)) return wanted;
     if (C.store.settings.league && leagueOk(d, C.store.settings.league)) return C.store.settings.league;
     // Usually the current challenge league comes first; skip hardcore/standard if possible.
-    return ids.find((id) => !/hardcore|standard|ssf|solo/i.test(id)) || ids[0] || 'Standard';
+    return ids.find((id) => !/hardcore|standard|ssf|solo|ruthless/i.test(id)) || ids[0] || 'Standard';
   }
 
   // Rate limits the trade site reports, e.g. "5:10:60,15:60:300" (hits:seconds:ban)

@@ -28,7 +28,7 @@ module.exports = function (C) {
   // which exchange lists to look in first, by item class (then all the others)
   const NINJA_FIRST = {
     poe2: [[/essence/i, 'Essences'], [/rune|talisman/i, 'Runes'], [/soul core/i, 'SoulCores'], [/omen/i, 'Ritual'], [/idol/i, 'Idols'], [/uncut|gem/i, 'UncutGems'], [/splinter|fragment|key|tablet/i, 'Fragments']],
-    poe1: [[/divination/i, 'DivinationCard'], [/essence/i, 'Essence'], [/fossil/i, 'Fossil'], [/resonator/i, 'Resonator'], [/oil/i, 'Oil'], [/scarab/i, 'Scarab'], [/omen/i, 'Omen'], [/tattoo/i, 'Tattoo'], [/fragment|splinter|key|emblem/i, 'Fragment']],
+    poe1: [[/divination/i, 'DivinationCard'], [/essence/i, 'Essence'], [/fossil/i, 'Fossil'], [/resonator/i, 'Resonator'], [/oil/i, 'Oil'], [/scarab/i, 'Scarab'], [/thread/i, 'Thread'], [/soul core/i, 'SoulCore'], [/omen/i, 'Omen'], [/tattoo/i, 'Tattoo'], [/fragment|splinter|key|emblem/i, 'Fragment']],
   };
   async function ninjaPrice(item) {
     const game = C.tg();

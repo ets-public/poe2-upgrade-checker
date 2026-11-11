@@ -21,7 +21,7 @@ const MUCH_LESS = 0.75; // "well under yours"
 function statMap(item, opts) {
   const { stats, equip } = pq.priceStats(item, opts);
   const m = new Map();
-  for (const s of stats) m.set(s.id, { value: s.value, label: s.label, driver: !!s.driver });
+  for (const s of stats) m.set(s.id, { value: s.value, label: s.label, driver: !!s.driver, ...(s.fewer ? { fewer: true } : {}) });
   for (const e of equip) m.set(`equip.${e.f}`, { value: e.value, label: { ar: 'Armour', ev: 'Evasion', es: 'Energy Shield', spirit: 'Spirit', pdps: 'Physical DPS', edps: 'Elemental DPS' }[e.f] || e.f });
   return m;
 }
@@ -32,17 +32,28 @@ function compare(ours, theirs, less = MUCH_LESS) {
   const extra = []; const missing = [];
   for (const [id, t] of theirs) {
     const o = ours.get(id);
+    // fewer is better (a cluster jewel's passive count: more small passives dilute its notables):
+    // a lower number is the better item, a higher one the lesser
+    if (o && o.fewer) { if (t.value < o.value) extra.push(`${t.label} ${round(t.value)} (yours ${round(o.value)})`); continue; }
     if (!o) extra.push(`${t.label} ${round(t.value)}`);
     else if (o.value > 0 && t.value >= o.value * MUCH_MORE) extra.push(`${t.label} ${round(t.value)} (yours ${round(o.value)})`);
   }
   for (const [id, o] of ours) {
     const t = theirs.get(id);
     if (!t) missing.push(o.label);
-    else if (t.value < o.value * less) missing.push(`${o.label} ${round(t.value)} (yours ${round(o.value)})`);
+    else if (o.fewer) { if (t.value > o.value) missing.push(`${o.label} ${round(t.value)} (yours ${round(o.value)})`); } else if (t.value < o.value * less) missing.push(`${o.label} ${round(t.value)} (yours ${round(o.value)})`);
   }
   return { extra, missing };
 }
 const round = (x) => (x >= 10 ? Math.round(x) : Math.round(x * 10) / 10);
+
+// PoE1 tier 17 maps (Fortress, Abomination, Citadel, Sanctuary, Ziggurat) sell very differently
+// by base, but the search goes by tier: a listing of another base is a different map
+const T17 = /\b(Fortress|Abomination|Citadel|Sanctuary|Ziggurat) Map\b/;
+function mapBase(item) {
+  const m = `${item.baseType || ''} ${item.name || ''}`.match(T17);
+  return m ? m[0] : item.baseType || null;
+}
 
 // listings: summarise() output ({ item, priceEx, ... }). Each gets .diff = { extra, missing }.
 // -> { listings (the group to price from), group: 'alike' | 'close' | 'all' (maps: 'alike' | 'better' | 'weaker'), alike, close, total }
@@ -55,6 +66,7 @@ function pick(item, listings, opts = {}, min = 3) {
   const stats = map ? pq.mapStats : statMap;
   const less = map ? 0.9 : MUCH_LESS;
   const ours = stats(item, opts);
+  const base17 = map && (pq.mapTier(item) || 0) >= 17 ? mapBase(item) : null;
   // a search on the mods that make it valuable: compared on those alone (a listing's other mods are
   // neither extra nor missing)
   if (opts.drivers && !map) for (const [id] of [...ours]) if (!(ours.get(id).driver)) ours.delete(id);
@@ -64,6 +76,7 @@ function pick(item, listings, opts = {}, min = 3) {
       const theirs = stats(x.item, opts);
       if (opts.drivers && !map) for (const id of [...theirs.keys()]) if (!ours.has(id)) theirs.delete(id);
       x.diff = compare(ours, theirs, less);
+      if (base17) { const b = mapBase(x.item); if (b && b !== base17) x.diff.missing.push(`different map (${b})`); }
     } catch (_) { x.diff = null; }
   }
   const sellers = (list) => new Set(list.filter((x) => x.priceEx > 0).map((x) => x.account || x.id)).size;

@@ -29,7 +29,7 @@ const SKIP_LINE = [
   /^Requirements:?$/i, /^Requires\b/i, /^Level:/i, /^Str:/i, /^Dex:/i, /^Int:/i,
   /^Item Level:/i, /^Sockets:/i, /^Quality\b/i, /^Corrupted$/i, /^Unidentified$/i,
   /^Mirrored$/i, /^Note:/i, /^Rarity:/i, /^Item Class:/i, /^Stack Size:/i,
-  /^Waystone Tier:/i, /^Unmodifiable$/i, /^Sanctified$/i, /^Twice Corrupted$/i,
+  /^Waystone Tier:/i, /^Item Tier:/i, /^Unmodifiable$/i, /^Sanctified$/i, /^Twice Corrupted$/i,
 ];
 
 // Base properties shown at the top of armour / weapon / shield items.
@@ -203,7 +203,13 @@ function readPoe1Extras(item, text, names) {
   }
   if (/flask/.test(cls)) item.flask = true;
   if (cls === 'abyss jewels') item.abyss = true;
-  const cm = String(item.baseType || '').match(/^(Small|Medium|Large) Cluster Jewel$/);
+  let cm = String(item.baseType || '').match(/^(Small|Medium|Large) Cluster Jewel$/);
+  // a magic cluster jewel has no base type line ("Blunt Large Cluster Jewel of Potency"): the base
+  // is in its name
+  if (!cm && cls === 'jewels') {
+    const n = String(names[0] || '').match(/\b(Small|Medium|Large) Cluster Jewel\b/);
+    if (n) { cm = n; item.baseType = `${n[1]} Cluster Jewel`; }
+  }
   if (cm) item.cluster = { size: cm[1].toLowerCase(), passives: null, jewelSockets: 0, smallGrants: [], notables: [] };
 }
 

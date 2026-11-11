@@ -16,7 +16,7 @@ module.exports = function (C) {
   const QUICK_TTL = 60 * 60 * 1000;
   const quickCache = new Map();
   let quickLast = null;
-  const quickKey = (item) => `${C.tg()}|${String(item.raw || '').replace(/\s+$/, '')}`;
+  const quickKey = (item) => `${C.tg()}|${C.store.settings.league || ''}|${String(item.raw || '').replace(/\s+$/, '')}`;
   async function showQuickPrice(item, force) {
     quickLast = item;
     const r = { ok: true, kind: 'quickprice', item: { name: item.name, baseType: item.baseType, itemClass: item.itemClass, rarity: item.rarity, id: item.id }, pending: true };
