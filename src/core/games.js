@@ -15,7 +15,7 @@ const GAMES = {
     base: 'exalted', baseShort: 'ex', budgetCurrencies: ['divine', 'exalted', 'chaos'],
   },
   poe1: {
-    id: 'poe1', name: 'Path of Exile 1', short: 'PoE1', supported: true, beta: true,
+    id: 'poe1', name: 'Path of Exile 1', short: 'PoE1', supported: true, beta: false,
     windowTitle: 'Path of Exile', steamAppId: 238960, pobRoot: 'PathOfBuilding', pobName: 'Path of Building Community',
     // /api/trade/search/<league>, results at /trade/search/<league>/<id>
     trade: { api: 'trade', page: 'trade', realm: null },

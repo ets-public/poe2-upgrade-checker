@@ -9,7 +9,7 @@
 
 <p align="center"><b><a href="https://poe2upgrade.com">poe2upgrade.com</a> · <a href="https://discord.gg/Vgu7XMuaBj">Discord</a></b></p>
 
-**PoE Upgrade Checker** is a small overlay that sits in your system tray while you play Path of Exile 2, or Path of Exile 1 (new in 0.5.1 and still marked beta, more [below](#path-of-exile-1-beta)). It answers two questions in game:
+**PoE Upgrade Checker** is a small overlay that sits in your system tray while you play Path of Exile 2, or Path of Exile 1 (since 0.5.1, more [below](#path-of-exile-1)). It answers two questions in game:
 
 | | |
 |---|---|
@@ -130,9 +130,9 @@ The **setup guide** opens on first run. You can reopen it from **My gear → Set
 
 **Characters:** the selector on My gear keeps separate gear, build and resistances for each character.
 
-## Path of Exile 1 (beta)
+## Path of Exile 1
 
-PoE1 support is part of the normal release since 0.5.1. It is still marked *beta* in the app while it gets more testing.
+PoE1 support is part of the normal release since 0.5.1, and is no longer marked beta.
 
 The app works for **Path of Exile 1** too. It knows which game you're in on every F2 (from the game window), and each game has its own characters, league, prices and saved searches, so you can play both without changing anything.
 
@@ -141,7 +141,7 @@ The app works for **Path of Exile 1** too. It knows which game you're in on ever
 - **Links and flasks:** an item with fewer links than the gems you use in that slot is flagged, and flasks are tried in your flask slots.
 - **Price checks know PoE1's items:** cluster jewels are priced by size, passives, small passive bonus and notables, caster weapons by their mods (not their DPS), fractured mods as fractured, and tier 17 maps by their own map. Patch 3.30's Atlas Drops, Threads and Soul Cores are understood.
 - **Not judged yet:** cluster jewels and timeless jewels. *Craftable bases* is PoE2 only for now.
-- It's new: if something looks wrong, email support@poe2upgrade.com with the log (Tray → Open log).
+- If something looks wrong, email support@poe2upgrade.com with the log (Tray → Open log).
 
 ## Character page
 
