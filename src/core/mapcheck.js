@@ -8,6 +8,7 @@
 //  - and you can mark any mod as dangerous / careful / fine yourself; the mark wins.
 
 const monster = require('./monstermods');
+const maps330 = require('./maps330');
 const isMap = (item) => !!item && /^(maps|waystones|tablets?|precursor tablets?)$/i.test(String(item.itemClass || '').trim());
 const isTablet = (item) => !!item && /tablet/i.test(String(item.itemClass || ''));
 
@@ -33,13 +34,15 @@ const CATS = [
   ['content', /^Adds |Breach|Expedition|Ritual|Delirium|Abyss|Essence|Shrine|Strongbox|Azmeri|Wisps?|Rogue Exiles?|Runic Monster|Tormented|Mist|Remnants?|Excavat|Explosives?|Monoliths?|Vaal Beacon|Summoning Circle|Irradiat|Tower|counts as an? \w+ Map/i],
 ];
 function category(text) {
+  if (maps330.rareOnlyNote(text)) return 'rareonly'; // 3.30: only on rare maps, what the map sells on
+  if (/^Players in Area are \d+% Delirious/i.test(text)) return 'content'; // 3.30: a Delirium Orb's mod
   const p = monster.parse(text);
   if (p) return p.kind === 'tough' ? 'tough' : 'danger';
   for (const [k, re] of CATS) if (re.test(text)) return k;
   return 'other';
 }
-const CAT_ORDER = ['you', 'danger', 'tough', 'monsters', 'boss', 'loot', 'content', 'other'];
-const CAT_LABEL = { you: 'Acting on you', danger: 'Monsters hit harder', tough: 'Tougher monsters', monsters: 'More monsters', boss: 'Map boss', loot: 'More loot', content: 'League content', other: 'Other' };
+const CAT_ORDER = ['you', 'danger', 'tough', 'monsters', 'boss', 'rareonly', 'loot', 'content', 'other'];
+const CAT_LABEL = { you: 'Acting on you', danger: 'Monsters hit harder', tough: 'Tougher monsters', monsters: 'More monsters', boss: 'Map boss', rareonly: 'Rare-only (worth more)', loot: 'More loot', content: 'League content', other: 'Other' };
 
 const n = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
 const pct = (a, b) => (a > 0 && b != null ? ((b - a) / a) * 100 : null);
@@ -145,6 +148,10 @@ function check(item, pob, marks = {}) {
     let note = eff ? eff.text : rule ? rule.text : null;
     const mp = monster.parse(text);
     if (mp && mp.life && !note) note = `monsters take about ${Math.round(mp.life)}% longer to kill`;
+    const ro = maps330.rareOnlyNote(text);
+    if (ro) note = `rare-only mod: the map has ${ro}. Rare maps with it sell for more, so price check it before you run it`;
+    const dm = text.match(/^Players in Area are (\d+)% Delirious/i);
+    if (dm && !note) { const d = maps330.delirium(item); note = d ? `${d.extra} more ${d.type ? `${d.type} ` : ''}reward${d.extra === 1 ? '' : 's'} from the Delirium mist (one for every 20%)` : 'Delirium mist: one more reward for every 20%'; }
     return { text, key, mark, level, cat, calculated: !!(res && res.after), note, error: res && res.error ? res.error : null };
   });
   // in groups, in a fixed order (the mods' own order inside each)
@@ -154,6 +161,8 @@ function check(item, pob, marks = {}) {
   // what the map gives (its header lines): rarity, pack size, more rare monsters…
   const REWARD = /^(Item Rarity|Item Quantity|Atlas Drops|Monster Pack Size|Pack Size|Rare Monsters|Magic Monsters|Waystone Drop Chance|Revives Available|Monster Effectiveness):\s*(.+?)(?:\s*\(augmented\))?$/i;
   const reward = ((item && item.lines) || []).map((l) => String(l.text || '').match(REWARD)).filter(Boolean).map((m) => `${m[1]} ${m[2]}`);
+  const dl = maps330.delirium(item);
+  if (dl) reward.push(`${dl.pct}% Delirious${dl.type ? `: +${dl.extra} ${dl.type} reward${dl.extra === 1 ? '' : 's'}` : ''}`);
   // a tablet: what it adds ("Adds a Kalguuran Expedition to a Map") and, in a few words, what its mods are for
   let summary = null;
   if (isTablet(item)) {
@@ -167,8 +176,15 @@ function check(item, pob, marks = {}) {
   return {
     rows, groups, all: allEff, verdict: worst === 'danger' ? 'danger' : worst === 'warn' ? 'warn' : 'ok',
     calculated: rows.filter((r) => r.calculated).length,
-    reward, summary, tablet: isTablet(item), uses: usesLine ? Number(usesLine.match(USES)[1]) : null, extraLife: life || 0,
+    reward, summary, tablet: isTablet(item), rareOnly: rows.filter((r) => r.cat === 'rareonly').length, delirium: dl,
+    twiceCorrupted: !!(item && item.twiceCorrupted), modCount: mapModCount(item), uses: usesLine ? Number(usesLine.match(USES)[1]) : null, extraLife: life || 0,
   };
+}
+
+// how many mods a map has (3.30: up to 9 once corrupted), from the advanced copy's headers, or null
+function mapModCount(item) {
+  const a = item && item.affixes;
+  return a && a.known ? a.prefixes + a.suffixes + (a.rareOnly || 0) : null;
 }
 
 // clicking a mod cycles your mark: none -> dangerous -> careful -> fine -> none

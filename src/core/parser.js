@@ -265,7 +265,7 @@ function parseItem(raw) {
 
   // Advanced copy ({ Prefix Modifier ... } headers) tells us how many affixes
   // are used, so we can say how many are still open for crafting.
-  let prefixes = 0; let suffixes = 0; let sawHeaders = false;
+  let prefixes = 0; let suffixes = 0; let rareOnly = 0; let sawHeaders = false;
 
   const legacies = []; // Mageblood: "Legacy of Bismuth" lines
 
@@ -277,18 +277,19 @@ function parseItem(raw) {
   blocks.slice(1).forEach((block, bi) => {
     if (bi + 1 === flavour) {
       // flavour text: keep only the lines that matter (Corrupted etc.)
-      if (block.some((l) => /^Corrupted$/i.test(l))) item.corrupted = true;
+      if (block.some((l) => /^(?:Twice )?Corrupted$/i.test(l))) item.corrupted = true;
+      if (block.some((l) => /^Twice Corrupted$/i.test(l))) item.twiceCorrupted = true;
       if (block.some((l) => /^Unidentified$/i.test(l))) item.unidentified = true;
       return;
     }
     // in advanced text the header line says what kind of mod follows; the line itself has no tag
     let headerTag = null;
-    let headerTier = null; let headerAffix = null; let lineRoll = null;
+    let headerTier = null; let headerAffix = null; let lineRoll = null; let headerRareOnly = false;
     // advanced copy: every mod line under a { ... (Tier: N) } header gets its tier, and its roll (how high
     // in its range it rolled, 0-100%) from "+89(80-99)"
     const push0 = item.lines.push;
     item.lines.push = function (...xs) {
-      for (const x of xs) if (x && x.tag !== 'info') { if (headerTier != null) { x.tier = headerTier; if (headerAffix) x.affix = headerAffix; } if (lineRoll != null) x.roll = lineRoll; }
+      for (const x of xs) if (x && x.tag !== 'info') { if (headerTier != null) { x.tier = headerTier; if (headerAffix) x.affix = headerAffix; } if (headerRareOnly) x.rareOnly = true; if (lineRoll != null) x.roll = lineRoll; }
       return push0.apply(this, xs);
     };
     let inReminder = false;
@@ -314,6 +315,10 @@ function parseItem(raw) {
         sawHeaders = true;
         if (/Prefix Modifier/i.test(line)) prefixes++;
         else if (/Suffix Modifier/i.test(line)) suffixes++;
+        // 3.30: "{ Rare-only ... }" mods only roll on rare maps (Area contains a Mirage...). They
+        // count as a mod (a corrupted map can have 9) but aren't a prefix or a suffix
+        headerRareOnly = /^\{\s*Rare-only\b/i.test(line);
+        if (headerRareOnly && !/(Prefix|Suffix) Modifier/i.test(line)) rareOnly++;
         const eld = line.match(/(Searing Exarch|Eater of Worlds) Implicit Modifier(?: \((\w+)\))?/i);
         if (eld && item.eldritch) {
           const which = /exarch/i.test(eld[1]) ? 'exarch' : 'eater';
@@ -341,6 +346,10 @@ function parseItem(raw) {
       if ((m = clean.match(/^Requires:?\s*Level\s*(\d+)/i))) { item.requiredLevel = Number(m[1]); return; }
       if ((m = clean.match(/^Limited to:\s*(\d+)/i))) { item.limitedTo = Number(m[1]); return; }
       if (/^Corrupted$/i.test(clean)) { item.corrupted = true; return; }
+      // 3.30: the Altar of Corruption, Lapidary Lens and Djinn-Touched Vaal Orbs corrupt a second
+      // time. The game prints "Twice Corrupted" instead of "Corrupted", never both, and a twice
+      // corrupted item is corrupted too (it can't be changed, and searches must say so)
+      if (/^Twice Corrupted$/i.test(clean)) { item.corrupted = true; item.twiceCorrupted = true; return; }
       if (/^Unidentified$/i.test(clean)) { item.unidentified = true; return; }
       if (SKIP_LINE.some((r) => r.test(clean))) return;
       // PoE1 section lines (read in readPoe1Extras) are never mods
@@ -418,7 +427,7 @@ function parseItem(raw) {
   if (sawHeaders && (rar === 'rare' || rar === 'magic')) {
     const max = rar === 'rare' ? (item.slot === 'Jewel' ? 2 : 3) : 1; // rare jewels: 2 prefixes, 2 suffixes
     item.affixes = {
-      known: true, prefixes, suffixes,
+      known: true, prefixes, suffixes, ...(rareOnly ? { rareOnly } : {}),
       openPrefix: item.corrupted ? 0 : Math.max(0, max - prefixes),
       openSuffix: item.corrupted ? 0 : Math.max(0, max - suffixes),
     };

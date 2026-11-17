@@ -115,6 +115,8 @@ const FLAGS = {
   ],
   poe1: [
     { id: 'corrupted', label: 'Corrupted', rx: 'corrupted' },
+    // 3.30: the Altar of Corruption and Lapidary Lens corrupt a map a second time
+    { id: 'twice', label: 'Twice corrupted', rx: 'twice corrupted' },
     { id: 'delirious', label: 'Delirious', rx: 'delirious' },
     { id: 'unid', label: 'Unidentified', rx: 'unidentified' },
     { id: 'originator', label: 'Originator (8 mods)', rx: 'originator' },
