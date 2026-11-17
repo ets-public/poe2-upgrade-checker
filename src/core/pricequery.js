@@ -16,6 +16,7 @@
 //   - looser in steps until there are enough listings to judge
 
 const trade = require('./trade');
+const maps330 = require('./maps330');
 const { expand } = require('./parser');
 
 // three steps, each a search: how close the values must be, how many stats may be missing, and how
@@ -67,6 +68,22 @@ const FILLER = new RegExp([
 // (boots without movement speed, or an amulet without its +skill levels, are different items)
 const KEY = /Movement Speed|Level of all .*Skills|Level of all .*Gems|\bSpirit\b|Physical DPS|Elemental DPS|Allies in your Presence deal/i;
 
+// corrupted or not, and (3.30) twice corrupted: a twice corrupted item is its own market (an
+// Altar of Corruption or Lapidary Lens outcome on top of the first corruption). The filter is
+// sent only when the trade site's own filter list has one for it (under whatever name the site
+// gives it), so a site without it gets the plain corrupted filter, as before.
+const TWICE_IDS = ['twice_corrupted', 'double_corrupted', 'doubly_corrupted', 'corrupted_twice'];
+function twiceCorruptedId(filtersData) {
+  const misc = ((filtersData && filtersData.result) || []).find((g) => g && g.id === 'misc_filters');
+  const ids = ((misc && misc.filters) || []).map((f) => f && f.id).filter(Boolean);
+  return TWICE_IDS.find((i) => ids.includes(i)) || null;
+}
+function corruptionFilters(item, opts = {}) {
+  const f = { corrupted: { option: item.corrupted ? 'true' : 'false' } };
+  const id = item.corrupted ? twiceCorruptedId(opts.filtersData) : null;
+  if (id) f[id] = { option: item.twiceCorrupted ? 'true' : 'false' };
+  return f;
+}
 const isUnique = (item) => /unique/i.test(item.rarity || '');
 
 // The pseudo stat ids here are the trade site's own; if it ever drops or renames one, a search that
@@ -176,7 +193,7 @@ function clusterQueryAt(item, opts, lv) {
   if (cat) qf.type_filters.filters.category = { option: cat };
   const rar = String(item.rarity || '').toLowerCase();
   if (['rare', 'magic', 'normal'].includes(rar)) qf.type_filters.filters.rarity = { option: rar };
-  qf.misc_filters = { filters: { corrupted: { option: item.corrupted ? 'true' : 'false' } } };
+  qf.misc_filters = { filters: corruptionFilters(item, opts) };
   const labels = [p.base];
   if (p.passives) labels.push(`${p.passives.value} passives`);
   if (p.grant) labels.push(p.grant.label);
@@ -333,7 +350,7 @@ function buildPriceQuery(item, opts = {}) {
     for (const e of equip) { eq[e.f] = { min: Math.floor(e.value * Math.max(L.lo, 0.85)) }; if (L.hi) eq[e.f].max = Math.ceil(e.value * L.hi); }
     qf.equipment_filters = { filters: eq };
   }
-  qf.misc_filters = { filters: { corrupted: { option: item.corrupted ? 'true' : 'false' } } };
+  qf.misc_filters = { filters: corruptionFilters(item, opts) };
   if (opts.game === 'poe1') {
     if (item.links >= 5) qf.socket_filters = { filters: { links: { min: item.links } } };
     for (const inf of item.influences || []) {
@@ -392,7 +409,10 @@ const MAP_PROPS = {
   poe2: [[/^Item Rarity:\s*\+?(\d+)%/i, 'map_iir'], [/^(?:Monster )?Pack Size:\s*\+?(\d+)%/i, 'map_packsize'], [/^Waystone Drop Chance:\s*\+?(\d+)%/i, 'map_bonus'],
     [/^Monster Rarity:\s*\+?(\d+)%/i, 'map_rare_monsters'], [/^Monster Effectiveness:\s*\+?(\d+)%/i, 'map_magic_monsters'],
     [/^(?:Waystone )?Gold(?: Found)?:\s*\+?(\d+)%/i, 'map_gold'], [/^(?:Waystone )?Experience(?: Gained)?:\s*\+?(\d+)%/i, 'map_experience']],
-  poe1: [[/^(?:Item Quantity|Atlas Drops):\s*\+?(\d+)%/i, 'map_iiq', ['map_atlas_drops']], [/^Item Rarity:\s*\+?(\d+)%/i, 'map_iir'], [/^Monster Pack Size:\s*\+?(\d+)%/i, 'map_packsize']],
+  // 3.30: Atlas Drops replaced Item Quantity on maps, and the trade site files it under map_bonus
+  // (the filter PoE2 uses for Waystone Drop Chance), not under the old quantity filter. A map from
+  // before 3.30 still says Item Quantity
+  poe1: [[/^Item Quantity:\s*\+?(\d+)%/i, 'map_iiq'], [/^Atlas Drops:\s*\+?(\d+)%/i, 'map_bonus', ['map_atlas_drops', 'map_iiq']], [/^Item Rarity:\s*\+?(\d+)%/i, 'map_iir'], [/^Monster Pack Size:\s*\+?(\d+)%/i, 'map_packsize']],
 };
 // PoE1 map numbers the trade site has as stats rather than map filters: an Originator map's "More
 // Scarabs: +40%", and the kind of map quality ("Quality (Currency): +20%").
@@ -469,7 +489,7 @@ function mapId(x, opts) {
 // lines; the Barren Compass waystone's 8 mods have 9 lines and was searched as "9+ mods")
 function modCount(item) {
   if (item.affixCount != null) return item.affixCount; // a listing: from the trade site
-  if (item.affixes && item.affixes.known) return item.affixes.prefixes + item.affixes.suffixes; // copied with Ctrl+Alt+C
+  if (item.affixes && item.affixes.known) return item.affixes.prefixes + item.affixes.suffixes + (item.affixes.rareOnly || 0); // copied with Ctrl+Alt+C
   return (item.lines || []).filter((l) => l.tag === 'explicit' && (l.key || l.kw) && !/uses? remaining/i.test(l.key || l.kw || '')).length;
 }
 // for comparables.js: what a waystone or map is priced on, the same way for yours and each listing
@@ -490,7 +510,7 @@ function buildMapPriceQuery(item, opts = {}) {
   const game = opts.game === 'poe1' ? 'poe1' : 'poe2';
   const rar = String(item.rarity || '').toLowerCase();
   const unique = rar === 'unique';
-  const qf = { type_filters: { filters: {} }, misc_filters: { filters: { corrupted: { option: item.corrupted ? 'true' : 'false' } } }, trade_filters: { filters: { indexed: { option: L.indexed } } } };
+  const qf = { type_filters: { filters: {} }, misc_filters: { filters: corruptionFilters(item, opts) }, trade_filters: { filters: { indexed: { option: L.indexed } } } };
   const cat = tablet ? 'map.tablet' : game === 'poe2' ? 'map.waystone' : 'map';
   qf.type_filters.filters.category = { option: cat };
   if (['rare', 'magic', 'normal'].includes(rar)) qf.type_filters.filters.rarity = { option: rar };
@@ -556,6 +576,18 @@ function buildMapPriceQuery(item, opts = {}) {
         if (pf.length) query.stats.push({ type: 'and', filters: pf });
       }
     }
+    // 3.30: a map's rare-only mods (Area contains a Mirage...) are what it sells on: each one is
+    // searched, at every step
+    if (game === 'poe1' && !unique) {
+      const ro = [];
+      for (const r of maps330.rareOnlyMods(item)) {
+        const m = trade.matchStat(r.text, opts.statIndex, { type: 'explicit' }) || trade.matchStat(r.text, opts.statIndex, {});
+        if (!m || m.kind !== 'stat') { noPseudo.push(`${r.text} (not on the trade site's stat list)`); continue; }
+        if (ro.some((f) => f.id === m.id)) continue;
+        ro.push({ id: m.id, disabled: false }); labels.push(r.text);
+      }
+      if (ro.length) query.stats.push({ type: 'and', filters: ro });
+    }
     if (Object.keys(mfl).length) qf.map_filters = { filters: mfl };
     need = total = labels.length;
     // its mods are in its numbers; they're logged, not searched
@@ -565,4 +597,4 @@ function buildMapPriceQuery(item, opts = {}) {
   return { body: { query, sort: { price: 'asc' } }, need, total, level: lv, levels: LV.length, levelLabel: L.label, labels, ...(unmatched.length ? { unmatched } : {}) };
 }
 
-module.exports = { buildPriceQuery, buildMapPriceQuery, mapStats, mapTier, isCluster, poe1FlaskBase, TABLET_LEVELS, priceStats, usesPriceQuery, usesMapPriceQuery, isTablet, LEVELS, MAP_LEVELS, ENOUGH, MIN, FILLER };
+module.exports = { corruptionFilters, buildPriceQuery, buildMapPriceQuery, mapStats, mapTier, isCluster, poe1FlaskBase, TABLET_LEVELS, priceStats, usesPriceQuery, usesMapPriceQuery, isTablet, LEVELS, MAP_LEVELS, ENOUGH, MIN, FILLER };

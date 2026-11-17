@@ -490,9 +490,14 @@ Monsters are Hexproof`);
   assert.ok(!all(q).some((f) => /scarab|thread/.test(f.id)));
   assert.ok(q.unmatched.some((x) => /Atlas Drops 80% \(not on the trade site's filter list\)/.test(x)) && q.unmatched.some((x) => /More Threads/.test(x)), JSON.stringify(q.unmatched));
   assert.strictEqual(q.need, q.labels.length);
-  // no filter list loaded: the usual id
+  // the site has the 3.30 filter (map_bonus, as Awakened PoE Trade sends it) and the old one: Atlas
+  // Drops goes under map_bonus, never under the old quantity filter
+  q = run(['pseudo.pseudo_number_of_affix_mods', 'pseudo.pseudo_map_more_scarab_drops'], ['map_tier', 'map_iiq', 'map_bonus', 'map_iir']);
+  assert.ok(mapFilters(q).includes('map_bonus') && !mapFilters(q).includes('map_iiq'), mapFilters(q).join());
+  assert.deepStrictEqual(q.body.query.filters.map_filters.filters.map_bonus, { min: 72, max: 120 });
+  // no filter list loaded: the 3.30 id
   q = run(['pseudo.pseudo_number_of_affix_mods', 'pseudo.pseudo_map_more_scarab_drops'], null);
-  assert.ok(mapFilters(q).includes('map_iiq'));
+  assert.ok(mapFilters(q).includes('map_bonus'));
 });
 
 test('PoE1 3.30: Threads and Soul Cores are looked up on poe.ninja, and an Item Tier line is not a mod', () => {

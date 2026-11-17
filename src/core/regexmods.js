@@ -160,6 +160,18 @@ const MAP_MODS = {
       'Area is inhabited by Solaris fanatics',
       'Area is inhabited by Cultists of Kitava',
     ],
+    // 3.30: suffixes that only roll on rare maps, what a rare map sells on (tick them under Want)
+    'Rare-only (3.30)': [
+      'Area contains a Mirage',
+      'Area contains the Viridian Wildwood',
+      'Area contains a Mirror of Delirium',
+      'Area contains a buried Pandemonium Sentinel',
+      'Area contains a buried Apex Sentinel',
+      'Area contains a buried Stalker Sentinel',
+      'Area contains an Evocator of Beidat',
+      "Area contains an Evocator of K'Tash",
+      'Area contains an Evocator of Ghorr',
+    ],
   },
 };
 
