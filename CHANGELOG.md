@@ -1,6 +1,11 @@
 # Changelog
 
 ## Unreleased
+- **A polish pass on the overlay windows and the website:**
+  - **Trade results:** *Open on trade site* and *Save search* sit together on their own row, under the sort and filters. A price check leads with the typical price in large type, then the spread and how many sellers it came from. No listings at all now says so plainly and points you to the trade site to loosen the search.
+  - **Search string builder:** the waystone properties line up in columns, the search boxes use the window's width so their hints aren't cut off, and the empty string box says what goes in it.
+  - **Loot filter editor:** *Folder* and *Change folder* moved to the foot of the item list, so the top bar fits on one line. The colour pickers are labelled next to their swatches, the alert sounds line up under each other, and the list says *Pick a filter at the top* until you have.
+  - **Website:** the Discord and Ko-fi sections are one band with two cards side by side (stacked on phones).
 - **Support the project on Ko-fi.** Everything stays free, with nothing locked. If you'd like to help, *Support on Ko-fi* in Settings → Startup & updates opens [ko-fi.com/akwhitesoftware](https://ko-fi.com/akwhitesoftware) in your browser. The website has it too.
 - **Bug and security fixes** from a check of the whole app:
   - **Hotkeys can't clash with each other.** Setting the loot filter editor, search string builder, search strings, results or route overlay key to one of the app's other keys used to say *already used by another program*, sending you looking for the wrong culprit. It now names the app's own key (*Ctrl+Shift+F is already the app's Loot filter editor key*). The same key written another way (*Shift+Ctrl+X* and *Ctrl+Shift+X*) counts as the same key.
