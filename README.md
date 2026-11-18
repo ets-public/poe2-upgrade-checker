@@ -7,7 +7,7 @@
   <img alt="Free" src="https://img.shields.io/badge/price-free-7a6545?labelColor=0a0c10&style=for-the-badge">
 </p>
 
-<p align="center"><b><a href="https://poe2upgrade.com">poe2upgrade.com</a> · <a href="https://discord.gg/Vgu7XMuaBj">Discord</a></b></p>
+<p align="center"><b><a href="https://poe2upgrade.com">poe2upgrade.com</a> · <a href="https://discord.gg/Vgu7XMuaBj">Discord</a> · <a href="https://ko-fi.com/akwhitesoftware">Ko-fi</a></b></p>
 
 **PoE Upgrade Checker** is a small overlay that sits in your system tray while you play Path of Exile 2, or Path of Exile 1 (since 0.5.1, more [below](#path-of-exile-1)). It answers two questions in game:
 
@@ -254,6 +254,8 @@ Searches show their listings in a **results window** (always on top) instead of 
 Join the **[PoE Upgrade Checker Discord](https://discord.gg/Vgu7XMuaBj)** for news of new versions, help with setup, and to talk about bugs and ideas with other players. In the app: tray menu → *Join our Discord*, or the link in the main window's sidebar.
 
 Most setup questions are answered in the [setup guide](https://poe2upgrade.com/setup/). Questions, bugs or ideas: ask on Discord, email **[support@poe2upgrade.com](mailto:support@poe2upgrade.com)** or [open an issue](https://github.com/ets-public/poe2-upgrade-checker/issues). If F2 or a verdict looks wrong, attach the log (Tray → Open log) and, for a verdict, your pobb.in link.
+
+PoE Upgrade Checker is free and every feature stays free. If it helps you and you'd like to give something back, you can **[support it on Ko-fi](https://ko-fi.com/akwhitesoftware)** (also in the app: Settings → Startup & updates → *Support on Ko-fi*).
 
 ## Hotkey & troubleshooting
 

@@ -159,3 +159,5 @@ function renderSlots() {
 
 // Discord community (sidebar and Settings → Startup & updates): opens poe2upgrade.com/discord in the browser
 document.querySelectorAll('[data-discord]').forEach((b) => b.addEventListener('click', () => window.api.openUrl('https://poe2upgrade.com/discord')));
+// Support the project (Settings → Startup & updates): opens the Ko-fi page in the browser
+document.querySelectorAll('[data-kofi]').forEach((b) => b.addEventListener('click', () => window.api.openUrl('https://ko-fi.com/akwhitesoftware')));
