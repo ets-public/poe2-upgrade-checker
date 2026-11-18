@@ -36,7 +36,8 @@
   function renderMap() {
     const m = S.map; const what = D.game === 'poe1' ? 'map' : 'waystone';
     const num = (id, v, label, ph) => `<input type="number" min="0" max="999" class="rxb-num" data-${id}="${esc(label)}" value="${v == null ? '' : esc(v)}" placeholder="${ph}" aria-label="${esc(label)}">`;
-    const props = D.props.map((p) => `<label class="rxb-prop"><span>${esc(p.label)}</span>${num('min', m.mins[p.id], p.id, 'min')}${p.id === 'tier' ? num('max', m.maxs[p.id], p.id, 'max') : ''}${p.unit ? '<span class="dim">%</span>' : ''}</label>`).join('');
+    // label | inputs | unit, in fixed columns so every row lines up (the tier has a min and a max)
+    const props = D.props.map((p) => `<label class="rxb-prop"><span>${esc(p.label)}</span><span class="rxb-in">${num('min', m.mins[p.id], p.id, 'min')}${p.id === 'tier' ? `<span class="dim">to</span>${num('max', m.maxs[p.id], p.id, 'max')}` : ''}</span><span class="dim">${p.unit ? '%' : ''}</span></label>`).join('');
     const flag = (f) => {
       const v = m.flags[f.id] || '';
       const b = (val, t) => `<button data-flag="${f.id}" data-v="${val}" aria-pressed="${v === val}">${t}</button>`;
@@ -61,9 +62,9 @@
       <h3>Must be / must not be</h3>
       <div class="rxb-flags">${D.flags.map(flag).join('')}</div>
       <h3>Mods <span class="dim small">${m.avoid.length} to avoid, ${m.want.length} wanted</span></h3>
-      <div class="row wrap"><input type="search" id="rxModQ" placeholder="Search mods…" value="${esc(m.q || '')}" aria-label="Search mods">
+      <div class="row wrap"><input type="search" class="grow" id="rxModQ" placeholder="Search mods…" value="${esc(m.q || '')}" aria-label="Search mods">
         <label class="small"><input type="checkbox" id="rxWantAll" ${m.wantAll ? 'checked' : ''}> Wanted mods: all of them (otherwise any)</label></div>
-      <div class="row wrap"><input id="rxOwnMod" placeholder="A mod that isn't listed (as the game writes it)" aria-label="Your own mod">
+      <div class="row wrap"><input id="rxOwnMod" class="grow" placeholder="A mod that isn't listed (as the game writes it)" aria-label="Your own mod">
         <button id="rxOwnAvoid">Avoid</button><button id="rxOwnWant">Want</button></div>
       ${custom.length ? `<h4>Your own</h4><ul class="rxb-mods">${custom.map((t) => `<li class="${has(m.avoid, t) ? 'avoid' : 'want'}"><span class="rxb-mod">${esc(t)}</span><button data-drop="${esc(t)}">Remove</button></li>`).join('')}</ul>` : ''}
       <div class="rxb-groups">${groups || '<div class="dim">No mod matches that search.</div>'}</div>

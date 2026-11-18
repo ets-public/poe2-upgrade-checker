@@ -115,3 +115,14 @@ button.link.spend-pick.b { font-weight: 700; color: var(--stone); }
 .char-tags .main-pick { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--dim); }
 .char-tags .main-pick select { max-width: 340px; font-size: 13px; padding: 2px 6px; }
 #mainSkillMsg { align-self: center; }
+
+/* results window: actions on their own row, a price banner that leads with the price, a calm empty state */
+.res-head .toolbar { margin-bottom: 6px; }
+.res-head .res-actions { margin-bottom: 0; }
+.price-banner { padding: 10px 14px; }
+.pb-main { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.pb-label { color: var(--bronze-text); font-family: var(--f-carved); }
+.pb-price { font-size: 22px; color: var(--bone); }
+.pb-spread { margin: 2px 0 4px; }
+.res-empty { grid-column: 1 / -1; padding: 40px 16px; text-align: center; color: var(--ash); }
+.res-empty b { color: var(--stone); }

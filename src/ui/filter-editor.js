@@ -88,6 +88,7 @@
     const pool = tier ? tier.items.map((i) => i.baseType) : d.items;
     const items = q ? pool.filter((x) => x.toLowerCase().includes(q)) : pool;
     $('#lfItems').innerHTML = items.slice(0, 600).map((x) => { const e = edited.get(x.toLowerCase()); return `<li role="option" tabindex="0" data-item="${esc(x)}" class="${e ? (e.auto ? 'auto' : 'edited') : ''}" aria-selected="${st.item && st.item.baseType === x}">${esc(x)}</li>`; }).join('');
+    $('#lfItems').dataset.empty = q ? 'No item in this filter matches that search.' : 'This filter names no items.';
     $('#lfCount').textContent = `${tier ? `${tier.label}: ` : ''}${items.length} item${items.length === 1 ? '' : 's'}${items.length > 600 ? ' (first 600 shown: search to narrow)' : ''} · ${d.edits.length} edit${d.edits.length === 1 ? '' : 's'}${d.autoTiers ? ` (${d.autoTiers} by price)` : ''}`;
   }
 
@@ -136,9 +137,9 @@
       <h4>Give it a tier's look</h4>
       <div class="lfe-tiers" id="lfTiers">${tiers.map((t, k) => `<button class="lfe-tier" data-tier="${k}" title="${esc(t.label)}">${esc(t.label)}</button>`).join('')}</div>
       <h4>Or your own</h4>
-      <div class="lfe-row"><span class="k">Text</span><input type="color" id="cText" value="${hex(s.SetTextColor, '#c8c8c8')}"><span class="k">Background</span><input type="color" id="cBg" value="${hex(s.SetBackgroundColor, '#000000')}"><span class="k">Border</span><input type="color" id="cBorder" value="${hex(s.SetBorderColor, '#000000')}"> <button class="link" id="noBorder">no border</button></div>
+      <div class="lfe-row"><span class="k">Colours</span><label class="lfe-col">Text <input type="color" id="cText" value="${hex(s.SetTextColor, '#c8c8c8')}"></label><label class="lfe-col">Background <input type="color" id="cBg" value="${hex(s.SetBackgroundColor, '#000000')}"></label><label class="lfe-col">Border <input type="color" id="cBorder" value="${hex(s.SetBorderColor, '#000000')}"></label><button class="link" id="noBorder">no border</button></div>
       <div class="lfe-row"><span class="k">Label size</span><input type="range" id="cSize" min="18" max="45" value="${Number((s.SetFontSize || [])[0]) || 32}"><span id="cSizeV" class="dim small">${Number((s.SetFontSize || [])[0]) || 32}</span></div>
-      <div class="lfe-row lfe-sounds"><span class="k">Alert sound</span>${['None', ...Array.from({ length: 16 }, (_, k) => String(k + 1))].map((n) => `<button data-sound="${n}" aria-pressed="${(s.PlayAlertSound ? String(s.PlayAlertSound[0]) : 'None') === n}">${n}</button>`).join('')}</div>
+      <div class="lfe-row lfe-sounds"><span class="k">Alert sound</span><div class="lfe-swatch">${['None', ...Array.from({ length: 16 }, (_, k) => String(k + 1))].map((n) => `<button data-sound="${n}" aria-pressed="${(s.PlayAlertSound ? String(s.PlayAlertSound[0]) : 'None') === n}">${n}</button>`).join('')}</div></div>
       <div class="lfe-row"><span class="k">Beam</span><div class="lfe-swatch" id="cBeam"><button data-beam="" title="No beam" aria-pressed="${!s.PlayEffect}">×</button>${BEAMS.map((b) => `<button data-beam="${b}" title="${b}" aria-pressed="${s.PlayEffect && s.PlayEffect[0] === b}"></button>`).join('')}</div></div>
       <div class="lfe-row"><span class="k">Minimap icon</span><select id="cIconSize"><option value="">none</option><option value="0">large</option><option value="1">medium</option><option value="2">small</option></select>
         <select id="cIconColour">${BEAMS.map((b) => `<option>${b}</option>`).join('')}</select><select id="cIconShape">${SHAPES.map((b) => `<option>${b}</option>`).join('')}</select></div>

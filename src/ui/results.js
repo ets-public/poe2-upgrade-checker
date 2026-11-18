@@ -146,11 +146,12 @@ function render() {
   if (data.priceSummary) {
     $('#priceBanner').classList.remove('hidden');
     const ps = data.priceSummary;
+    // the typical price first and big, then the spread, then where it came from
     $('#priceBanner').innerHTML = (ps.typical
-      ? `Typical <b>${esc(ps.typical)}</b>${window.confHtml ? window.confHtml(ps.confidence) : ''}${ps.range ? ` · most <b>${esc(ps.range)}</b>` : ''} · cheapest <b>${esc(ps.cheapest)}</b>${ps.sell ? ` · list at <b>${esc(ps.sell.text)}</b> <button class="link" id="copyPriceNote" data-note="${esc(ps.sell.note)}">Copy price note</button>` : ''}`
-      : `<b>${esc(ps.verdict || 'No price')}</b>`)
-      + ` <span class="dim">(each seller's cheapest: ${ps.sellers} seller${ps.sellers === 1 ? '' : 's'} in ${ps.total} listings loaded)</span>`
-      + (ps.notes && ps.notes.length ? `<div class="dim small">${esc(ps.notes.join(' · '))}</div>` : '');
+      ? `<div class="pb-main"><span class="pb-label">Typical</span> <b class="pb-price">${esc(ps.typical)}</b>${window.confHtml ? window.confHtml(ps.confidence) : ''}${ps.sell ? `<span class="grow"></span><span>List at <b>${esc(ps.sell.text)}</b></span> <button class="link" id="copyPriceNote" data-note="${esc(ps.sell.note)}">Copy price note</button>` : ''}</div>
+        <div class="pb-spread">${ps.range ? `Most <b>${esc(ps.range)}</b> · ` : ''}cheapest <b>${esc(ps.cheapest)}</b></div>`
+      : `<div class="pb-main"><b class="pb-price">${esc(ps.verdict || 'No price')}</b></div>`)
+      + `<div class="dim small">Each seller's cheapest: ${ps.sellers} seller${ps.sellers === 1 ? '' : 's'} in ${ps.total} listings loaded${ps.notes && ps.notes.length ? ` · ${esc(ps.notes.join(' · '))}` : ''}</div>`;
     const cpn = $('#copyPriceNote');
     if (cpn) cpn.addEventListener('click', () => { window.api.copyText(cpn.dataset.note); cpn.textContent = 'Copied'; });
   } else $('#priceBanner').classList.add('hidden');
@@ -161,7 +162,7 @@ function render() {
   pickBest(list);
   // a failed search or fetch must not leave the previous search's listings on screen
   $('#list').innerHTML = data.error ? `<div class="note">${esc(data.error)}</div>`
-    : list.map(card).join('') || `<div class="note">${!all.length && data.total ? 'The listings couldn\'t be loaded. Use Open on trade site to see them in your browser.' : !all.length ? 'Nothing listed.' : `None of the ${all.length} loaded listings ${$('#onlyUp').checked ? 'is an upgrade' : 'is left'}. Untick ${[$('#onlyUp').checked && '<b>Upgrades only</b>', $('#noCorrupt').checked && '<b>Hide corrupted</b>'].filter(Boolean).join(' or ')}${data.more ? ', or load more' : ''}.`}</div>`;
+    : list.map(card).join('') || `<div class="res-empty">${!all.length && data.total ? 'The listings couldn\'t be loaded. Use Open on trade site to see them in your browser.' : !all.length ? `Nobody has this listed${data.league ? ` in ${esc(data.league)}` : ''} right now. <b>Open on trade site</b> to loosen the search there.` : `None of the ${all.length} loaded listings ${$('#onlyUp').checked ? 'is an upgrade' : 'is left'}. Untick ${[$('#onlyUp').checked && '<b>Upgrades only</b>', $('#noCorrupt').checked && '<b>Hide corrupted</b>'].filter(Boolean).join(' or ')}${data.more ? ', or load more' : ''}.`}</div>`;
   $('#more').classList.toggle('hidden', !data.more || !!data.error);
   $('#site').disabled = !data.url;
   $('#save').classList.toggle('hidden', !!data.error);

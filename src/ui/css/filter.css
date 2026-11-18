@@ -38,3 +38,10 @@ body.lfe { margin: 0; height: 100vh; display: flex; flex-direction: column; back
 #lfResetAll.armed { border-color: var(--down); color: var(--down); }
 .lfe-head { position: relative; padding-right: 40px; }
 .lfe-head .x { top: 8px; right: 8px; }
+.lfe-foot { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; font-size: 13px; }
+.lfe-col { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--ash); margin-right: 10px; }
+.lfe-sounds .lfe-swatch { flex: 1; min-width: 0; }
+.lfe-sounds .lfe-swatch button { width: auto; height: 26px; min-width: 30px; padding: 2px 6px; font-size: 12px; }
+#lfItems:empty::before { content: attr(data-empty); display: block; padding: 8px 4px; color: var(--ash); font-size: 13px; }
+.lfe-row.lfe-sounds { align-items: flex-start; }
+.lfe-row.lfe-sounds > .k { padding-top: 5px; }

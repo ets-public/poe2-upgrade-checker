@@ -214,9 +214,12 @@ dialog.zoom img { max-width: 100%; max-height: 100%; width: auto; height: auto; 
 .faq-side p { color: var(--label); font-size: 17px; }
 
 /* Discord */
-.community { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px 48px; padding-top: 56px; padding-bottom: 56px; }
-.community h2 { margin-bottom: 8px; }
-.community p { margin: 0; max-width: 640px; }
+/* Discord and Ko-fi side by side: one band, two equal cards, the button at the foot of each */
+.community { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; padding-top: 64px; padding-bottom: 64px; }
+.cta-card { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 28px 32px; }
+.cta-card h2 { margin: 0; font-size: clamp(24px, 2.4vw, 30px); }
+.cta-card p { margin: 0 0 8px; flex: 1; }
+@media (max-width: 900px) { .community { grid-template-columns: minmax(0, 1fr); } .cta-card .btn { align-self: stretch; text-align: center; } }
 
 /* fair play */
 .fair-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
