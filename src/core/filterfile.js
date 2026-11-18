@@ -203,7 +203,9 @@ function withoutEdits(text) {
   const after = s.indexOf('\n', k);
   return (s.slice(0, i) + (after < 0 ? '' : s.slice(after + 1))).replace(/^\n+/, '');
 }
-const qv = (v) => (/^-?\d+$/.test(v) || /^[A-Z][a-z]+$/.test(v) && !/\s/.test(v) ? v : `"${String(v).replace(/"/g, '')}"`);
+// a value in a filter line. Quotes and line breaks are taken out: a name from outside data (poe.ninja)
+// with a line break in it would otherwise write lines of its own into the filter
+const qv = (v) => (/^-?\d+$/.test(v) || /^[A-Z][a-z]+$/.test(v) && !/\s/.test(v) ? v : `"${String(v).replace(/["\r\n]/g, '')}"`);
 function styleLines(style) {
   const out = [];
   for (const [k, vals] of Object.entries(style || {})) {
@@ -236,7 +238,8 @@ function apply(text, edits) {
 }
 // one edit in the list: added, replaced (same base type) or taken out (edit null)
 function setEdit(edits, baseType, edit) {
-  const rest = (edits || []).filter((e) => e.baseType.toLowerCase() !== String(baseType).toLowerCase());
+  baseType = String(baseType).replace(/[\r\n"]/g, '').trim();
+  const rest = (edits || []).filter((e) => e && e.baseType && e.baseType.toLowerCase() !== String(baseType).toLowerCase());
   return edit ? [{ ...edit, baseType }, ...rest] : rest;
 }
 

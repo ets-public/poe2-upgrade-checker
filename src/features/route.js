@@ -341,6 +341,7 @@ module.exports = function (C) {
     const want = opts().hotkey;
     hotkeyOk = true;
     if (!want) return true;
+    if (C.keyClash(want, 'route')) { hotkeyOk = false; C.log(`route: overlay hotkey ${want} is already another of the app's keys`); trace('hotkey-failed', { hotkey: want }); return false; }
     try { hotkeyOk = globalShortcut.register(want, () => setOverlay(!(overlay && !overlay.isDestroyed()), 'hotkey')); } catch (_) { hotkeyOk = false; }
     if (hotkeyOk) hotkeyNow = want; else { C.log(`route: overlay hotkey ${want} could not be registered (another app has it?)`); trace('hotkey-failed', { hotkey: want }); }
     return hotkeyOk;
@@ -463,5 +464,5 @@ module.exports = function (C) {
   // the switch to read the log for the app's character went on or off
   function logNeedChanged() { if (readsLog()) startFollowing(); else stopFollowing(); push(); }
 
-  return { start, view, reset, logNeedChanged, push, DEFAULT_OVERLAY_HOTKEY };
+  return { start, view, reset, logNeedChanged, push, DEFAULT_OVERLAY_HOTKEY, activeHotkey: () => hotkeyNow };
 };

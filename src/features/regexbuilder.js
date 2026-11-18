@@ -106,6 +106,8 @@ module.exports = function (C) {
     if (hk) { try { globalShortcut.unregister(hk); } catch (_) { /* ignore */ } hk = null; }
     const want = C.store.settings.regexHotkey || '';
     if (!want) return { ok: true, accelerator: null };
+    const clash = C.keyClash(want, 'regex');
+    if (clash) { C.log(`search string builder hotkey ${want}: already used by another of the app's keys`); return { ok: false, error: clash }; }
     let ok = false;
     try { ok = globalShortcut.register(want, toggleWindow); } catch (_) { ok = false; }
     if (ok) hk = want;

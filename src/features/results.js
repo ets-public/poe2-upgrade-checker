@@ -260,6 +260,7 @@ module.exports = function (C) {
     const want = C.store.settings.resultsHotkey || 'Ctrl+Shift+D';
     if (C.sameKey(want, C.hotkeyStatus.accelerator || C.store.settings.hotkey || C.DEFAULT_HOTKEY)) { C.log(`results hotkey ${want}: same as the copy hotkey, not registered`); if (resultsHotkey) { try { globalShortcut.unregister(resultsHotkey); } catch (_) { /* ignore */ } } resultsHotkey = null; return; }
     if (resultsHotkey) { try { globalShortcut.unregister(resultsHotkey); } catch (_) { /* ignore */ } resultsHotkey = null; }
+    { const clash = C.keyClash && C.keyClash(want, 'results'); if (clash) { C.log(`results hotkey ${want}: already used by another of the app's keys`); return; } }
     try { if (globalShortcut.register(want, toggleResults)) resultsHotkey = want; } catch (_) { /* ignore */ }
     C.log(`results hotkey ${want}: ${resultsHotkey ? 'registered' : 'FAILED'}`);
   }

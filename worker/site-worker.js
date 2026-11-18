@@ -168,11 +168,21 @@ function chart(days, stacks, line, marks) {
 }
 const legend = (items) => `<div class="lg">${items.map((x) => `<span><i style="background:${x.color}"></i>${esc(x.label)}</span>`).join('')}</div>`;
 
+// the stats key, compared in constant time (both hashed to the same length first, so neither the
+// length nor the first wrong character shows in how long the answer takes)
+async function sameSecret(a, b) {
+  const enc = new TextEncoder();
+  const [x, y] = await Promise.all([a, b].map((t) => crypto.subtle.digest('SHA-256', enc.encode(t))));
+  if (crypto.subtle.timingSafeEqual) return crypto.subtle.timingSafeEqual(x, y);
+  const u = new Uint8Array(x); const v = new Uint8Array(y); let d = 0;
+  for (let i = 0; i < u.length; i++) d |= u[i] ^ v[i];
+  return d === 0;
+}
 async function stats(url, env, ctx) {
   if (!env.STATS) return new Response('Statistics are not set up.', { status: 503 });
   const row = await env.STATS.prepare("SELECT v FROM config WHERE k = 'stats_key'").first();
   const key = url.searchParams.get('key') || '';
-  if (!row || !key || key !== row.v) return new Response('Not found', { status: 404 });
+  if (!row || !key || !await sameSecret(key, String(row.v))) return new Response('Not found', { status: 404 });
   const DB = env.STATS;
   const all = async (sql, ...b) => ((await DB.prepare(sql).bind(...b).all()).results || []);
   const one = async (sql, ...b) => (await DB.prepare(sql).bind(...b).first()) || {};
@@ -291,7 +301,7 @@ ${adopt.length ? `<table><tr><th>Day</th><th>On ${esc(newest.tag)}</th></tr>${ad
 ${Object.keys(stuckBy).length ? `<p class="n">Seen in the last 3 days on an older version (auto-update off, or not working for them): ${Object.entries(stuckBy).map(([v, n]) => `${esc(v)} × ${esc(n)}`).join(', ')}.</p>` : ''}
 <h3>Versions (last 7 days, each install at its latest)</h3><table><tr><th>Version</th><th>Installs</th></tr>${rows(versions, ['version', 'n'])}</table>
 <h3>Systems (last 7 days)</h3><table><tr><th>System</th><th>Installs</th></tr>${rows(platforms, ['platform', 'n'])}</table></main></body></html>`;
-  return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
+  return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex', 'Referrer-Policy': 'no-referrer' } });
 }
 
 // ---------- /discord: the community server's invite (one place to change it) ----------

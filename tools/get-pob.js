@@ -42,7 +42,7 @@ const DEST = TARGETS[0].dest; // the host and LuaJIT live with PoE2's copy
 const LUAJIT_REPO = 'https://github.com/LuaJIT/LuaJIT.git';
 const LUAJIT_COMMIT = '95f931cb1ee7ab14f249d61fb3734803429025f8'; // v2.1 branch, tested with PoB 0.23.1
 const LUAUTF8_REPO = 'https://github.com/starwing/luautf8.git';
-const LUAUTF8_TAG = '0.1.6';
+const LUAUTF8_COMMIT = '1bb70d45208d4033dcc75efee968be70534dd3ab'; // tag 0.1.6 (a commit: a tag can be moved)
 const run = (cmd, args, opts = {}) => execFileSync(cmd, args, { stdio: 'inherit', ...opts });
 
 function fetchPob(t) {
@@ -94,7 +94,7 @@ function buildLinuxRuntime() {
   if (process.platform !== 'linux') return;
   const out = path.join(DEST, 'runtime', 'linux');
   const stamp = path.join(out, '.version');
-  const want = `${LUAJIT_COMMIT} ${LUAUTF8_TAG}`;
+  const want = `${LUAJIT_COMMIT} ${LUAUTF8_COMMIT}`;
   if (fs.existsSync(stamp) && fs.readFileSync(stamp, 'utf8').trim() === want && fs.existsSync(path.join(out, 'luajit'))) { console.log('LuaJIT for Linux is up to date.'); return; }
   for (const tool of ['git', 'gcc', 'make']) {
     try { execFileSync(tool, ['--version'], { stdio: 'ignore' }); } catch (_) { console.error(`${tool} is needed to build the Path of Building engine on Linux (e.g. sudo apt install build-essential git).`); process.exit(1); }
@@ -110,7 +110,9 @@ function buildLinuxRuntime() {
   // static, no shared libluajit: one file that runs on any x64 Linux of the same age or newer
   run('make', ['-C', lj, '-j4', 'BUILDMODE=static'], { stdio: ['ignore', 'ignore', 'inherit'] });
   const lu = path.join(tmp, 'luautf8');
-  run('git', ['clone', '--quiet', '--depth', '1', '--branch', LUAUTF8_TAG, LUAUTF8_REPO, lu]);
+  run('git', ['init', '--quiet', lu]);
+  run('git', ['-C', lu, 'fetch', '--quiet', '--depth', '1', LUAUTF8_REPO, LUAUTF8_COMMIT]);
+  run('git', ['-C', lu, 'checkout', '--quiet', 'FETCH_HEAD']);
   fs.mkdirSync(out, { recursive: true });
   run('gcc', ['-O2', '-shared', '-fPIC', '-I', path.join(lj, 'src'), path.join(lu, 'lutf8lib.c'), '-o', path.join(out, 'lua-utf8.so')]);
   fs.copyFileSync(path.join(lj, 'src', 'luajit'), path.join(out, 'luajit'));

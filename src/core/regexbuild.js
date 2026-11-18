@@ -204,7 +204,8 @@ function buildMap(spec, knownMods) {
     const hasMin = min !== undefined && min !== null && min !== '' && Number(min) > 0;
     const hasMax = max !== undefined && max !== null && max !== '';
     if (hasMin) propAlts.push(p.frag + atLeast(min));
-    if (hasMax) groups.push({ any: [p.frag + atMost(max, p.unit || '$')] });
+    const most = hasMax ? atMost(max, p.unit || '$') : null; // null: not a number (-1, abc), so no limit
+    if (most) groups.push({ any: [p.frag + most] });
   }
   if (propAlts.length) {
     if (s.anyProp) groups.push({ any: propAlts });

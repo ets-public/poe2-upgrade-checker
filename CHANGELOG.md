@@ -1,6 +1,13 @@
 # Changelog
 
 ## Unreleased
+- **Bug and security fixes** from a check of the whole app:
+  - **Hotkeys can't clash with each other.** Setting the loot filter editor, search string builder, search strings, results or route overlay key to one of the app's other keys used to say *already used by another program*, sending you looking for the wrong culprit. It now names the app's own key (*Ctrl+Shift+F is already the app's Loot filter editor key*). The same key written another way (*Shift+Ctrl+X* and *Ctrl+Shift+X*) counts as the same key.
+  - **A line break in an item name can't break your loot filter.** A name with a line break in it (from poe.ninja, for *Tiers by today's prices*) could write extra lines into the filter file. Names are now kept on one line.
+  - **Search string builder:** a maximum that isn't a number (*-1*, *abc*) is ignored instead of making a broken *tier: null* search.
+  - **A shared backup can't point the app at someone else's folders.** *Restore from backup* keeps this PC's loot filter folder and Client.txt paths, and backups no longer include them. Pages of the app can now only change the settings they have a switch for; folders, hotkeys and the like go through their own checks.
+  - The usage statistics page key is checked in constant time, and the Linux build's lua-utf8 module is pinned to an exact commit.
+- **Up to date build tools:** Electron 45 (from 44, with the latest Chromium security fixes), and Node.js 26 LTS for the release builds on GitHub. electron-builder, electron-updater, wrangler and the GitHub Actions were already the latest. `npm audit` finds no known vulnerabilities.
 - **A tidier main window.** A pass over every page for things that got in the way:
   - **Characters are managed next to the character picker.** *New character*, *Rename*, *Start again* and *Delete* moved from the top of My gear into a *Manage* menu above the picker in the sidebar, where they work from any page. *Delete* only shows when you have more than one character. My gear's header keeps just *Setup guide*.
   - **Hotkeys: Save shows when there's something to save.** Settings had a Save button on every hotkey row, all the time. Now Save appears once you've pressed a new key, and *Turn off* only shows on a key that's set. The *Active: F2* note under a working hotkey is gone (the box already shows it); a hotkey that didn't register still says why.
