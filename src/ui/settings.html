@@ -14,9 +14,23 @@
 <body class="app">
   <aside class="side">
     <div class="brand"><img src="../../assets/icon.png" alt=""><span>PoE Upgrade<br>Checker</span></div>
-    <label class="side-char"><span>Character</span><select id="profileSel"></select></label>
+    <div class="side-char">
+      <div class="side-char-head">
+        <label for="profileSel">Character</label>
+        <details class="char-menu" id="charMenu">
+          <summary title="New character, rename, start again or delete">Manage</summary>
+          <div class="char-menu-list">
+            <button id="profileNew" title="A separate set of gear, build, weights and ignored stats">New character…</button>
+            <button id="profileRename">Rename…</button>
+            <button id="profileReset" title="Clear this character's gear, build, weights, ignored stats, resistances and League start progress">Start again…</button>
+            <button id="profileDelete" class="danger">Delete…</button>
+          </div>
+        </details>
+      </div>
+      <select id="profileSel"></select>
+    </div>
     <nav class="tabs side-nav" aria-label="Pages">
-      <button data-tab="gear" class="active"><i data-icon="sword"></i>My gear</button>
+      <button data-tab="gear" class="active" aria-current="page"><i data-icon="sword"></i>My gear</button>
       <button data-tab="char"><i data-icon="user"></i>Character</button>
       <button data-tab="find"><i data-icon="search"></i>Find upgrades</button>
       <button data-tab="spend"><i data-icon="coins"></i>Where to spend</button>
@@ -37,10 +51,6 @@
       <header class="page-head">
         <div><h2>My gear</h2><div class="sub"><span class="p2">What you're wearing, scored for your build (<button class="link gs-help">what's the gear score?</button>).</span><span class="p1">What you're wearing. Items are judged by Path of Building with your build (<button class="link gs-help">how?</button>).</span> Click a slot's <b>Find upgrades</b> to search for something better.</div></div>
         <div class="page-actions">
-          <button id="profileNew" title="A separate set of gear, build, weights and ignored stats">+ New character</button>
-          <button id="profileReset" title="Clear this character's gear, build, weights, ignored stats, resistances and League start progress">Start again</button>
-          <button id="profileRename">Rename</button>
-          <button id="profileDelete">Delete</button>
           <button id="wizardBtn">Setup guide</button>
         </div>
       </header>
@@ -121,7 +131,7 @@
         <div><h2>Where to spend</h2><div class="sub">Every slot searched within your price range and checked with your build: which upgrade gives you the most for your divines. If resistances are short, pairs of items that cap them together.</div></div>
         <div class="page-actions"><button class="primary" id="spendRun">Find where to spend</button></div>
       </header>
-      <div id="spendBody"><div class="card-p dim">Press <b>Find where to spend</b>. It runs one trade search per slot, so it takes a few minutes (the trade site allows only a few searches a minute). Your price range is the one on Find upgrades.</div></div>
+      <div id="spendBody"><div class="card-p"><h3>Nothing searched yet</h3><div class="help">Press <b>Find where to spend</b>. It runs one trade search per slot within your price range and checks every listing with your build. That takes a few minutes, because the trade site allows only a few searches a minute.</div><div class="row"><button class="link" data-goto="find">Set your price range on Find upgrades</button></div></div></div>
     </section>
 
     <section class="tab" id="tab-route">
@@ -168,7 +178,7 @@
           <span class="help" id="rateStatus"></span>
         </div>
         <div class="fb-row fb-sub">
-          <label title="Leveling: every upgrade search (Find upgrades, Where to spend, alerts) only finds items you can wear at this level"><input type="checkbox" id="levelOn"> Leveling: only items I can wear at level</label>
+          <label title="Levelling: every upgrade search (Find upgrades, Where to spend, alerts) only finds items you can wear at this level"><input type="checkbox" id="levelOn"> Levelling: only items I can wear at level</label>
           <input type="number" id="levelCap" class="num" min="1" max="100" step="1" aria-label="Character level">
           <button id="levelFromPob" class="link hidden" title="Use the level of your Path of Building character">use my character's level</button>
           <label title="Every upgrade search (Find upgrades, Where to spend, alerts) leaves out corrupted items"><input type="checkbox" id="noCorrupted"> Skip corrupted items</label>
@@ -310,13 +320,13 @@
         </div>
         <div class="card-p sold-card">
           <h3>What sold</h3>
-          <label class="small"><input type="checkbox" id="soldOn"> Search my price checks again a few hours later to see what sold</label>
+          <div class="row"><label><input type="checkbox" id="soldOn"> Search my price checks again a few hours later to see what sold</label></div>
           <div class="help">After a trade site price check, the app searches the same thing again about 3 hours later (when you haven't searched for a minute, inside the trade site's limit) and compares. Only instant buyout listings count, because they stay up while their seller is offline: a gone one was bought, or taken down. Checking the item again shows it.</div>
           <div id="soldList"></div>
         </div>
         <div class="card-p sold-card">
           <h3>For sale</h3>
-          <div class="help">Items you copied a price note for (<i>Copy price note</i> after a price check). <b>Check</b> searches the trade site again: is your listing still up, and is it still the cheapest like it, or is it gone (sold, or taken down)?</div>
+          <div class="help">Items you copied a price note for (<b>Copy price note</b> after a price check). <b>Check</b> searches the trade site again: is your listing still up, and is it still the cheapest like it, or is it gone (sold, or taken down)?</div>
           <div id="forSaleList"></div>
         </div></div>
         <div class="col"><div id="testResult"></div></div>

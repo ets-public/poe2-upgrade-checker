@@ -37,7 +37,7 @@ async function renderAccount() {
   accountAt = Date.now();
   const st = await window.api.accountStatus();
   $('#signStatus').textContent = st.signedIn ? 'Signed in.' : 'Not signed in.';
-  $('#signOut').disabled = !st.signedIn;
+  $('#signOut').classList.toggle('hidden', !st.signedIn);
 }
 $('#signIn').addEventListener('click', async () => { $('#signStatus').textContent = 'Sign in in the window that opened…'; await window.api.signIn(); renderAccount(); });
 $('#signOut').addEventListener('click', async () => { await window.api.signOut(); renderAccount(); });

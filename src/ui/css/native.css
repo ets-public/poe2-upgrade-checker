@@ -100,3 +100,22 @@ body.cb { --up: #8fc8f2; --down: #ff9f40; }
 /* item names in their rarity colour, as in game */
 b.rar-rare { color: var(--rare); } b.rar-unique { color: #c87a3c; } b.rar-magic { color: var(--magic); } b.rar-normal { color: #c8c8c8; }
 .listing .name { font-size: 19px; }
+
+/* character menu in the sidebar: New, Rename, Start again, Delete live with the picker they act on */
+.side-char-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.side-char-head label { color: inherit; }
+.char-menu { position: relative; }
+.char-menu > summary { list-style: none; cursor: pointer; font: 400 13px var(--f-text); color: var(--ash); padding: 0 2px; }
+.char-menu > summary::-webkit-details-marker { display: none; }
+.char-menu > summary::after { content: " ▾"; }
+.char-menu > summary:hover, .char-menu[open] > summary { color: var(--gold-hi); }
+.char-menu > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.char-menu-list { position: absolute; right: 0; top: calc(100% + 4px); z-index: 30; min-width: 172px; display: flex; flex-direction: column; padding: 4px; background: var(--abyss); border: 1px solid var(--iron-hi); box-shadow: 0 8px 24px rgba(0, 0, 0, .5); }
+.char-menu-list button { text-align: left; border: 0; background: none; padding: 8px 10px; font: 400 14px var(--f-text); color: var(--stone); }
+.char-menu-list button:hover:not(:disabled) { background: var(--iron); color: var(--bone); border: 0; }
+.char-menu-list button.danger { color: var(--down); }
+.char-menu-list button.danger:hover:not(:disabled) { color: var(--bone); }
+
+/* tables: short headers and slot names stay on one line */
+table.list th, table.rows th, #slots td:first-child { white-space: nowrap; }
+

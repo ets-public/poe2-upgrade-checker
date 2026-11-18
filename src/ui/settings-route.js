@@ -97,7 +97,7 @@
     return `<div class="route-link">
       <label class="small"><input type="checkbox" id="routeAuto" ${v.autoSwitch ? 'checked' : ''}> <b>Switch this app's character by itself</b> to the one playing</label>
       <div class="help">Link each character here to its name in the game. The app switches when the log names it (a level up or a quest reward), when the route's character enters a zone of the route, or (with just one other linked) when someone else turns up in a map. This reads the same log file, even with Follow my zones off.</div>
-      ${v.autoSwitch || mine.some((c) => c.gameChar) ? `${opts}${rows}${mine.length < 2 ? '<div class="small dim">You have one character for this game: make one for each of yours with <b>+ New character</b> on My gear.</div>' : ''}${!seen.length ? '<div class="small dim">No names from the log yet: type them, or level up or finish a quest with each.</div>' : ''}` : ''}
+      ${v.autoSwitch || mine.some((c) => c.gameChar) ? `${opts}${rows}${mine.length < 2 ? '<div class="small dim">You have one character for this game: make one for each of yours with <b>Manage → New character</b> in the sidebar.</div>' : ''}${!seen.length ? '<div class="small dim">No names from the log yet: type them, or level up or finish a quest with each.</div>' : ''}` : ''}
     </div>`;
   }
 

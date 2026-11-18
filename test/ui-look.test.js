@@ -49,3 +49,16 @@ test('no gradients, glows or gradient text in the CSS', () => {
     assert.ok(!/text-transform:\s*uppercase/.test(css), `${f} has uppercase labels`);
   }
 });
+
+test('character actions live in the sidebar menu, not on one page', () => {
+  const html = read('settings.html');
+  const menu = html.slice(html.indexOf('id="charMenu"'), html.indexOf('</details>', html.indexOf('id="charMenu"')));
+  for (const id of ['profileNew', 'profileRename', 'profileReset', 'profileDelete']) {
+    assert.ok(menu.includes(`id="${id}"`), `${id} isn't in the Manage menu`);
+    assert.strictEqual(html.split(`id="${id}"`).length, 2, `${id} appears more than once`);
+  }
+});
+
+test('no italics for emphasis in the UI', () => {
+  for (const f of [...files('.html'), ...files('.js')]) assert.ok(!/<i>[^<]/.test(read(f)), `${f} uses <i> for emphasis`);
+});

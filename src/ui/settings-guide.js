@@ -139,7 +139,8 @@ async function renderProfiles() {
   $('#profileSel').innerHTML = games.length < 2 ? list.map(tagged).join('')
     : [['poe2', 'Path of Exile 2'], ['poe1', 'Path of Exile 1']].filter(([g]) => games.includes(g))
       .map(([g, name]) => `<optgroup label="${name}">${list.filter((p) => (p.game || 'poe2') === g).map(opt).join('')}</optgroup>`).join('');
-  $('#profileDelete').disabled = list.length < 2;
+  // one character: nothing to delete (Start again clears it instead)
+  $('#profileDelete').classList.toggle('hidden', list.length < 2);
   // switched character (here, from the tray or by creating one): drop the last one's PoB code and message
   const act = (list.find((p) => p.active) || {}).id;
   if (lastProfileId && act && act !== lastProfileId) { clearPobBox(); refreshFindForCharacter(); }
@@ -148,6 +149,10 @@ async function renderProfiles() {
 let lastProfileId = null;
 // a PoB code or import message belongs to the character it was typed for
 function clearPobBox() { $('#pobInput').value = ''; $('#pobMsg').textContent = ''; }
+// the character menu closes once you pick something in it, or click anywhere else
+document.querySelectorAll('#charMenu .char-menu-list button').forEach((b) => b.addEventListener('click', () => { $('#charMenu').open = false; }));
+document.addEventListener('click', (e) => { const m = $('#charMenu'); if (m && m.open && !m.contains(e.target)) m.open = false; });
+document.addEventListener('keydown', (e) => { const m = $('#charMenu'); if (e.key === 'Escape' && m && m.open) { m.open = false; m.querySelector('summary').focus(); } });
 $('#profileSel').addEventListener('change', async () => { await window.api.switchProfile($('#profileSel').value); clearPobBox(); await load(); });
 $('#profileNew').addEventListener('click', async () => {
   const name = await askText('Name for the new character', '', 'e.g. Witch league starter');

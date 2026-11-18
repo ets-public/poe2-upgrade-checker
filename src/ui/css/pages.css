@@ -48,7 +48,7 @@ body.app { display: grid; grid-template-columns: 224px minmax(0, 1fr); height: 1
 .fb-row label { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .fb-item select { min-width: 240px; max-width: 420px; }
 .fb-sep { width: 1px; align-self: stretch; background: var(--iron); margin: 0 2px; }
-.fb-sub { margin-top: 8px; font-size: 13px; color: var(--ash); }
+.fb-sub { margin-top: 8px; font-size: 14px; color: var(--ash); }
 .fb-sub .help { margin: 0; }
 .find-actions { margin-top: 12px; }
 .find-actions button { padding: 8px 14px 7px; }
@@ -60,7 +60,7 @@ textarea#testText { min-height: 260px; }
   body.app { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
   .side { flex-direction: row; flex-wrap: wrap; align-items: center; padding: 8px 10px; border-right: none; border-bottom: 1px solid var(--iron); gap: 8px; }
   .brand span { display: none; } .brand img { width: 26px; height: 26px; }
-  .side-char { flex-direction: row; align-items: center; } .side-char span { display: none; } .side-char select { width: 150px; }
+  .side-char { flex-direction: row-reverse; align-items: center; } .side-char-head label { display: none; } .side-char select { width: 150px; }
   .side-nav { flex-direction: row; flex-wrap: wrap; }
   .side-nav button { padding: 5px 8px; font-size: 13px; } .side-nav button i { display: none; }
   .side-foot { display: none; }

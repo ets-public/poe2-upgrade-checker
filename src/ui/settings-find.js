@@ -14,7 +14,7 @@ const fromTarget = (t) => (t && typeof t === 'object' && t.itemId ? 'item:' + t.
 
 function showTab(name) {
   // switch tabs without firing the tab button's click handler
-  document.querySelectorAll('.tabs button').forEach((x) => x.classList.toggle('active', x.dataset.tab === name));
+  document.querySelectorAll('.tabs button').forEach((x) => { const on = x.dataset.tab === name; x.classList.toggle('active', on); if (on) x.setAttribute('aria-current', 'page'); else x.removeAttribute('aria-current'); });
   document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.id === 'tab-' + name));
 }
 
@@ -26,7 +26,9 @@ async function ensureTradeInfo(force) {
   tradeInfo = await window.api.tradeData(!!force);
   if (tradeInfo) tradeInfo.forGame = forGame;
   if (!tradeInfo.ok) {
-    $('#findMsg').textContent = 'Could not reach the trade site: ' + tradeInfo.error;
+    // a plain reason, without the API address the error carries
+    const why = String(tradeInfo.error || '').replace(/\s+(from|at)\s+https?:\/\/\S+/i, '').trim();
+    $('#findMsg').textContent = `Couldn't reach the trade site${why ? ` (${why})` : ''}. Press the reload button next to League to try again.`;
     const failed = tradeInfo; tradeInfo = null; // try again next time
     return failed;
   }
@@ -54,6 +56,17 @@ async function fillFindSlots(selected) {
   let want = fromTarget(selected);
   if (want === '__last') want = recent[0] ? 'item:' + recent[0].id : '';
   if (want && [...$('#findSlot').options].some((o) => o.value === want)) $('#findSlot').value = want;
+  syncFindActions();
+}
+// the item searches need an item: with nothing saved or copied they stay greyed out
+// (Custom search below still works with stats you add yourself)
+function syncFindActions() {
+  const none = !$('#findSlot').value;
+  document.querySelectorAll('.find-actions button').forEach((b) => {
+    b.disabled = none;
+    if (none) b.title = b.title.startsWith('Needs an item') ? b.title : `Needs an item: save your gear on My gear, or copy one in game. ${b.title}`;
+    else b.title = b.title.replace(/^Needs an item: save your gear on My gear, or copy one in game\. /, '');
+  });
 }
 
 let findSeq = 0; // a newer pick (or another character) wins over a slower answer for the one before
@@ -158,6 +171,7 @@ async function runFind(fn, msgSel) {
   let res;
   try { res = await fn(); } catch (err) { res = { ok: false, error: (err && err.message) || String(err) }; } finally {
     btns.forEach((b) => { b.disabled = false; });
+    syncFindActions();
   }
   window.showSearchResult(msg, res);
 }
