@@ -9,7 +9,7 @@ const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':
 let state = null;
 
 document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => {
-  document.querySelectorAll('.tabs button').forEach((x) => x.classList.toggle('active', x === b));
+  document.querySelectorAll('.tabs button').forEach((x) => { x.classList.toggle('active', x === b); if (x === b) x.setAttribute('aria-current', 'page'); else x.removeAttribute('aria-current'); });
   document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.id === 'tab-' + b.dataset.tab));
 }));
 
@@ -65,7 +65,10 @@ async function load() {
   if (document.activeElement !== $('#stringsHotkey')) $('#stringsHotkey').value = state.settings.stringsHotkey || '';
   if (document.activeElement !== $('#filterHotkey')) $('#filterHotkey').value = state.settings.filterHotkey || '';
   if (document.activeElement !== $('#regexHotkey')) $('#regexHotkey').value = state.settings.regexHotkey || '';
-  $('#hotkeyMsg').textContent = hs.ok ? `Active: ${hs.accelerator}` : (hs.error || 'Hotkey not registered.');
+  if (typeof syncHotkeyButtons === 'function') syncHotkeyButtons();
+  // working: the box already shows the key; only a problem needs saying
+  if (!hs.ok) $('#hotkeyMsg').textContent = hs.error || 'Hotkey not registered.';
+  else if (!/^(Saved|Click Save|Use a modifier)/.test($('#hotkeyMsg').textContent)) $('#hotkeyMsg').textContent = '';
   $('#hotkeyLine').innerHTML = hs.ok
     ? `In game: hover an item and press <b>${esc(hs.accelerator)}</b>${priceKeyNow() ? ` (<b>${esc(priceKeyNow())}</b> for just its price)` : ''}.<br>You can close this window; the app keeps running in the tray.`
     : `<span class="note">Hotkey isn't working: ${esc(hs.error || 'not registered')} – change it in Settings.</span>`;

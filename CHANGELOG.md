@@ -1,6 +1,12 @@
 # Changelog
 
 ## Unreleased
+- **A tidier main window.** A pass over every page for things that got in the way:
+  - **Characters are managed next to the character picker.** *New character*, *Rename*, *Start again* and *Delete* moved from the top of My gear into a *Manage* menu above the picker in the sidebar, where they work from any page. *Delete* only shows when you have more than one character. My gear's header keeps just *Setup guide*.
+  - **Hotkeys: Save shows when there's something to save.** Settings had a Save button on every hotkey row, all the time. Now Save appears once you've pressed a new key, and *Turn off* only shows on a key that's set. The *Active: F2* note under a working hotkey is gone (the box already shows it); a hotkey that didn't register still says why.
+  - **Find upgrades:** the search buttons are greyed out until there's an item to search for (Custom search still works with stats you add). If the trade site can't be reached, it says so in plain words and how to retry, without the API address. The poe.ninja line no longer repeats the Divine rate that's in the box above it.
+  - **Where to spend** starts with a proper empty page: what the search does, why it takes a few minutes, and a link to set your price range.
+  - Gear table headers and slot names stay on one line (*Gear score*, *Body Armour* wrapped). *Sign out* only shows when you're signed in. The Find upgrades options row is a little bigger (14 px). The side menu tells screen readers which page is open. *Levelling* is spelled the same everywhere, and the last two italics are bold like the rest of the app.
 - **Path of Exile 1, 3.30 maps after launch:** what the other overlays changed in the first days of Covens of Umbra, done for this app.
   - **Atlas Drops is searched under the trade site's new filter.** *What's it worth?* on a map sent Atlas Drops as the old item quantity filter, which 3.30 maps no longer have. It now goes under the site's Atlas Drops filter, and a pre-3.30 map that still says Item Quantity is searched as before.
   - **Twice Corrupted:** an item corrupted a second time (Altar of Corruption, Lapidary Lens, Djinn-Touched Vaal Orbs) shows *Twice Corrupted* instead of *Corrupted*, and the app took it for not corrupted at all, so price checks compared it with items you can still craft. It's now corrupted, and when the trade site has its Twice Corrupted filter, a twice corrupted item is only priced from twice corrupted ones (and a once corrupted one from once corrupted ones). The search string builder has a *Twice corrupted* yes / no.

@@ -361,7 +361,7 @@
 
   function noPobHtml(d, st) {
     const why = !d.hasBuild ? 'Paste your Path of Building export on <b>My gear</b> and this page shows your whole character: damage (or your minions\'), defences, resistances against the cap, the biggest hits you can take, ' + (st && st.game === 'poe1' ? 'mana and life reservation' : 'Spirit') + ', attributes, skills and passive tree.'
-      : !d.enabled ? 'Path of Building is switched off on My gear (<i>Judge items with Path of Building</i>). Switch it on to see your character sheet.'
+      : !d.enabled ? 'Path of Building is switched off on My gear (<b>Judge items with Path of Building</b>). Switch it on to see your character sheet.'
         : !d.available ? 'The Path of Building engine isn\'t included with this copy of the app.' : 'Path of Building isn\'t available right now.';
     const rs = d.resists;
     const res = rs ? card('Resistances (from My gear)', resBars(['fire', 'cold', 'lightning', 'chaos'].filter((el) => rs[el] != null).map((el) => ({ el: el[0].toUpperCase() + el.slice(1), value: Math.min(rs[el], (rs.caps && rs.caps[el]) || rs.cap || 75), total: rs[el], over: rs[el] - ((rs.caps && rs.caps[el]) || rs.cap || 75), max: (rs.caps && rs.caps[el]) || rs.cap || 75 })), false)) : '';

@@ -76,7 +76,7 @@ The whole setup, step by step (build import from Path of Building or poe.ninja, 
   - Every slot, including weapon swap, jewels, flasks and charms.
   - Import from Path of Building (pobb.in links or codes). A pobb.in link can be read again with one click, or link the build file PoB saves and the app follows it each time you save.
   - **No PoB link?** Link a guide's Build Planner file (`.build`): the tree, skills and the guide's gear become a Path of Building build, with a stage picker for levelling guides (or *Follow my level*). A *Skills* panel sets gem levels and quality (all, or one gem apart), the main skill items are judged on and which others count in the total DPS; *Compare skills* has Path of Building work out each skill's damage, so you can see which one the guide really runs on.
-  - Several characters, each with their own gear and build.
+  - Several characters, each with their own gear and build. Make, rename, clear or delete them from *Manage* next to the character picker.
 - **Gear score fallback:** without a PoB build, a 0–100 gear score from a profile for your kind of build (damage: melee, bows/crossbows/spears, spells, minions or any; defence: life with Armour, Evasion or both, Energy Shield, or hybrids) or your own stat weights.
 - **Built for playing:**
   - Looks like the games' own item tooltips: rarity-coloured names, mods in the games' blue, one set of line icons, no clutter.

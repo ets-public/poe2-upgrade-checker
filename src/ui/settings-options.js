@@ -65,6 +65,20 @@ function toAccelerator(e) {
   if (!parts.length && !/^F\d/.test(key)) return null; // plain letters would block typing everywhere
   return [...parts, key].join('+');
 }
+// Save shows only once a new key is in the box, and Turn off only when a key is set
+const HOTKEY_BOXES = ['hotkey', 'priceHotkey', 'equipHotkey', 'stringsHotkey', 'filterHotkey', 'regexHotkey', 'resultsHotkey'];
+function syncHotkeyButtons() {
+  for (const id of HOTKEY_BOXES) {
+    const inp = $('#' + id);
+    if (!inp) continue;
+    if (document.activeElement !== inp || inp.dataset.saved === undefined) inp.dataset.saved = inp.value;
+    const save = $('#' + id + 'Save');
+    if (save) { const dirty = inp.value.trim() !== inp.dataset.saved.trim(); save.classList.toggle('hidden', !dirty); save.classList.add('primary'); }
+    const off = $('#' + id + 'Off');
+    if (off) off.classList.toggle('hidden', !inp.dataset.saved);
+  }
+}
+document.addEventListener('keyup', (e) => { if (e.target && e.target.classList && e.target.classList.contains('hotkey')) syncHotkeyButtons(); });
 // Tab / Shift+Tab move on as usual; Esc puts the saved key back and leaves the box
 function captureKeys(e, inp, saved, msg) {
   if (e.key === 'Tab' && !e.ctrlKey && !e.altKey) return true;
@@ -209,7 +223,7 @@ async function showRate(force) {
   const r = await window.api.getRate(!!force);
   if (r.rate) { $('#divineRate').value = r.rate; budgetHelp(); }
   $('#rateStatus').textContent = r.ok
-    ? `1 Divine ≈ ${r.rate} ${state && state.game === 'poe1' ? 'Chaos' : 'Exalted'} (${r.league || 'current league'}, poe.ninja, ${ago(r.at)}). Updates every hour.`
+    ? `From poe.ninja, ${r.league || 'current league'}, ${ago(r.at)}. Updates every hour.`
     : `Couldn't get the rate from poe.ninja (${r.error}).` + (r.rate ? ` Using the last known rate, ${r.rate} ${state && state.game === 'poe1' ? 'chaos' : 'ex'}.` : ' Untick Auto and type the rate in.');
 }
 async function saveBudget() {
