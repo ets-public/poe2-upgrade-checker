@@ -42,8 +42,8 @@ module.exports = function (C) {
     if (now) { try { globalShortcut.unregister(now); } catch (_) { /* ignore */ } now = null; }
     const want = C.store.settings.stringsHotkey || '';
     if (!want) return { ok: true, accelerator: null };
-    const others = [C.hotkeyStatus.accelerator || C.store.settings.hotkey || 'F2', C.store.settings.resultsHotkey || 'Ctrl+Shift+D', C.store.settings.priceHotkey === undefined ? 'F3' : C.store.settings.priceHotkey, C.store.settings.equipHotkey];
-    if (others.some((k) => k && C.sameKey(want, k))) return { ok: false, error: `${want} is already one of the app's other keys.` };
+    const clash = C.keyClash(want, 'strings');
+    if (clash) { C.log(`strings hotkey ${want}: already used by another of the app's keys`); return { ok: false, error: clash }; }
     let ok = false;
     try { ok = globalShortcut.register(want, () => { if (!C.store.settings.paused) onPress(); }); } catch (_) { ok = false; }
     if (ok) now = want;

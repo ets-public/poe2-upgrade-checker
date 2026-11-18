@@ -68,7 +68,7 @@ The whole setup, step by step (build import from Path of Building or poe.ninja, 
 - **At 20% quality:** armour and weapons below 20% quality are judged a second time at 20%, so you see what a few quality orbs would do for your build.
 - **Best mods to add:** for an item with free prefixes or suffixes, Path of Building tries the mods that can roll on it at its item level and lists the best for your build.
 - **For sale:** items you copied a price note for are kept in a list, and one click checks whether they're still listed and how your price compares.
-- **Back up & restore, What's new, hotkey conflict warnings:** settings, gear and builds to one file and back; the changes after each update; a warning when two hotkeys clash.
+- **Back up & restore, What's new, hotkey conflict warnings:** settings, gear and builds to one file and back (this PC's loot filter folder and Client.txt paths stay as they are); the changes after each update; a warning when two hotkeys clash, naming the app's own key when it's one of them.
 - **Trade search:**
   - *Better for my build*, *same stats or better*, *craftable bases*, or a custom search built from any of the trade site's ~3,600 stats.
   - Price range in divines (or exalts, using poe.ninja's live rate), ignored and excluded stats, and saved searches with **new-listing alerts**.
@@ -283,7 +283,7 @@ How it works on Linux, and what to check if F2 doesn't:
 - The app runs as an X11 app (XWayland on Wayland) so it can put the popup next to the mouse.
 - **Loot filters and Client.txt:** under Proton the game's Documents folder is inside Steam's folder (`steamapps/compatdata/2694490/pfx/drive_c/users/steamuser/Documents/My Games/Path of Exile 2`; PoE1 is app 238960), not `~/Documents`. The loot filter editor and League start look there by themselves, in every Steam library. Elsewhere (Lutris, Heroic)? Use **Change folder** in the loot filter editor, and pick Client.txt on the League start tab.
 - **Steam Deck:** desktop mode works like any Linux desktop; gaming mode doesn't allow other windows over the game.
-- Not working for you? Please [open an issue](https://github.com/ets-public/poe2-upgrade-checker/issues) with your distro, desktop (GNOME, KDE…), X11 or Wayland, and the log (tray → Open log file). It's in `~/.config/poe2-upgrade-checker`.
+- Not working for you? Please [open an issue](https://github.com/ets-public/poe2-upgrade-checker/issues) with your distro, desktop (GNOME, KDE…), X11 or Wayland, and the log (tray → Open log file). It's in `~/.config/PoE2 Upgrade Checker`.
 
 ## Notes / limits
 
@@ -291,7 +291,7 @@ How it works on Linux, and what to check if F2 doesn't:
 - Flasks and charms can be saved but aren't scored.
 - The *Never lose damage* and Spirit/attribute checks need Path of Building; the gear score fallback doesn't have them.
 - Two-handers are compared against your weapon plus offhand together.
-- Your data lives in `%APPDATA%\poe2-upgrade-checker` (Linux: `~/.config/poe2-upgrade-checker`).
+- Your data lives in `%APPDATA%\PoE2 Upgrade Checker` (Linux: `~/.config/PoE2 Upgrade Checker`).
 
 ## Dev
 

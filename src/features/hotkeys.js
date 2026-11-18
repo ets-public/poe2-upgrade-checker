@@ -4,6 +4,7 @@
 const { ipcMain, globalShortcut, shell } = require('electron');
 const priceQuery = require('../core/pricequery');
 const { parseItem } = require('../core/parser');
+const keysLib = require('../core/keys');
 
 module.exports = function (C) {
   // ---------- the price hotkey (F3): a popup with just the price ----------
@@ -61,7 +62,7 @@ module.exports = function (C) {
     if (priceHotkey) { try { globalShortcut.unregister(priceHotkey); } catch (_) { /* ignore */ } priceHotkey = null; }
     const want = C.store.settings.priceHotkey === undefined ? DEFAULT_PRICE_HOTKEY : C.store.settings.priceHotkey;
     if (!want) return { ok: true, accelerator: null };
-    if (sameKey(want, C.hotkeyStatus.accelerator || C.store.settings.hotkey || DEFAULT_HOTKEY) || sameKey(want, C.store.settings.resultsHotkey || 'Ctrl+Shift+D') || (C.store.settings.equipHotkey && sameKey(want, C.store.settings.equipHotkey))) { C.log(`price hotkey ${want}: already used by another of the app's keys`); return { ok: false, error: `${want} is already one of the app's other keys.` }; }
+    { const clash = keyClash(want, 'price'); if (clash) { C.log(`price hotkey ${want}: already used by another of the app's keys`); return { ok: false, error: clash }; } }
     let ok = false;
     try { ok = globalShortcut.register(want, () => { C.onHotkey('price').catch((e) => C.log('price hotkey error: ' + e.stack)); }); } catch (_) { ok = false; }
     if (ok) priceHotkey = want;
@@ -75,8 +76,7 @@ module.exports = function (C) {
     if (equipHotkey) { try { globalShortcut.unregister(equipHotkey); } catch (_) { /* ignore */ } equipHotkey = null; }
     const want = C.store.settings.equipHotkey || '';
     if (!want) return { ok: true, accelerator: null };
-    const others = [C.hotkeyStatus.accelerator || C.store.settings.hotkey || DEFAULT_HOTKEY, C.store.settings.resultsHotkey || 'Ctrl+Shift+D', priceHotkey];
-    if (others.some((k) => k && sameKey(want, k))) { C.log(`equip hotkey ${want}: already used by another of the app's keys`); return { ok: false, error: `${want} is already one of the app's other keys.` }; }
+    { const clash = keyClash(want, 'equip'); if (clash) { C.log(`equip hotkey ${want}: already used by another of the app's keys`); return { ok: false, error: clash }; } }
     let ok = false;
     try { ok = globalShortcut.register(want, () => { C.onHotkey('equip').catch((e) => C.log('equip hotkey error: ' + e.stack)); }); } catch (_) { ok = false; }
     if (ok) equipHotkey = want;
@@ -126,10 +126,32 @@ module.exports = function (C) {
     return C.hotkeyStatus;
   }
 
-  const sameKey = (a, b) => String(a || '').toLowerCase().replace(/control/g, 'ctrl') === String(b || '').toLowerCase().replace(/control/g, 'ctrl');
+  const sameKey = keysLib.sameKey;
+  // every global key the app has registered right now, with the name Settings gives it. Only the
+  // registered ones: two keys saved the same (an old settings file, a backup) then keep the one that
+  // registered first working, instead of each refusing the other.
+  function appKeys() {
+    const f = (name) => { try { const g = C[name]; return (g && g()) || ''; } catch (_) { return ''; } };
+    return [
+      { id: 'copy', what: 'Check item', key: C.hotkeyStatus.accelerator || '' },
+      { id: 'results', what: 'Results window', key: C.resultsHotkey || '' },
+      { id: 'price', what: 'Price only', key: priceHotkey || '' },
+      { id: 'equip', what: 'Save as equipped', key: equipHotkey || '' },
+      { id: 'strings', what: 'Search strings', key: f('stringsHotkeyActive') },
+      { id: 'filter', what: 'Loot filter editor', key: f('filterHotkeyActive') },
+      { id: 'regex', what: 'Search string builder', key: f('regexHotkeyActive') },
+      { id: 'route', what: 'Route overlay', key: f('routeHotkeyActive') },
+    ];
+  }
+  // -> an error message when want is already another of the app's keys (self: the one being set), else null
+  function keyClash(want, self) {
+    const k = keysLib.clash(want, appKeys(), self);
+    return k ? `${want} is already the app's ${k.what} key. Pick a different key.` : null;
+  }
   ipcMain.handle('hotkey:set', (_e, accel) => {
     const prev = C.store.settings.hotkey || DEFAULT_HOTKEY;
     if (sameKey(accel, C.store.settings.resultsHotkey || 'Ctrl+Shift+D')) return { ok: false, accelerator: prev, error: `${accel} already opens the results window. Pick a different key.` };
+    { const clash = keyClash(accel, 'copy'); if (clash) return { ok: false, accelerator: prev, error: clash }; }
     if (priceHotkey && sameKey(accel, priceHotkey)) return { ok: false, accelerator: prev, error: `${accel} is your price-only hotkey. Pick a different key.` };
     if (equipHotkey && sameKey(accel, equipHotkey)) return { ok: false, accelerator: prev, error: `${accel} is your save-as-equipped hotkey. Pick a different key.` };
     const st = registerHotkey(accel);
@@ -191,5 +213,6 @@ module.exports = function (C) {
     DEFAULT_HOTKEY,
     registerHotkey,
     sameKey,
+    keyClash,
   };
 };

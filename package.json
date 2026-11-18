@@ -13,7 +13,7 @@
     "dist:linux": "node tools/get-pob.js && npx electron-builder@26.18.0 --linux AppImage --publish never"
   },
   "devDependencies": {
-    "electron": "44.9.3"
+    "electron": "45.3.4"
   },
   "build": {
     "appId": "local.poe2.upgradechecker",

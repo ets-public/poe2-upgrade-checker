@@ -127,6 +127,7 @@ module.exports = function (C) {
   ipcMain.handle('weights:reset', () => { C.store.resetWeights(); refreshAll(); return true; });
   ipcMain.handle('slot:clear', (_e, slot) => { C.store.setEquipped(slot, null); C.pobSync(); refreshAll(); return true; });
   ipcMain.handle('setting:set', (_e, key, value) => {
+    if (!require('../core/settable').settable(key)) { C.log(`setting ${String(key).slice(0, 40)}: refused, not one a page may set`); return false; }
     // a gear score profile: "off" (your own weights), a hand-made one or "damage/defence"
     if (key === 'build') {
       const gearLib = require('../core/gearscore');
