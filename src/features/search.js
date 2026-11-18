@@ -97,8 +97,8 @@ module.exports = function (C) {
   ipcMain.on('open:url', (_e, url) => {
     // build sites, for "Find a league starter" on Build & stats
     const buildSite = typeof url === 'string' && /^https:\/\/(poe\.ninja\/poe2\/builds|mobalytics\.gg\/poe-2\/tier-list)$/.test(url);
-    // the community Discord (the site redirects to the current invite)
-    const community = url === 'https://poe2upgrade.com/discord';
+    // the community Discord (the site redirects to the current invite) and the Ko-fi support page
+    const community = url === 'https://poe2upgrade.com/discord' || url === 'https://ko-fi.com/akwhitesoftware';
     if (trade.isTradePage(url) || ninjaLib.isInfoPage(url) || buildSite || community) shell.openExternal(url);
   });
 

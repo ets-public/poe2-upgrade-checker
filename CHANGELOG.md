@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- **Support the project on Ko-fi.** Everything stays free, with nothing locked. If you'd like to help, *Support on Ko-fi* in Settings → Startup & updates opens [ko-fi.com/akwhitesoftware](https://ko-fi.com/akwhitesoftware) in your browser. The website has it too.
 - **Bug and security fixes** from a check of the whole app:
   - **Hotkeys can't clash with each other.** Setting the loot filter editor, search string builder, search strings, results or route overlay key to one of the app's other keys used to say *already used by another program*, sending you looking for the wrong culprit. It now names the app's own key (*Ctrl+Shift+F is already the app's Loot filter editor key*). The same key written another way (*Shift+Ctrl+X* and *Ctrl+Shift+X*) counts as the same key.
   - **A line break in an item name can't break your loot filter.** A name with a line break in it (from poe.ninja, for *Tiers by today's prices*) could write extra lines into the filter file. Names are now kept on one line.
