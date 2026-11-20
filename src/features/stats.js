@@ -9,7 +9,9 @@
 //     s: how far you've set it up (yes/no): { guide: first-run guide done, build: a Path of Building
 //        build loaded, gear: gear saved, checked: ever checked an item },
 //     e: problems today (counts): { hotkey: the check hotkey isn't registered, pob: Path of Building
-//        failed to start or load, trade: trade searches that failed } }
+//        failed to start or load, trade: trade searches that failed },
+//     t: why those trade searches failed (counts): { blocked: the site said 403, refused: it said 400 or
+//        another 4xx, complex: too many filters, timeout: no answer, net: no connection, server: 5xx, other } }
 // Only numbers and yes/no: no account, character, items, builds, searches or what you searched
 // for; the site doesn't keep IP addresses. Settings → "Send anonymous usage statistics" turns it
 // off (nothing is sent then).
@@ -27,26 +29,39 @@ module.exports = function (C) {
     if (!/^[0-9a-f]{32}$/.test(id || '')) { id = crypto.randomBytes(16).toString('hex'); C.store.data.installId = id; C.store.save(); }
     return id;
   }
-  // which games you used today (a copied item, or the game the app is on at start)
+  // which games you used today (a copied item, a trade search or a League start step)
   function day() {
     const d = C.store.data.statsDay;
     if (!d || d.day !== today()) C.store.data.statsDay = { day: today(), poe1: false, poe2: false, sent: null, n: {}, e: {} };
     const x = C.store.data.statsDay;
     if (!x.n) x.n = {};
     if (!x.e) x.e = {};
+    if (!x.t) x.t = {};
     return x;
   }
   // today's counts: what was used, and problems (saved with the rest, sent with the next ping)
   const COUNTS = ['checks', 'prices', 'searches', 'route'];
   const PROBLEMS = ['hotkey', 'pob', 'trade'];
+  const TRADE_WHY = ['blocked', 'refused', 'complex', 'timeout', 'net', 'server', 'other'];
   let saveSoon = null;
   function bump(group, key) {
     const d = day();
     d[group][key] = Math.min(9999, (d[group][key] || 0) + 1);
     clearTimeout(saveSoon); saveSoon = setTimeout(() => { try { C.store.save(); } catch (_) { /* next time */ } }, 5000);
   }
-  function count(what) { if (COUNTS.includes(what)) { bump('n', what); if (what === 'checks' && !C.store.data.statsChecked) { C.store.data.statsChecked = true; } } }
-  function problem(what) { if (PROBLEMS.includes(what)) bump('e', what); }
+  function count(what) {
+    if (!COUNTS.includes(what)) return;
+    bump('n', what);
+    if (what === 'checks' && !C.store.data.statsChecked) C.store.data.statsChecked = true;
+    // a trade search or a League start step is playing the game you're on (item checks say which game themselves)
+    if (what === 'searches' || what === 'route') used(C.store.activeGame());
+  }
+  // why: for 'trade', which kind of failure (see TRADE_WHY)
+  function problem(what, why) {
+    if (!PROBLEMS.includes(what)) return;
+    bump('e', what);
+    if (what === 'trade') bump('t', TRADE_WHY.includes(why) ? why : 'other');
+  }
   // how far it's set up (yes/no), as it is now
   function setup() {
     let build = false; try { build = !!C.pobXml(); } catch (_) { /* no build */ }
@@ -71,7 +86,7 @@ module.exports = function (C) {
     if (C.hotkeyStatus && C.hotkeyStatus.ok === false && !d.e.hotkey) d.e.hotkey = 1;
     const pick = (o, keys) => Object.fromEntries(keys.map((k) => [k, Math.max(0, Math.min(9999, Number(o[k]) || 0))]));
     const body = { id: installId(), v: app.getVersion(), p: process.platform, beta: /-/.test(app.getVersion()), poe1: !!d.poe1, poe2: !!d.poe2,
-      n: pick(d.n, COUNTS), s: setup(), e: pick(d.e, PROBLEMS) };
+      n: pick(d.n, COUNTS), s: setup(), e: pick(d.e, PROBLEMS), t: pick(d.t, TRADE_WHY) };
     const sig = JSON.stringify(body);
     if (d.sent === sig && Date.now() - last < EVERY - 60000) return false; // nothing new
     try {
@@ -81,10 +96,10 @@ module.exports = function (C) {
     } catch (err) { C.log('usage ping: ' + (err.message || err)); }
     return false;
   }
+  // starting the app (with Windows, from the tray) isn't playing: a game only counts once you use it
   function start() {
-    used(C.store.activeGame());
     setTimeout(send, 30000);
     setInterval(send, EVERY);
   }
-  return { used, send, start, count, problem };
+  return { used, send, start, count, problem, TRADE_WHY };
 };

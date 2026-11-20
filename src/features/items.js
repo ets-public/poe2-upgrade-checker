@@ -190,6 +190,7 @@ module.exports = function (C) {
     if (/refocus-failed/.test(s) || (fg && !isGame(fg) && fg !== '?')) {
       return `${C.G(C.store.data.lastGame || C.tg()).name} wasn't the active window${fg && fg !== '?' ? ` (${isMe(fg) ? 'this app' : fg} was)` : ''}, so nothing was copied (the app only presses Ctrl+C in the game). Click once in the game, then press ${hk} again.`;
     }
+    if (/skipped/.test(s) && fg === '?' && !isGame(over)) return `The app couldn't tell which window was in front, and your mouse wasn't over the game, so nothing was copied (the app only presses Ctrl+C in the game). Click once in the game, hover the item, then press ${hk}.`;
     if (over && !isGame(over) && over !== '?') return `Your mouse wasn't over the game (it was over ${over}). Hover the item in game, then press ${hk}.`;
     if (text) return 'That wasn\'t an item (the game copied something else). Hover an item so its tooltip shows, then press the hotkey.';
     return `No item under the mouse. Hover an item until its tooltip shows, then press ${hk}.`;

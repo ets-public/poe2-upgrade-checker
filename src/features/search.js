@@ -230,7 +230,7 @@ module.exports = function (C) {
       const err = new Error(`The trade site says too many searches – wait ${wait || 'a minute'} seconds and try again.`);
       err.rateLimited = true; throw err;
     }
-    if (!res.ok || !json.id) throw new Error((json.error && json.error.message) || `HTTP ${res.status}`);
+    if (!res.ok || !json.id) { const e = new Error((json.error && json.error.message) || `HTTP ${res.status}`); e.status = res.status; throw e; }
     json._near = nearRateLimit(res.headers);
     return json;
   }
@@ -238,20 +238,34 @@ module.exports = function (C) {
   // Same search, but sent from inside a (hidden) page on pathofexile.com, like the
   // trade site itself does. Only used when you've signed in to pathofexile.com in the app.
   let tradeWin = null;
-  async function postSearchViaPage(league, body, game) {
+  // The one hidden, signed-in trade page that searches, listing fetches, the sign-in check and hideout
+  // trips all run their requests from. Everyone waits for the same first load: a second loadURL while
+  // the first is still loading would cancel it, and a request run on the half-loaded page would go out
+  // from the blank page before it (without your sign-in). Once it's on the trade site it stays there.
+  let tradeLoading = null;
+  function tradePage(url) {
     if (!tradeWin || tradeWin.isDestroyed()) {
       tradeWin = new BrowserWindow({ show: false, webPreferences: { sandbox: true, contextIsolation: true, partition: POE_PARTITION } });
+      tradeLoading = null;
     }
-    const page = trade.pageUrl(game, league);
-    if (!tradeWin.webContents.getURL().startsWith(trade.BASE)) {
-      await Promise.race([tradeWin.loadURL(page), new Promise((_, rej) => setTimeout(() => rej(new Error('page load timed out')), 15000))]);
-    }
+    const win = tradeWin;
+    if (tradeLoading) return tradeLoading;
+    if (!win.isDestroyed() && win.webContents.getURL().startsWith(trade.BASE)) return Promise.resolve(win.webContents);
+    const p = Promise.race([win.loadURL(url), new Promise((_, rej) => setTimeout(() => rej(new Error('page load timed out')), 15000))])
+      .then(() => win.webContents);
+    tradeLoading = p;
+    const clear = () => { if (tradeLoading === p) tradeLoading = null; };
+    p.then(clear, clear);
+    return p;
+  }
+  async function postSearchViaPage(league, body, game) {
+    const wc = await tradePage(trade.pageUrl(game, league));
     const js = `fetch(${JSON.stringify(trade.searchUrl(league, game))}, { method: 'POST', credentials: 'include',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: ${JSON.stringify(JSON.stringify(body))} })
     .then(async (r) => ({ status: r.status, json: await r.json().catch(() => ({})),
       h: Object.fromEntries(['x-rate-limit-ip', 'x-rate-limit-ip-state', 'x-rate-limit-account', 'x-rate-limit-account-state', 'retry-after'].map((k) => [k, r.headers.get(k)])) }))`;
     const r = await Promise.race([
-      tradeWin.webContents.executeJavaScript(js, true),
+      wc.executeJavaScript(js, true),
       new Promise((_, rej) => setTimeout(() => rej(new Error('timed out')), 15000)),
     ]);
     if (r && r.h) learnLimits((k) => r.h[k]);
@@ -262,7 +276,7 @@ module.exports = function (C) {
     }
     if (r && r.json && r.json.id && r.h) r.json._near = nearRateLimit({ get: (k) => r.h[k] });
     if (!r || r.status !== 200 || !r.json || !r.json.id) {
-      throw new Error((r && r.json && r.json.error && r.json.error.message) || `HTTP ${r && r.status}`);
+      const e = new Error((r && r.json && r.json.error && r.json.error.message) || `HTTP ${r && r.status}`); e.status = r && r.status; throw e;
     }
     return r.json;
   }
@@ -282,7 +296,7 @@ module.exports = function (C) {
     trade.adaptQuery(body, game);
     if (statusBroken[game] && body.query.status && body.query.status.option === 'available') body.query.status.option = 'online';
     C.log(`search ${label || ''} ${C.G(game).short} league=${league} body=${JSON.stringify(body)}`);
-    const errors = []; let complex = 0;
+    const errors = []; const fails = []; let complex = 0;
     // signed in, the trade site allows bigger searches: send it from your signed-in page first. Not signed
     // in, only the app's own request: when the trade site refuses it, that's its answer (we don't retry the
     // same request through a hidden page to get around it)
@@ -309,7 +323,7 @@ module.exports = function (C) {
           C.log('trade site rejected the listing status; retrying with "online"');
           return runSearch(league, { ...body, query: { ...body.query, status: { option: 'online' } } }, label, o);
         }
-        errors.push(`${name}: ${msg}`);
+        errors.push(`${name}: ${msg}`); fails.push({ status: err.status, msg });
         // the other route would get the same answer and cost another search
         if (/too complex/i.test(msg)) { complex++; break; }
         if (/rate limit/i.test(msg)) { searchBlockedUntil = Math.max(searchBlockedUntil, Date.now() + 60000); return { ok: false, league, error: msg, rateLimited: true }; }
@@ -317,7 +331,7 @@ module.exports = function (C) {
     }
     // a "too complex" answer the caller will retry with fewer filters (o.shrinkable) isn't a failure:
     // the smaller search usually works. Counted only when nothing smaller is left to try.
-    if (!o.background && C.usage && !(complex && o.shrinkable)) C.usage.problem('trade');
+    if (!o.background && C.usage && !(complex && o.shrinkable)) C.usage.problem('trade', trade.failReason(fails));
     // the browser link would fail the same way: let the caller make the search smaller
     if (complex) return { ok: false, league, tooComplex: true, error: 'The trade site says this search has too many filters.' };
     // Last resort: a pre-filled search link (we can't know how many results).
@@ -360,6 +374,7 @@ module.exports = function (C) {
     searchLog,
     searchWait,
     get tradeWin() { return tradeWin; }, set tradeWin(v) { tradeWin = v; },
+    tradePage,
     runSearch,
     openIfAny,
     searchKey,

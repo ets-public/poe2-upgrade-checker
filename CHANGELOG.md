@@ -1,6 +1,11 @@
 # Changelog
 
 ## Unreleased
+- **Fixes from an outside review of the code:**
+  - **The key helper only presses Ctrl+C in the game.** When Windows (or a Wayland desktop) couldn't say which program was in front, for example an app run as administrator, the helper still pressed Ctrl+C there. Now it only does when the mouse is over the game too; otherwise it skips the press and says to click once in the game. Still one Ctrl+C per hotkey press, never more.
+  - **Signed-in trade searches don't trip over each other.** A price check, *Load more*, the sign-in check and *Instant Buyout* all use the same hidden trade page. If two started at once before it had loaded, one could cancel the other's load or send its request from the blank page, without your sign-in, and fail. They now wait for the same load.
+  - **Usage statistics count what you play, not what starts with Windows.** Starting the app counted the game it was set to as played that day, so a PoE1 player who leaves the app on PoE2 at start looked like they played both. Now a game only counts once you check an item, search the trade site or move on in League start. A failed trade search also says which kind of failure it was (blocked, refused, too many filters, the site down, no answer, no connection), never the search, so the most common one can be fixed first.
+  - **Stats page:** two releases on the same day (0.5.5 and 0.5.6) took the older one as the newest, so everyone looked out of date.
 - **A polish pass on the overlay windows and the website:**
   - **Trade results:** *Open on trade site* and *Save search* sit together on their own row, under the sort and filters. A price check leads with the typical price in large type, then the spread and how many sellers it came from. No listings at all now says so plainly and points you to the trade site to loosen the search.
   - **Search string builder:** the waystone properties line up in columns, the search boxes use the window's width so their hints aren't cut off, and the empty string box says what goes in it.
