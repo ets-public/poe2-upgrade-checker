@@ -45,7 +45,8 @@
           "to": "pob",
           "filter": [
             "runtime/*.dll",
-            "runtime/pobhost.exe"
+            "runtime/pobhost.exe",
+            "runtime/poekeys.exe"
           ]
         }
       ]

@@ -58,7 +58,7 @@ async function exchangeAll(game, league, ctx) {
   // not one per list, and the "no such league" answer is remembered for a while
   await one(list[0]);
   if (!types[list[0]] || !types[list[0]].lines.length) {
-    const none = new Response(JSON.stringify({ league, types: {}, error: 'poe.ninja has no prices for that league' }), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=600', 'Access-Control-Allow-Origin': '*' } });
+    const none = new Response(JSON.stringify({ league, types: {}, error: 'poe.ninja has no prices for that league' }), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=600' } });
     ctx.waitUntil(caches.default.put(key, none.clone()));
     return none;
   }
@@ -68,7 +68,7 @@ async function exchangeAll(game, league, ctx) {
   // every list: kept as long as poe.ninja's own refresh; some missing (poe.ninja busy): a minute,
   // so the missing prices come back soon
   const ttl = Object.keys(types).length === list.length ? TTL[game] : 60;
-  const out = new Response(JSON.stringify({ league, types }), { headers: { 'Content-Type': 'application/json', 'Cache-Control': `public, max-age=${ttl}`, 'Access-Control-Allow-Origin': '*' } });
+  const out = new Response(JSON.stringify({ league, types }), { headers: { 'Content-Type': 'application/json', 'Cache-Control': `public, max-age=${ttl}` } });
   ctx.waitUntil(caches.default.put(key, out.clone()));
   return out;
 }
@@ -78,7 +78,7 @@ async function exchangeAll(game, league, ctx) {
 // is a random number the app made; it's hashed again here, and nothing else is kept: no IP address, no
 // account, no character, no items. n (counts of checks, price checks, searches, League start steps),
 // s (yes/no: guide done, build loaded, gear saved, ever checked an item) and e (counts of problems)
-// go to the usage table (app 0.5.3+); t (why trade searches failed, counts per kind) to trade_fails. GET /api/stats?key=… shows the totals (the key is in D1's config).
+// go to the usage table (app 0.5.3+); t (why trade searches failed, counts per kind) to trade_fails. GET /api/stats shows the totals after you type the key (it's in D1's config); see statsGate.
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' } });
 async function sha(text) {
   const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
@@ -189,11 +189,46 @@ async function sameSecret(a, b) {
   for (let i = 0; i < u.length; i++) d |= u[i] ^ v[i];
   return d === 0;
 }
-async function stats(url, env, ctx) {
-  if (!env.STATS) return new Response('Statistics are not set up.', { status: 503 });
+// The stats page key: typed into a small form (POST), which sets a cookie only this page gets, so the
+// key isn't in the address bar, history or logs. Also taken as "Authorization: Bearer <key>" (tools).
+// An old ?key= link still works once: it sets the cookie and sends you on to the address without it.
+const STATS_COOKIE = 'poe2uc_stats';
+const cookieToken = async (key) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('poe2uc-stats-session:' + key)))].map((b) => b.toString(16).padStart(2, '0')).join('');
+function readCookie(request, name) {
+  const m = (request.headers.get('Cookie') || '').match(new RegExp('(?:^|;\\s*)' + name + '=([0-9a-f]{64})'));
+  return m ? m[1] : '';
+}
+const statsCookie = (token) => `${STATS_COOKIE}=${token}; Path=/api/stats; Max-Age=${30 * 86400}; HttpOnly; Secure; SameSite=Strict`;
+const LOGIN_PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Usage · PoE Upgrade Checker</title>
+<style>:root{color-scheme:dark}body{margin:0;padding:48px 16px;background:#0e1013;color:#d8d2c4;font:15px/1.5 system-ui,sans-serif}form{max-width:360px;margin:auto;display:grid;gap:10px}input,button{font:inherit;padding:8px 10px;border-radius:6px;border:1px solid #2c3038;background:#181b20;color:inherit}button{cursor:pointer}</style></head>
+<body><form method="post" action="/api/stats"><label for="k">Stats key</label><input id="k" name="key" type="password" autocomplete="current-password" required autofocus><button>Show usage</button></form></body></html>`;
+async function statsGate(request, url, env) {
+  if (!env.STATS) return { res: new Response('Statistics are not set up.', { status: 503 }) };
   const row = await env.STATS.prepare("SELECT v FROM config WHERE k = 'stats_key'").first();
-  const key = url.searchParams.get('key') || '';
-  if (!row || !key || !await sameSecret(key, String(row.v))) return new Response('Not found', { status: 404 });
+  if (!row) return { res: new Response('Not found', { status: 404 }) };
+  const secret = String(row.v);
+  const html = (body, status = 200, extra = {}) => new Response(body, { status, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex', 'Referrer-Policy': 'no-referrer', ...extra } });
+  if (request.method === 'POST') {
+    let key = '';
+    try { key = String((await request.formData()).get('key') || ''); } catch (_) { key = ''; }
+    if (!key || !await sameSecret(key, secret)) return { res: html(LOGIN_PAGE, 401) };
+    return { res: new Response(null, { status: 303, headers: { Location: '/api/stats', 'Set-Cookie': statsCookie(await cookieToken(secret)), 'Cache-Control': 'no-store' } }) };
+  }
+  const bearer = (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+  if (bearer && await sameSecret(bearer, secret)) return { ok: true };
+  const cookie = readCookie(request, STATS_COOKIE);
+  if (cookie && await sameSecret(cookie, await cookieToken(secret))) return { ok: true };
+  const q = url.searchParams.get('key') || '';
+  if (q && await sameSecret(q, secret)) {
+    if (url.searchParams.get('format') === 'json') return { ok: true }; // scripts that still pass it
+    url.searchParams.delete('key');
+    return { res: new Response(null, { status: 303, headers: { Location: url.pathname + url.search, 'Set-Cookie': statsCookie(await cookieToken(secret)), 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' } }) };
+  }
+  return { res: html(LOGIN_PAGE, q ? 401 : 200) };
+}
+async function stats(request, url, env, ctx) {
+  const gate = await statsGate(request, url, env);
+  if (!gate.ok) return gate.res;
   const DB = env.STATS;
   const all = async (sql, ...b) => ((await DB.prepare(sql).bind(...b).all()).results || []);
   const one = async (sql, ...b) => (await DB.prepare(sql).bind(...b).first()) || {};
@@ -403,7 +438,8 @@ async function handle(request, env, ctx) {
     if (request.method === 'GET' && (url.pathname === '/' || url.pathname === '/path-of-building-poe2/' || url.pathname === '/linux/' || url.pathname === '/setup/')) countVisit(request, env, ctx, url.pathname);
     if (url.pathname === '/api/stats') {
       if (!await allowed(env, 'RL_STATS', request, 'stats')) return tooMany();
-      return stats(url, env, ctx).catch(() => new Response('Error', { status: 500 }));
+      if (request.method !== 'GET' && request.method !== 'POST') return new Response('Method not allowed', { status: 405 });
+      return stats(request, url, env, ctx).catch((err) => { console.error('stats: ' + (err && err.message || err)); return new Response('Error', { status: 500 }); });
     }
     if (!url.pathname.startsWith('/ninja/')) return env.ASSETS.fetch(request);
     if (request.method !== 'GET') return new Response('Method not allowed', { status: 405 });
@@ -440,7 +476,6 @@ async function handle(request, env, ctx) {
       headers: {
         'Content-Type': 'application/json', // always: never let poe.ninja's answer be read as a page on this site
         'Cache-Control': res.ok ? `public, max-age=${TTL[m[1]]}` : 'no-store',
-        'Access-Control-Allow-Origin': '*',
         'X-Proxied-From': 'poe.ninja',
       },
     });

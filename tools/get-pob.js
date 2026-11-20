@@ -89,6 +89,24 @@ function buildHost() {
   console.log('Built pobhost.exe.');
 }
 
+// poekeys.exe: the Windows key helper (src/keysender.js), prebuilt so the app doesn't start PowerShell
+// and compile it on every launch. Same compiler; the C# comes from keysender.js so there's one copy.
+function buildKeys() {
+  if (process.platform !== 'win32') return;
+  const out = path.join(DEST, 'runtime', 'poekeys.exe');
+  const from = path.join(ROOT, 'src', 'keysender.js');
+  if (fs.existsSync(out) && fs.statSync(out).mtimeMs > fs.statSync(from).mtimeMs) { console.log('poekeys.exe is up to date.'); return; }
+  const win = process.env.WINDIR || 'C:\\Windows';
+  const csc = [path.join(win, 'Microsoft.NET', 'Framework64', 'v4.0.30319', 'csc.exe'), path.join(win, 'Microsoft.NET', 'Framework', 'v4.0.30319', 'csc.exe')].find((p) => fs.existsSync(p));
+  if (!csc) { console.error('The C# compiler that ships with Windows (.NET Framework 4) was not found, so poekeys.exe is left out (the app uses PowerShell instead).'); return; }
+  const { CS_SOURCE, CS_MAIN } = require('../src/keysender');
+  const src = path.join(DEST, 'runtime', 'poekeys.cs');
+  fs.writeFileSync(src, CS_SOURCE + '\n' + CS_MAIN);
+  run(csc, ['/nologo', '/optimize+', '/platform:anycpu', '/target:exe', `/out:${out}`, src]);
+  fs.rmSync(src, { force: true });
+  console.log('Built poekeys.exe.');
+}
+
 // vendor/pob/runtime/linux/luajit and lua-utf8.so
 function buildLinuxRuntime() {
   if (process.platform !== 'linux') return;
@@ -126,5 +144,6 @@ module.exports = { TARGETS };
 if (require.main === module) {
   for (const t of TARGETS) fetchPob(t);
   buildHost();
+  buildKeys();
   buildLinuxRuntime();
 }

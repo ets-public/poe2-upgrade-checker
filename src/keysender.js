@@ -10,10 +10,10 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const PS_SCRIPT = `
-$ErrorActionPreference = 'Stop'
-Add-Type -TypeDefinition @"
-using System;
+// The Windows helper's C#: window checks and the one Ctrl+C. Compiled into poekeys.exe when the app is
+// built (tools/get-pob.js, with the C# compiler that ships with Windows), and run from there. If that
+// .exe is missing (running from source without a build), PowerShell compiles the same code at start.
+const CS_SOURCE = String.raw`using System;
 using System.Runtime.InteropServices;
 public static class PoeKeys {
   [DllImport("user32.dll")] static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);
@@ -109,6 +109,39 @@ public static class PoeKeys {
     Key(0x11, true);                                 // Ctrl up
   }
 }
+`;
+
+// the check before every keystroke, the same in poekeys.exe and the PowerShell fallback: only ever press
+// Ctrl+C in the game (in another window it would copy, or in a terminal interrupt, something else).
+// "?" (a window whose process we can't name) only counts when the mouse is over the game.
+const CS_MAIN = String.raw`
+public static class PoeKeysMain {
+  public static bool IsGameTarget(string t) {
+    return System.Text.RegularExpressions.Regex.IsMatch(t, "^fg=PathOfExile[^;]*;") || t.StartsWith("fg=?;over=PathOfExile");
+  }
+  public static int Main() {
+    Console.Out.WriteLine("ready"); Console.Out.Flush();
+    string line;
+    while ((line = Console.In.ReadLine()) != null) {
+      try {
+        string[] parts = line.Split(' ');
+        int pid = 0; if (parts.Length > 1) int.TryParse(parts[1], out pid);
+        string target = PoeKeys.Prepare(pid, parts.Length > 2 && parts[2] == "nudge");
+        if (IsGameTarget(target)) PoeKeys.Copy(parts[0] == "advanced"); else target += ";skipped";
+        Console.Out.WriteLine("ok " + target);
+      } catch (Exception e) { Console.Out.WriteLine("err " + e.Message.Replace('\r', ' ').Replace('\n', ' ')); }
+      Console.Out.Flush();
+    }
+    return 0;
+  }
+}
+`;
+
+const PS_SCRIPT = `
+$ErrorActionPreference = 'Stop'
+Add-Type -TypeDefinition @"
+${CS_SOURCE}
+${CS_MAIN}
 "@
 [Console]::Out.WriteLine('ready')
 while ($true) {
@@ -117,9 +150,8 @@ while ($true) {
   try {
     $parts = $line.Split(' ')
     $target = [PoeKeys]::Prepare([int]($(if ($parts.Count -gt 1) { $parts[1] } else { 0 })), ($parts.Count -gt 2 -and $parts[2] -eq 'nudge'))
-    # only ever press Ctrl+C in the game: in another window it would copy (or, in a terminal, interrupt) something else
-    # "?" (a window whose process we can't name) only counts when the mouse is over the game
-    if ($target -match '^fg=PathOfExile[^;]*;' -or $target -match '^fg=\\?;over=PathOfExile') { [PoeKeys]::Copy($parts[0] -eq 'advanced') } else { $target += ';skipped' }
+    # only ever press Ctrl+C in the game (the same check as poekeys.exe)
+    if ([PoeKeysMain]::IsGameTarget($target)) { [PoeKeys]::Copy($parts[0] -eq 'advanced') } else { $target += ';skipped' }
     [Console]::Out.WriteLine('ok ' + $target)
   } catch { [Console]::Out.WriteLine('err ' + $_.Exception.Message) }
 }
@@ -347,14 +379,26 @@ class KeySender {
     this.ready = false;
     this.waiters = [];
     this.supported = process.platform === 'win32' || process.platform === 'linux';
-    this.mode = process.platform === 'linux' ? 'python' : 'powershell';
+    // Windows: the prebuilt poekeys.exe when it's there (starts at once, no PowerShell), else PowerShell
+    this.exe = process.platform === 'win32' ? KeySender.findExe() : null;
+    this.mode = process.platform === 'linux' ? 'python' : (this.exe ? 'native' : 'powershell');
     this.unavailable = null; // why sending keys can't work here (Linux without Python/X11 and xdotool)
+  }
+
+  // poekeys.exe: next to Path of Building's host in the installed app, or in vendor/ after a build from source
+  static findExe() {
+    const tries = [];
+    if (process.resourcesPath) tries.push(path.join(process.resourcesPath, 'pob', 'poekeys.exe'));
+    tries.push(path.join(__dirname, '..', 'vendor', 'pob', 'runtime', 'poekeys.exe'));
+    return tries.find((p) => { try { return fs.statSync(p).isFile(); } catch (_) { return false; } }) || null;
   }
 
   start() {
     if (!this.supported || this.proc || this.mode === 'xdotool') return;
     try {
-      if (this.mode === 'python') {
+      if (this.mode === 'native') {
+        this.proc = spawn(this.exe, [], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
+      } else if (this.mode === 'python') {
         const script = path.join(this.dir, 'poe2uc-keys.py');
         fs.writeFileSync(script, PY_SCRIPT);
         this.proc = spawn('python3', ['-u', script], { stdio: ['pipe', 'pipe', 'pipe'] });
@@ -390,12 +434,17 @@ class KeySender {
       this.log('keysender: ' + err.message);
       this.proc = null; this.ready = false;
       this.waiters.splice(0).forEach((w) => w(false));
+      // poekeys.exe blocked (antivirus) or gone: use PowerShell from the next press on
+      if (this.mode === 'native') { this.mode = 'powershell'; this.log('keysender: poekeys.exe would not start, using PowerShell'); }
       if (this.mode === 'python') { this.stopping = true; this.fallbackLinux(err.message); } // no python3
     });
     this.proc.stdin.on('error', (err) => this.log('keysender: ' + err.message));
     this.proc.on('exit', (code) => {
       this.log('keysender exited ' + code);
+      const wasReady = this.ready;
       this.proc = null; this.ready = false;
+      // poekeys.exe stopped before it was ready (blocked, or .NET missing): PowerShell from now on
+      if (this.mode === 'native' && !wasReady && !this.stopping) { this.mode = 'powershell'; this.log('keysender: poekeys.exe stopped before it was ready, using PowerShell'); }
       this.waiters.splice(0).forEach((w) => w(false));
       // Linux: no X11/XTest (or no display): try xdotool instead of restarting a helper that can't work
       if (this.mode === 'python' && this.fatal) { this.fallbackLinux(this.fatal); return; }
@@ -451,4 +500,4 @@ class KeySender {
   stop() { this.stopping = true; if (this.proc) { try { this.proc.kill(); } catch (_) {} this.proc = null; } }
 }
 
-module.exports = { KeySender, PS_SCRIPT, PY_SCRIPT };
+module.exports = { KeySender, PS_SCRIPT, PY_SCRIPT, CS_SOURCE, CS_MAIN };

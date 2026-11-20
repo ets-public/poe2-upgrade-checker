@@ -123,6 +123,29 @@ if not build or (mainObject and mainObject.promptMsg) then
   os.exit(1)
 end
 
+-- Path of Building is running now. From here on it only reads builds and items you give it (a pobb.in
+-- link, a .build file from a guide): take away what it never needs for that, so a build file can't do
+-- more than describe a build, whatever ends up in it. No running programs, no loading native code, no
+-- deleting or renaming files, and writing only inside Path of Building's own folder (it keeps a cache
+-- of unpacked timeless jewel data there).
+do
+  local function blocked(name) return function() error(name .. " is turned off in the app's Path of Building", 2) end end
+  os.execute, io.popen, os.remove, os.rename, os.tmpname = blocked("os.execute"), blocked("io.popen"), blocked("os.remove"), blocked("os.rename"), blocked("os.tmpname")
+  package.loadlib = blocked("package.loadlib")
+  package.cpath = ""
+  package.loaded.ffi = nil
+  package.preload.ffi = blocked("ffi")
+  local rawOpen = io.open
+  io.open = function(path, mode)
+    mode = mode or "r"
+    if mode:find("[wa+]") then
+      local p = tostring(path)
+      if p:find("^[/\\]") or p:find("^%a:") or p:find("%.%.") then return nil, p .. ": writing outside Path of Building's folder is turned off" end
+    end
+    return rawOpen(path, mode)
+  end
+end
+
 local function enc(v) return dkjson.encode(v) end
 
 -- the numbers we report, read safely from a PoB output table
