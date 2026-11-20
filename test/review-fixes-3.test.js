@@ -76,6 +76,10 @@ test('key helper: poekeys.exe is built and packaged, PowerShell is the fallback'
   assert.ok(JSON.stringify(pkg.build.win.extraResources).includes('runtime/poekeys.exe'));
   const getPob = fs.readFileSync(path.join(__dirname, '..', 'tools', 'get-pob.js'), 'utf8');
   assert.ok(/buildKeys\(\);/.test(getPob));
+  // the installed app keeps it where extraResources puts it: resources/pob/runtime/poekeys.exe
+  const winRes = pkg.build.win.extraResources.find((r) => (r.filter || []).includes('runtime/poekeys.exe'));
+  const ks = fs.readFileSync(path.join(__dirname, '..', 'src', 'keysender.js'), 'utf8');
+  assert.ok(ks.includes(`path.join(process.resourcesPath, '${winRes.to}', 'runtime', 'poekeys.exe')`), 'findExe looks where the build puts it');
   const k = new KeySender(() => {});
   if (process.platform !== 'win32') assert.strictEqual(k.exe, null);
   // a native helper that stops before it's ready hands over to PowerShell
