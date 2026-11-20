@@ -88,16 +88,46 @@ const WIZ = [
   },
   {
     title: "You're set",
-    body: () => `<p>Try it now: hover an item in game and press <b>${esc((state.hotkeyStatus && state.hotkeyStatus.accelerator) || state.settings.hotkey || 'F2')}</b>.</p>
-      <div class="note" id="wizLive"><span class="spinner"></span> Waiting for your first item…</div>
-      <ul><li><b>Find upgrades</b> searches the trade site and shows listings scored for your build.</li><li><b>What's it worth?</b> prices loot.</li><li>Set your price range and stats to ignore on the <b>Find upgrades</b> page.</li></ul>`,
+    body: () => {
+      const hk = esc((state.hotkeyStatus && state.hotkeyStatus.accelerator) || state.settings.hotkey || 'F2');
+      // what would stop the first check from working, said before you try
+      const warn = [];
+      if (state.hotkeyStatus && state.hotkeyStatus.ok === false) warn.push(`<b>${hk}</b> isn't working: another program is using it. Close this guide, pick another key in <b>Settings → Hotkeys</b>, then try it.`);
+      if (state.game === 'poe1' && !state.pobOn) warn.push('Path of Exile 1 items are judged by Path of Building only: go <b>Back</b> to <b>Your build</b> and import yours first.');
+      else if (!state.pobOn && !Object.keys(state.equipped || {}).length) warn.push('No build and no gear yet: the popup will show, but it can only say how good an item is on its own. Import a build (Back to <b>Your build</b>) for real answers.');
+      return `<p><b>Test it now:</b> in game, hover an item until its tooltip shows and press <b>${hk}</b>.</p>
+      ${warn.map((w) => `<div class="warnbox">${window.ICON.warn} ${w}</div>`).join('')}
+      <div class="note" id="wizLive" role="status" aria-live="polite"><span class="spinner"></span> Waiting for your first item…</div>
+      <div class="help hidden" id="wizSlow"><p>Nothing yet? The usual reasons:</p><ul>
+        <li>The game is in <b>Fullscreen</b>: set <b>Windowed Fullscreen</b> (Options → Graphics).</li>
+        <li>The game was started <b>as administrator</b>: Windows then blocks the Ctrl+C the app sends. Start it normally.</li>
+        <li>No tooltip under the mouse: hover the item until its tooltip shows, then press <b>${hk}</b>.</li>
+        <li>Another program (Discord, a recording app, another overlay) uses <b>${hk}</b>: pick another key in Settings.</li></ul></div>
+      <ul><li><b>Find upgrades</b> searches the trade site and shows listings scored for your build.</li><li><b>What's it worth?</b> prices loot.</li><li>Set your price range and stats to ignore on the <b>Find upgrades</b> page.</li></ul>`;
+    },
+    after: () => {
+      clearTimeout(wizSlowTimer);
+      wizSlowTimer = setTimeout(() => { const live = $('#wizLive'); const slow = $('#wizSlow'); if (live && slow && !live.classList.contains('ok-line')) slow.classList.remove('hidden'); }, 45000);
+    },
   },
 ];
-// the last step waits for a real hotkey press and says it worked
+let wizSlowTimer = null;
+// the last step waits for a real hotkey press: says it worked, or why it didn't (and keeps waiting)
 let wizLiveHooked = false;
 function hookWizLive() {
   if (wizLiveHooked) return; wizLiveHooked = true;
-  window.api.onItemCopied((info) => { const el = document.getElementById('wizLive'); if (el) { el.className = 'ok-line'; el.textContent = `✓ It works: ${(info && info.name) || 'your item'} was checked. You're all set.`; } });
+  window.api.onItemCopied((info) => {
+    const el = document.getElementById('wizLive'); if (!el) return;
+    clearTimeout(wizSlowTimer); const slow = document.getElementById('wizSlow'); if (slow) slow.classList.add('hidden');
+    el.className = 'ok-line'; el.textContent = `✓ It works: ${(info && info.name) || 'your item'} was checked. You're all set.`;
+  });
+  if (window.api.onHotkeyMiss) {
+    window.api.onHotkeyMiss((info) => {
+      const el = document.getElementById('wizLive'); if (!el || el.classList.contains('ok-line')) return;
+      el.className = 'warnbox';
+      el.innerHTML = `${window.ICON.warn} No item came back. ${esc((info && info.reason) || 'Nothing was copied.')}<br>Fix that and press it again: this keeps waiting.`;
+    });
+  }
 }
 function renderWiz() {
   hookWizLive();

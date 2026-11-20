@@ -242,7 +242,10 @@ module.exports = function (C) {
       await clipWrite(before || '');
       C.lastClip = before || '';
       C.log(`hotkey: no item text (${sent ? `sent: ${sent}` : 'not sent'}, got ${text ? 'non-item text' : 'nothing'})`);
-      C.showResult({ ok: false, reason: noItemReason(sent, text) });
+      const reason = noItemReason(sent, text);
+      C.showResult({ ok: false, reason });
+      // the setup guide's last step says why too, while it waits for your first item
+      C.notifySettings('hotkey:miss', { reason, admin: /game-admin/.test(String(sent || '')) });
     } finally {
       hotkeyBusy = false;
     }
