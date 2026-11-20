@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.5.8 - 2026-11-20
+- **The built-in Ctrl+C helper is used now.** 0.5.7 shipped `poekeys.exe` but looked for it in the wrong folder, so it still started PowerShell as before (everything worked, just the old way).
+
 ## 0.5.7 - 2026-11-20
 - **Path of Exile 1: Path of Building Community 2.68.1**, with the 3.30 passive tree. A PoE1 build is judged on the newest tree (3.30); a build saved on an older tree is moved to it as before.
 - **The first-run guide ends with a real test.** Its last step asks you to hover an item in game and press F2, says *It works* when it does, and when nothing comes back says why right there (the mouse wasn't over the game, the game runs as administrator, no tooltip showing) and keeps waiting while you fix it. It warns you first if the hotkey isn't working or there's no build to judge items with yet (in PoE1, nothing works without one), and after 45 seconds with nothing it lists the usual reasons, Fullscreen first.

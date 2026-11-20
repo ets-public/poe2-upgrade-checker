@@ -385,10 +385,10 @@ class KeySender {
     this.unavailable = null; // why sending keys can't work here (Linux without Python/X11 and xdotool)
   }
 
-  // poekeys.exe: next to Path of Building's host in the installed app, or in vendor/ after a build from source
+  // poekeys.exe: next to Path of Building's host (resources/pob/runtime) in the installed app, or in vendor/ after a build from source
   static findExe() {
     const tries = [];
-    if (process.resourcesPath) tries.push(path.join(process.resourcesPath, 'pob', 'poekeys.exe'));
+    if (process.resourcesPath) tries.push(path.join(process.resourcesPath, 'pob', 'runtime', 'poekeys.exe'));
     tries.push(path.join(__dirname, '..', 'vendor', 'pob', 'runtime', 'poekeys.exe'));
     return tries.find((p) => { try { return fs.statSync(p).isFile(); } catch (_) { return false; } }) || null;
   }
