@@ -118,7 +118,8 @@ while ($true) {
     $parts = $line.Split(' ')
     $target = [PoeKeys]::Prepare([int]($(if ($parts.Count -gt 1) { $parts[1] } else { 0 })), ($parts.Count -gt 2 -and $parts[2] -eq 'nudge'))
     # only ever press Ctrl+C in the game: in another window it would copy (or, in a terminal, interrupt) something else
-    if ($target -match '^fg=(PathOfExile[^;]*|\\?);') { [PoeKeys]::Copy($parts[0] -eq 'advanced') } else { $target += ';skipped' }
+    # "?" (a window whose process we can't name) only counts when the mouse is over the game
+    if ($target -match '^fg=PathOfExile[^;]*;' -or $target -match '^fg=\\?;over=PathOfExile') { [PoeKeys]::Copy($parts[0] -eq 'advanced') } else { $target += ';skipped' }
     [Console]::Out.WriteLine('ok ' + $target)
   } catch { [Console]::Out.WriteLine('err ' + $_.Exception.Message) }
 }
@@ -330,7 +331,8 @@ for line in sys.stdin:
         app_pid = int(parts[1]) if len(parts) > 1 else 0
         target = prepare(app_pid, len(parts) > 2 and parts[2] == 'nudge')
         # only ever press Ctrl+C in the game: in another window it would copy (or, in a terminal, interrupt) something else
-        if target.startswith('fg=PathOfExile;') or target.startswith('fg=?;'): copy(parts[0] == 'advanced')
+        # "?" (a window we can't name, e.g. no active window on some Wayland desktops) only counts when the mouse is over the game
+        if target.startswith('fg=PathOfExile;') or target.startswith('fg=?;over=PathOfExile'): copy(parts[0] == 'advanced')
         else: target += ';skipped'
         out('ok ' + target)
     except Exception as e:
@@ -422,9 +424,16 @@ class KeySender {
     if (!this.ready || !this.proc) { this.log('keysender: not ready'); return false; }
     return new Promise((resolve) => {
       // Linux: the helper first waits (up to 4 s) for the hotkey to be let go
+      // a timed-out press keeps its place in the queue: the helper answers every line in order, so its late
+      // answer is the one that takes it off (and the next press still gets its own answer)
       const t = setTimeout(() => { this.log('keysender: no answer'); resolve(false); }, this.mode === 'python' ? 5500 : 2500);
-      this.waiters.push((ok) => { clearTimeout(t); resolve(ok); });
-      try { this.proc.stdin.write(`${advanced ? 'advanced' : 'copy'} ${process.pid}${opts.nudge ? ' nudge' : ''}\n`); } catch (_) { clearTimeout(t); resolve(false); }
+      const w = (ok) => { clearTimeout(t); resolve(ok); };
+      this.waiters.push(w);
+      try { this.proc.stdin.write(`${advanced ? 'advanced' : 'copy'} ${process.pid}${opts.nudge ? ' nudge' : ''}\n`); } catch (_) {
+        // never sent, so no answer will come: take it off the queue, or it would take the next press's answer
+        const i = this.waiters.indexOf(w); if (i >= 0) this.waiters.splice(i, 1);
+        w(false);
+      }
     });
   }
 

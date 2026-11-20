@@ -78,12 +78,13 @@ async function exchangeAll(game, league, ctx) {
 // is a random number the app made; it's hashed again here, and nothing else is kept: no IP address, no
 // account, no character, no items. n (counts of checks, price checks, searches, League start steps),
 // s (yes/no: guide done, build loaded, gear saved, ever checked an item) and e (counts of problems)
-// go to the usage table (app 0.5.3+). GET /api/stats?key=… shows the totals (the key is in D1's config).
+// go to the usage table (app 0.5.3+); t (why trade searches failed, counts per kind) to trade_fails. GET /api/stats?key=… shows the totals (the key is in D1's config).
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' } });
 async function sha(text) {
   const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
   return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
 }
+const TRADE_WHY = ['blocked', 'refused', 'complex', 'server', 'timeout', 'net', 'other'];
 async function ping(request, env) {
   if (!env.STATS) return json({ ok: false }, 503);
   let b;
@@ -113,8 +114,18 @@ async function ping(request, env) {
           num(b.e, 'hotkey'), num(b.e, 'pob'), num(b.e, 'trade')).run();
     } catch (_) { /* the usage table isn't there yet: the ping itself is kept */ }
   }
+  // why trade searches failed (app 0.5.7+): counts per kind only
+  if (b.t && typeof b.t === 'object' && TRADE_WHY.some((k) => Number(b.t[k]) > 0)) {
+    const num = (k) => Math.max(0, Math.min(9999, Math.floor(Number(b.t[k]) || 0)));
+    try {
+      await env.STATS.prepare(`INSERT INTO trade_fails (day, install, ${TRADE_WHY.join(', ')}) VALUES (?1, ?2, ${TRADE_WHY.map((_, i) => `?${i + 3}`).join(', ')})
+          ON CONFLICT (day, install) DO UPDATE SET ${TRADE_WHY.map((k) => `${k} = MAX(${k}, excluded.${k})`).join(', ')}`)
+        .bind(day, install, ...TRADE_WHY.map(num)).run();
+    } catch (err) { console.error('trade_fails: ' + (err.message || err)); /* the table isn't there yet */ }
+  }
   return json({ ok: true });
 }
+const semverCmp = (a, b) => { const p = (v) => String(v).split(/[.-]/).map((x) => Number(x) || 0); const x = p(a); const y = p(b); for (let i = 0; i < Math.max(x.length, y.length); i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0); } return 0; };
 const esc = (x) => String(x == null ? '' : x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 // the releases on GitHub (dates for the chart, download counts), cached for an hour
 async function releases(ctx) {
@@ -126,7 +137,7 @@ async function releases(ctx) {
     const list = res.ok ? await res.json() : [];
     // installers only: the updater's own small files (latest.yml, .blockmap) aren't downloads of the app
     const out = (Array.isArray(list) ? list : []).filter((r) => r && !r.draft).map((r) => ({
-      tag: String(r.tag_name || '').replace(/^v/, ''), day: String(r.published_at || r.created_at || '').slice(0, 10), pre: !!r.prerelease,
+      tag: String(r.tag_name || '').replace(/^v/, ''), day: String(r.published_at || r.created_at || '').slice(0, 10), at: String(r.published_at || r.created_at || ''), pre: !!r.prerelease,
       downloads: (r.assets || []).filter((a) => /\.(exe|AppImage)$/i.test(a.name || '')).reduce((n, a) => n + (Number(a.download_count) || 0), 0),
     }));
     if (ctx) ctx.waitUntil(caches.default.put(key, new Response(JSON.stringify(out), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' } })));
@@ -237,6 +248,11 @@ async function stats(url, env, ctx) {
         COUNT(DISTINCT CASE WHEN u.e_pob > 0 THEN u.install END) AS pob, COUNT(DISTINCT CASE WHEN u.e_trade > 0 THEN u.install END) AS trade
         FROM usage u JOIN pings p ON p.install = u.install AND p.day = u.day WHERE u.day >= ?1 GROUP BY p.version ORDER BY n DESC LIMIT 12`, since(7));
   } catch (_) { use = null; }
+  // why trade searches failed, last 7 days: installs that had each kind, and how many searches
+  let tradeWhy = null;
+  try {
+    tradeWhy = await one(`SELECT COUNT(*) AS n, ${TRADE_WHY.map((k) => `COUNT(DISTINCT CASE WHEN ${k} > 0 THEN install END) AS ${k}_i, SUM(${k}) AS ${k}`).join(', ')} FROM trade_fails WHERE day >= ?1`, since(7));
+  } catch (_) { tradeWhy = null; /* table not made yet */ }
   const rel = await releases(ctx);
   const today_ = today;
   const old = cohorts.filter((c) => c.day < today_);
@@ -245,7 +261,7 @@ async function stats(url, env, ctx) {
   const asc = daily.slice().reverse();
   const days = asc.map((r) => r.day);
   const vis = (day, page) => (visits.find((v) => v.day === day && v.page === page) || {}).n || 0;
-  if (url.searchParams.get('format') === 'json') return json({ today: d1, week: d7, month: d30, daily, versions, platforms, ever: total.n, since: started.d, cameBack: back, retention, week1: w1, month1: m1, quiet, byVersion, visits, use, setup, newSetup, problems, releases: rel });
+  if (url.searchParams.get('format') === 'json') return json({ today: d1, week: d7, month: d30, daily, versions, platforms, ever: total.n, since: started.d, cameBack: back, retention, week1: w1, month1: m1, quiet, byVersion, visits, use, setup, newSetup, problems, tradeWhy, releases: rel });
   const pct = (a, b) => (b ? `${Math.round(((a || 0) / b) * 100)}%` : '–');
   const card = (t, o) => `<div class="c"><h2>${t}</h2><b>${esc(o.all_)}</b><span>played ${esc(o.played)} · PoE2 ${esc(o.poe2)} · PoE1 ${esc(o.poe1)}${o.both_ ? ` · both ${esc(o.both_)}` : ''}</span></div>`;
   const big = (t, v, sub) => `<div class="c"><h2>${t}</h2><b>${v}</b><span>${sub}</span></div>`;
@@ -257,7 +273,8 @@ async function stats(url, env, ctx) {
   const C1 = '#c9a86a'; const C2 = '#5f7fa8'; const CL = '#e8d9a8';
   const activity = chart(days, [{ label: 'new', color: C1, values: asc.map((r) => r.fresh) }, { label: 'returning', color: C2, values: asc.map((r) => r.n - r.fresh) }], { label: 'played', color: CL, values: asc.map((r) => r.played) }, marks);
   // update speed: the newest stable release's share of each day's active installs
-  const stable = rel.filter((r) => !r.pre).sort((a, b) => (a.day < b.day ? 1 : -1));
+  // newest first by publish time (two releases can come out the same day), then by version
+  const stable = rel.filter((r) => !r.pre).sort((a, b) => String(b.at || b.day).localeCompare(String(a.at || a.day)) || semverCmp(b.tag, a.tag));
   const newest = stable[0];
   const adopt = newest ? days.filter((d) => d >= newest.day).map((d) => { const tot = byVersion.filter((x) => x.day === d).reduce((a, x) => a + x.n, 0); const on = byVersion.filter((x) => x.day === d && x.version === newest.tag).reduce((a, x) => a + x.n, 0); return { day: d, on, tot }; }) : [];
   const stuck = newest ? byVersion.filter((x) => x.day >= ago(2) && x.version !== newest.tag) : [];
@@ -294,7 +311,8 @@ ${use && use.n ? `<h3>What's used (last 7 days)</h3><p class="n">Installs on app
 <h3>How far people set it up</h3><p class="n">As each install was on its latest day. New installs: first counted in the last 7 days.</p><table><tr><th></th><th>Finished the guide</th><th>Build loaded</th><th>Gear saved</th><th>Checked an item</th></tr>
 <tr><td>Active (7 days), ${esc(setup.n || 0)}</td><td>${pct(setup.guide, setup.n)}</td><td>${pct(setup.build, setup.n)}</td><td>${pct(setup.gear, setup.n)}</td><td>${pct(setup.checked, setup.n)}</td></tr>
 <tr><td>New, ${esc(newSetup.n || 0)}</td><td>${pct(newSetup.guide, newSetup.n)}</td><td>${pct(newSetup.build, newSetup.n)}</td><td>${pct(newSetup.gear, newSetup.n)}</td><td>${pct(newSetup.checked, newSetup.n)}</td></tr></table>
-<h3>Problems by version (last 7 days)</h3><p class="n">Installs that had each problem at least once.</p><table><tr><th>Version</th><th>Installs</th><th>Hotkey not registered</th><th>Path of Building failed</th><th>Trade search failed</th></tr>${rows(problems, ['version', 'n', (r) => `${r.hotkey} (${pct(r.hotkey, r.n)})`, (r) => `${r.pob} (${pct(r.pob, r.n)})`, (r) => `${r.trade} (${pct(r.trade, r.n)})`])}</table>`
+<h3>Problems by version (last 7 days)</h3><p class="n">Installs that had each problem at least once.</p><table><tr><th>Version</th><th>Installs</th><th>Hotkey not registered</th><th>Path of Building failed</th><th>Trade search failed</th></tr>${rows(problems, ['version', 'n', (r) => `${r.hotkey} (${pct(r.hotkey, r.n)})`, (r) => `${r.pob} (${pct(r.pob, r.n)})`, (r) => `${r.trade} (${pct(r.trade, r.n)})`])}</table>
+${tradeWhy && tradeWhy.n ? `<h3>Why trade searches failed (last 7 days, app 0.5.7+)</h3><p class="n">Installs that had each kind at least once, and how many failed searches. Blocked: the site said 403 (Cloudflare). Refused: 400 or another 4xx (a filter the site doesn't know). Server: 5xx or maintenance.</p><table><tr><th>Kind</th><th>Installs</th><th>Searches</th></tr>${rows(TRADE_WHY.map((k) => ({ k, i: tradeWhy[k + '_i'] || 0, s: tradeWhy[k] || 0 })), ['k', 'i', 's'])}</table>` : ''}`
     : '<h3>What\'s used, setup and problems</h3><p class="n">These come from app 0.5.3 and later: nothing yet.</p>'}
 <h3>Update speed</h3><p class="n">${newest ? `${esc(newest.tag)} (${esc(newest.day)}): its share of each day's active installs.` : 'No release found on GitHub.'}</p>
 ${adopt.length ? `<table><tr><th>Day</th><th>On ${esc(newest.tag)}</th></tr>${adopt.slice().reverse().map((a) => `<tr><td>${esc(a.day)}</td><td>${esc(a.on)} of ${esc(a.tot)} (${pct(a.on, a.tot)})</td></tr>`).join('')}</table>` : ''}

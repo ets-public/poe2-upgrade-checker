@@ -28,15 +28,9 @@ module.exports = function (C) {
     return json.result;
   }
   async function fetchViaPage(league, searchId, ids, game) {
-    if (!C.tradeWin || C.tradeWin.isDestroyed()) {
-      C.tradeWin = new BrowserWindow({ show: false, webPreferences: { sandbox: true, contextIsolation: true, partition: C.POE_PARTITION } });
-    }
-    if (!C.tradeWin.webContents.getURL().startsWith(trade.BASE)) {
-      await Promise.race([C.tradeWin.loadURL(trade.pageUrl(game, league)),
-        new Promise((_, rej) => setTimeout(() => rej(new Error('page load timed out')), 15000))]);
-    }
+    const wc = await C.tradePage(trade.pageUrl(game, league));
     const url = trade.fetchUrl(ids, searchId, game);
-    const r = await C.withTimeout(C.tradeWin.webContents.executeJavaScript(`fetch(${JSON.stringify(url)}, { credentials: 'include', headers: { Accept: 'application/json' } }).then(async (x) => ({ status: x.status, ra: x.headers.get('retry-after'), json: await x.json().catch(() => ({})) }))`, true), 20000, 'the trade page');
+    const r = await C.withTimeout(wc.executeJavaScript(`fetch(${JSON.stringify(url)}, { credentials: 'include', headers: { Accept: 'application/json' } }).then(async (x) => ({ status: x.status, ra: x.headers.get('retry-after'), json: await x.json().catch(() => ({})) }))`, true), 20000, 'the trade page');
     if (r && r.status === 429) {
       const ra = Number(r.ra);
       fetchNextAt = Date.now() + (ra > 0 ? ra * 1000 : 10000);

@@ -242,6 +242,7 @@ const C = {
   get tradeDataBy() { return M.search.tradeDataBy; },
   get tradePrice() { return M.worth.tradePrice; },
   get tradeWin() { return M.search.tradeWin; }, set tradeWin(v) { M.search.tradeWin = v; },
+  get tradePage() { return M.search.tradePage; },
   get UA() { return M.search.UA; },
   get uiScale() { return M.popup.uiScale; },
   get updates() { return updates; },

@@ -37,11 +37,7 @@ module.exports = function (C) {
     } catch (_) { return false; }
     if (!force && Date.now() - signedCache.at < 10 * 60000) return signedCache.v;
     try {
-      if (!C.tradeWin || C.tradeWin.isDestroyed()) C.tradeWin = new BrowserWindow({ show: false, webPreferences: { sandbox: true, contextIsolation: true, partition: C.POE_PARTITION } });
-      if (!C.tradeWin.webContents.getURL().startsWith(trade.BASE)) {
-        await Promise.race([C.tradeWin.loadURL(`${trade.BASE}/${C.G().trade.page}`), new Promise((_, rej) => setTimeout(() => rej(new Error('page load timed out')), 15000))]);
-      }
-      signedCache = { at: Date.now(), v: await checkIn(C.tradeWin.webContents) };
+      signedCache = { at: Date.now(), v: await checkIn(await C.tradePage(`${trade.BASE}/${C.G().trade.page}`)) };
     } catch (err) { C.log('sign-in check: ' + (err.message || err)); signedCache = { at: Date.now(), v: false }; }
     return signedCache.v;
   }
@@ -106,10 +102,9 @@ module.exports = function (C) {
         if (!tok) return { ok: false, error: 'The trade site didn\'t offer a hideout trip for this listing (it may be sold). Try "on trade site".' };
         l.hideoutToken = tok;
       }
-      if (!C.tradeWin || C.tradeWin.isDestroyed()) C.tradeWin = new BrowserWindow({ show: false, webPreferences: { sandbox: true, contextIsolation: true, partition: C.POE_PARTITION } });
-      if (!C.tradeWin.webContents.getURL().startsWith(trade.BASE)) await C.withTimeout(C.tradeWin.loadURL(trade.pageUrl(C.resultsState.r.game, C.resultsState.r.league)), 15000, 'the trade page');
+      const wc = await C.tradePage(trade.pageUrl(C.resultsState.r.game, C.resultsState.r.league));
       const js = `fetch('/api/${C.G(C.resultsState.r.game).trade.api}/whisper', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: ${JSON.stringify(JSON.stringify({ token: l.hideoutToken }))} }).then(async (r) => ({ status: r.status, json: await r.json().catch(() => ({})) }))`;
-      const r = await C.withTimeout(C.tradeWin.webContents.executeJavaScript(js, true), 20000, 'the trade site');
+      const r = await C.withTimeout(wc.executeJavaScript(js, true), 20000, 'the trade site');
       C.log(`hideout travel: HTTP ${r.status} ${JSON.stringify(r.json).slice(0, 200)}`);
       if (r.status === 200 && !(r.json && r.json.error)) return { ok: true };
       return { ok: false, error: (r.json && r.json.error && r.json.error.message) || `The trade site said ${r.status}.` };
