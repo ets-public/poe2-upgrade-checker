@@ -1,6 +1,7 @@
 # Changelog
 
-## Unreleased
+## 0.5.7 - 2026-11-20
+- **Path of Exile 1: Path of Building Community 2.68.1**, with the 3.30 passive tree. A PoE1 build is judged on the newest tree (3.30); a build saved on an older tree is moved to it as before.
 - **The first-run guide ends with a real test.** Its last step asks you to hover an item in game and press F2, says *It works* when it does, and when nothing comes back says why right there (the mouse wasn't over the game, the game runs as administrator, no tooltip showing) and keeps waiting while you fix it. It warns you first if the hotkey isn't working or there's no build to judge items with yet (in PoE1, nothing works without one), and after 45 seconds with nothing it lists the usual reasons, Fullscreen first.
 - **The Ctrl+C helper is part of the app now.** On Windows the app used to start PowerShell and compile its key helper every time it launched, which took a few seconds and looks suspicious to some antivirus programs. The helper now comes built (`poekeys.exe`, next to Path of Building), starts at once and does exactly the same thing: one Ctrl+C per hotkey press, only in the game. If it can't start, the app falls back to PowerShell as before.
 - **A build file can only describe a build.** Path of Building runs inside the app on builds you import from anyone (pobb.in, a guide's .build file). Once it has started, it can no longer run programs, load native code, delete or rename files, or write outside its own folder.

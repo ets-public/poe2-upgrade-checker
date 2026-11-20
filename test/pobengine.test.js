@@ -53,8 +53,8 @@ test('PoB1: a build on an old passive tree moves to the newest one', { skip: ski
   const r = await e1.loadBuild(fx('pob1/occultist-3_13.xml'));
   assert.strictEqual(r.ok, true);
   assert.strictEqual(r.ascendancy, 'Occultist');
-  assert.strictEqual(r.treeVersion, '3_29');
-  assert.deepStrictEqual(r.treeConverted, { from: '3_13', to: '3_29' });
+  assert.strictEqual(r.treeVersion, '3_30');
+  assert.deepStrictEqual(r.treeConverted, { from: '3_13', to: '3_30' });
 });
 
 test('PoB1 refuses a PoE2 build, PoB2 a PoE1 build', { skip: skip1 || skip2, timeout: 120000 }, async () => {
