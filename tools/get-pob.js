@@ -29,10 +29,10 @@ const TARGETS = [
     // PoE1. Runs in the same host and LuaJIT as PoE2's (vendor/pob/runtime). Older passive trees
     // are left out (a build made on one is moved to the newest tree when it loads), and so is the
     // 170 MB of timeless jewel data (zips): those jewels aren't judged.
-    name: 'Path of Building Community (PoE1)', repo: 'https://github.com/PathOfBuildingCommunity/PathOfBuilding.git', tag: 'v2.67.2', commit: 'b32759ab0f31a1c8499a0d420cb0f0633d4fe478',
+    name: 'Path of Building Community (PoE1)', repo: 'https://github.com/PathOfBuildingCommunity/PathOfBuilding.git', tag: 'v2.68.1', commit: 'a41fec6c20f822a658ae5df1273e8c69d5969bac',
     dest: path.join(ROOT, 'vendor', 'pob1'),
     paths: ['/src/**/*.lua', '/src/**/*.json', '/src/**/*.jsonc', '!/src/Export/**', '!/src/TreeData/**', '/src/TreeData/*.lua',
-      '/src/TreeData/3_29/*.lua', '/src/TreeData/3_28/*.lua', '/src/TreeData/3_19/Assets.lua', '/src/TreeData/legion/*', '!/src/TreeData/legion/*.png',
+      '/src/TreeData/3_30/*.lua', '/src/TreeData/3_29/*.lua', '/src/TreeData/3_19/Assets.lua', '/src/TreeData/legion/*', '!/src/TreeData/legion/*.png',
       '/runtime/lua/', '/LICENSE.md', '/manifest.xml'],
   },
 ];
