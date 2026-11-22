@@ -36,6 +36,7 @@ The whole setup, step by step (build import from Path of Building or poe.ninja, 
 
 - **Judged by Path of Building, for any build:**
   - Paste your PoB2 export on *My gear*. The app bundles Path of Building's calculation engine and checks every item against your build: DPS / minion DPS, effective HP, resistances against the cap, Spirit, attribute requirements.
+  - **The same numbers as Path of Building.** Under each verdict, *All changes in Path of Building* opens the list Path of Building shows when you hover the item there: every stat that changes, for you and your minions.
   - *Find upgrades* builds its trade search with Path of Building's own search generator (like PoB's Trader), then checks every listing exactly.
 - **Resistances come first:**
   - Items that cap a resistance you're short of are marked "✓ Caps your … resistance" and go to the top of trade results.
@@ -142,7 +143,8 @@ The app works for **Path of Exile 1** too. It knows which game you're in on ever
 - **Verdicts, Find upgrades and What's it worth?** work as in PoE2, on the PoE1 trade site, with prices in chaos and divines (poe.ninja's PoE1 rates).
 - **Links and flasks:** an item with fewer links than the gems you use in that slot is flagged, and flasks are tried in your flask slots.
 - **Price checks know PoE1's items:** cluster jewels are priced by size, passives, small passive bonus and notables, caster weapons by their mods (not their DPS), fractured mods as fractured, and tier 17 maps by their own map. Patch 3.30's Atlas Drops (searched under the trade site's new filter), Threads and Soul Cores are understood, and so are Twice Corrupted items, 9-mod corrupted maps, the rare-only map mods (Area contains a Mirage...) and Delirious maps: the map card groups the rare-only mods and says how many extra rewards the Delirium mist gives.
-- **Not judged yet:** cluster jewels and timeless jewels. *Craftable bases* is PoE2 only for now.
+- **Timeless jewels in your build count.** The lookup tables for the five Legion jewels and Heroic Tragedy come with the app, so the passives they change are in every verdict. Builds on the 3.27 to 3.30 passive trees are read as they are; older ones are moved to 3.30.
+- **Not judged yet:** a cluster or timeless jewel you hover (the ones already in your build are counted). *Craftable bases* is PoE2 only for now.
 - If something looks wrong, email support@poe2upgrade.com with the log (Tray → Open log).
 
 ## Character page

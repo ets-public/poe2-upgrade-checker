@@ -4,6 +4,7 @@
 -- the same in both files.
 local S = ...
 local GAME, num, pick, makeItem, pobSlot = S.GAME, S.num, S.pick, S.makeItem, S.pobSlot
+local skillState, restoreSkills = S.skillState, S.restoreSkills
 
 -- PoE1 loot filter: the affix names ("Virile", "of the Rainbow") of the higher tiers of trade stats,
 -- for mods that can roll on an item with these tags (ring, amulet, belt, helmet, gloves...).
@@ -299,6 +300,7 @@ local function runeApply(req)
   end
   -- every slot at once: swap them in, calculate, put the old items back whatever happens
   local saved = {}
+  local st = skillState() -- the main skill stays the same skill through the swap and back
   local okc, after = pcall(function()
     for _, o in ipairs(override) do
       local slot = build.itemsTab.slots[o.slot]
@@ -307,6 +309,7 @@ local function runeApply(req)
       slot:SetSelItemId(o.item.id)
     end
     build.itemsTab:PopulateSlots(); build.buildFlag = true; runCallback("OnFrame")
+    pcall(restoreSkills, st)
     local calc2 = build.calcsTab:GetMiscCalculator()
     return pick(calc2({}))
   end)
@@ -315,6 +318,7 @@ local function runeApply(req)
     if build.itemsTab.DeleteItem then pcall(build.itemsTab.DeleteItem, build.itemsTab, sv.item) end
   end
   build.itemsTab:PopulateSlots(); build.buildFlag = true; runCallback("OnFrame")
+  pcall(restoreSkills, st)
   if not okc then return { ok = false, error = tostring(after) } end
   return { ok = true, before = pick(base), after = after }
 end

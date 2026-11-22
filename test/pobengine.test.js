@@ -81,15 +81,76 @@ test('PoB1: links per slot, bows drop a shield, newer trees and timeless jewels'
   r = await e1.loadBuild(xml.replace(/treeVersion="3_29"/g, 'treeVersion="3_99"'));
   assert.strictEqual(r.ok, true, r.error);
   assert.ok(r.treeConverted && r.treeConverted.newer, JSON.stringify(r.treeConverted));
-  // a timeless jewel in a socket: left out, the build still loads
+  // a timeless jewel in a socket: its lookup table comes with the app, so it stays in
   const GV = 'Rarity: UNIQUE\nGlorious Vanity\nTimeless Jewel\nLimited to: 1 Historic\nRadius: Large\nImplicits: 0\nBathed in the blood of 1234 sacrificed in the name of Doryani\nPassives in radius are Conquered by the Vaal\nHistoric';
   const sock = (xml.match(/<Socket nodeId="(\d+)" itemId="0"\/>/) || [])[1];
   if (sock) {
     const withGv = xml.replace('</Items>', `<Item id="9999">\n${GV}\n</Item>\n</Items>`).replace(`<Socket nodeId="${sock}" itemId="0"/>`, `<Socket nodeId="${sock}" itemId="9999"/>`);
     r = await e1.loadBuild(withGv);
     assert.strictEqual(r.ok, true, r.error);
-    assert.strictEqual(r.timelessRemoved, 1);
+    assert.strictEqual(r.timelessRemoved, undefined, 'the Legion timeless tables are bundled');
+    assert.ok(r.stats.Life > 1000);
   }
+  // the trees of the last few leagues come along, so those builds aren't moved to the newest one
+  r = await e1.loadBuild(xml.replace(/treeVersion="3_29"/g, 'treeVersion="3_27"'));
+  assert.strictEqual(r.treeVersion, '3_27');
+  assert.strictEqual(r.treeConverted, undefined);
+});
+
+// Parity with Path of Building's own item tooltip: the same lines, and they agree with before/after.
+const num = (t) => Number(String(t).replace(/,/g, '').match(/^[+-][\d.]+/)[0]);
+test('PoB1: an item comes with every line of Path of Building\'s own comparison', { skip: skip1, timeout: 120000 }, async () => {
+  await e1.loadBuild(fx('pob1/berserker-3_29.xml'), []);
+  const [ring] = await e1.evalItems([{ slot: 'Ring 1', text: RING }]);
+  assert.strictEqual(ring.ok, true, ring.error);
+  assert.ok(Array.isArray(ring.lines) && ring.lines.length > 5, JSON.stringify(ring.lines));
+  assert.ok(ring.lines.every((l) => typeof l.text === 'string' && !/\^x?[0-9A-F]/.test(l.text) && typeof l.good === 'boolean'));
+  const life = ring.lines.find((l) => / Total Life/.test(l.text));
+  assert.ok(life, 'a Total Life line');
+  assert.strictEqual(num(life.text), Math.round(ring.after.Life - ring.before.Life));
+  assert.strictEqual(life.good, ring.after.Life > ring.before.Life);
+  const dps = ring.lines.find((l) => / Combined DPS/.test(l.text));
+  assert.ok(dps && Math.abs(num(dps.text) - (ring.after.CombinedDPS - ring.before.CombinedDPS)) < 1, JSON.stringify(dps));
+  // jewels: one list per socket; flasks: one per flask slot
+  const [jewel] = await e1.evalItems([{ slot: 'Jewel', text: JEWEL }]);
+  assert.ok(jewel.multi.some((m) => m.lines && m.lines.length), 'jewel sockets carry lines');
+});
+
+test('PoB1: the main skill stays the same one when gear with its own skill comes and goes', { skip: skip1, timeout: 180000 }, async () => {
+  const HE = 'Item Class: Helmets\nRarity: Rare\nDoom Top\nEternal Burgonet\n--------\nItem Level: 84\n--------\n+60 to maximum Life\nGrants Level 20 Enduring Cry Skill\n';
+  const xml = fx('pob1/berserker-3_29.xml');
+  const AM = 'Item Class: Amulets\nRarity: Rare\nDoom Charm\nOnyx Amulet\n--------\nItem Level: 84\n--------\n+60 to maximum Life\nGrants Level 22 Determination Skill\n';
+  e1.setBuild(xml, [{ slot: 'Helmet', text: HE }, { slot: 'Amulet', text: AM }], { name: 'Enduring Cry' });
+  await e1.ensureLoaded();
+  let sk = await e1.skills();
+  const mainOf = (list) => (list.find((s) => s.main) || {}).name;
+  assert.strictEqual(mainOf(sk), 'Enduring Cry');
+  // the build's gloves grant a skill too. PoB keeps the main skill as a place in its list, the gloves'
+  // skill sits before the helmet's and the amulet's after it: without care the main one becomes Determination
+  const other = sk.find((s) => s.item && s.name !== 'Enduring Cry' && s.name !== 'Determination');
+  assert.ok(other && other.slot === 'Gloves', JSON.stringify(sk.filter((s) => s.item)));
+  const plain = 'Item Class: Gloves\nRarity: Rare\nPlain Paw\nTitan Gauntlets\n--------\nItem Level: 84\n--------\n+50 to maximum Life\n';
+  const [p] = await e1.evalPairs([{ a: { slot: 'Gloves', text: plain }, bs: [{ slot: 'Ring 1', text: RING }] }]);
+  assert.strictEqual(p.ok, true, p.error);
+  assert.strictEqual(p.results.length, 1);
+  assert.ok(p.results[0].ok && p.results[0].after.Life > 0, JSON.stringify(p.results[0]).slice(0, 200));
+  sk = await e1.skills();
+  assert.strictEqual(mainOf(sk), 'Enduring Cry', 'still the main skill after two items were tried together');
+  e1.setBuild(xml, [], null);
+});
+
+test('PoB2: comparisons start from the character as it is, also for a build with no skills', { skip: skip2, timeout: 120000 }, async () => {
+  const r = await e2.loadBuild(fx('pob2-minimal.xml'));
+  assert.ok(r.stats.Life > 1000, 'level 92 life, not PoB\'s first level 1 pass: ' + r.stats.Life);
+  const ring = 'Item Class: Rings\nRarity: Rare\nGale Loop\nSapphire Ring\n--------\nItem Level: 80\n--------\n+20% to Cold Resistance (implicit)\n--------\n+30% to Fire Resistance\n+40 to maximum Life\n';
+  const [x] = await e2.evalItems([{ slot: 'Ring 1', text: ring }]);
+  assert.strictEqual(x.ok, true, x.error);
+  assert.strictEqual(x.before.Life, r.stats.Life);
+  const life = x.lines.find((l) => / Total Life/.test(l.text));
+  assert.ok(life && life.good, JSON.stringify(x.lines));
+  assert.strictEqual(num(life.text), Math.round(x.after.Life - x.before.Life));
+  assert.ok(x.after.Life - x.before.Life < 200, 'a +40 life ring, not a jump from level 1: ' + (x.after.Life - x.before.Life));
+  assert.ok(x.lines.some((l) => /\+30% Fire Resistance/.test(l.text)));
 });
 
 const GRANITE = 'Item Class: Utility Flasks\nRarity: Magic\nAbecedarian\'s Granite Flask of the Armadillo\n--------\nLasts 5.00 Seconds\nConsumes 30 of 60 Charges on use\nCurrently has 0 Charges\n+1500 to Armour\n--------\nRequirements:\nLevel: 27\n--------\nItem Level: 84\n--------\n40% increased Armour during Effect\n--------\nRight click to drink. Can only hold charges while in belt. Refills as you kill monsters.\n';

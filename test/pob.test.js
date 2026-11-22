@@ -112,3 +112,16 @@ test('a unique with variants keeps only the selected variant', () => {
   // no "Selected Variant": PoB uses the last one
   assert.doesNotMatch(convertItem(raw.replace('Selected Variant: 2\n', ''), 'Body Armour').text, /Fire Resistance/);
 });
+
+test('keepCopy: an item saved from the game stays when the build has not changed in that slot', () => {
+  const before = { Helmet: 'Rarity: RARE\nOld Cap', Gloves: 'Rarity: RARE\nOld Paw' };
+  const now = { Helmet: 'Rarity: RARE\nOld Cap', Gloves: 'Rarity: RARE\nNew Paw' };
+  const mine = { name: 'Fresh Cap' };
+  assert.strictEqual(P.keepCopy(mine, before, now, 'Helmet'), true); // same in both imports: mine is newer
+  assert.strictEqual(P.keepCopy(mine, before, now, 'Gloves'), false); // changed in Path of Building
+  assert.strictEqual(P.keepCopy({ name: 'Old Cap', fromPob: true }, before, now, 'Helmet'), false);
+  assert.strictEqual(P.keepCopy({ name: 'Guide Cap', fromGuide: true }, before, now, 'Helmet'), false);
+  assert.strictEqual(P.keepCopy(mine, null, now, 'Helmet'), false); // no earlier import: the build wins
+  assert.strictEqual(P.keepCopy(mine, before, now, 'Boots'), false); // nothing there before
+  assert.strictEqual(P.keepCopy(null, before, now, 'Helmet'), false);
+});

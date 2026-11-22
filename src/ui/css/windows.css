@@ -112,6 +112,10 @@ summary:hover { color: var(--gold-hi); }
 .gear .pos { color: var(--up); } .gear .neg { color: var(--down); }
 .gear-detail { border-left: 1px solid var(--bronze); padding: 2px 0 4px 10px; margin: 2px 0 6px; font-size: 13px; }
 .gc { display: grid; grid-template-columns: 1fr auto 44px; gap: 8px; }
+.pob-more { margin: 4px 0 0; font-size: 13px; }
+.pob-lines .pl { font-variant-numeric: tabular-nums; line-height: 1.45; }
+.pob-lines .pl-head { margin-bottom: 3px; }
+.pob-lines .pl-group { margin-top: 4px; color: var(--gold); font-size: 12px; }
 .gc b { text-align: right; color: var(--up); }
 
 /* ---------- compact popup ---------- */

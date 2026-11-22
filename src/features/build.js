@@ -80,6 +80,12 @@ module.exports = function (C) {
       // build after a sword-and-shield one): taken off too, so the old shield isn't your offhand. Items
       // you copied from the game stay.
       for (const [slot, it] of Object.entries(C.store.equipped || {})) if (it && (it.fromGuide || it.fromPob) && !r.items[slot]) C.store.setEquipped(slot, null);
+      // the build as it was before this update (a linked build read again): a slot whose item is the
+      // same in both wasn't touched in Path of Building, so an item you've saved from the game there
+      // since is the newer one and stays. Pasting a build yourself always takes the build's gear.
+      let before = null;
+      if (opts.sync && !plan && !newChar) { try { const px = C.pobXml(); if (px) before = pobLib.parsePob(px).items; } catch (_) { before = null; } }
+      let newer = 0;
       for (const [slot, text] of Object.entries(r.items)) {
         const item = parseItem(text);
         if (!item) continue;
@@ -88,6 +94,7 @@ module.exports = function (C) {
         const cur = C.store.equipped[slot];
         // a copy from the game has base Armour/ES values PoB doesn't store: keep it if it's the same item
         if (cur && cur.name === item.name && !cur.fromPob) { kept++; continue; }
+        if (pobLib.keepCopy(cur, before, r.items, slot)) { newer++; continue; }
         C.store.setEquipped(slot, item);
         C.store.noteStats(item);
       }
@@ -103,6 +110,7 @@ module.exports = function (C) {
       let message = `Imported ${slots.length} item${slots.length === 1 ? '' : 's'}${who ? ` (${who})` : ''}${r.resists ? ' and your resistances' : ''}.`;
       if (newChar) message = `New ${C.G(bg).short} character "${newChar}": ` + message.charAt(0).toLowerCase() + message.slice(1);
       if (kept) message += ` Kept ${kept} you'd already copied from the game (same item, more detail).`;
+      if (newer) message += ` ${newer} item${newer === 1 ? '' : 's'} you saved from the game since ${newer === 1 ? 'stays' : 'stay'}: the build still has the old one${newer === 1 ? '' : 's'} in ${newer === 1 ? 'that slot' : 'those slots'}.`;
       if (plan) {
         const rp = plan.report;
         const stageTxt = plan.stages.length > 1 ? ` at ${rp.stage.label.toLowerCase()}` : '';
@@ -340,7 +348,7 @@ module.exports = function (C) {
     const tv = (v) => String(v).replace(/_/g, '.').replace(/\.(ruthless|alternate)$/i, ' $1');
     if (info.treeConverted && info.treeConverted.newer) mismatch.push(`your build was made with a newer Path of Building (passive tree ${tv(info.treeConverted.from)}) than the one in this app (${tv(info.treeConverted.to)}), so new passives may be missing from the verdicts – the app's Path of Building is updated with the app`);
     else if (info.treeConverted) mismatch.push(`your build is on an old passive tree (${tv(info.treeConverted.from)}); it was moved to ${tv(info.treeConverted.to)}, which can drop passives – update the build in Path of Building and import it again`);
-    if (info.timelessRemoved) mismatch.push(`${info.timelessRemoved === 1 ? 'your timeless jewel was' : `your ${info.timelessRemoved} timeless jewels were`} left out of the calculations (the data it needs doesn't come with the app), so verdicts don't include ${info.timelessRemoved === 1 ? 'its' : 'their'} passive changes`);
+    if (info.timelessRemoved) mismatch.push(`${info.timelessRemoved === 1 ? 'your timeless jewel was' : `your ${info.timelessRemoved} timeless jewels were`} left out of the calculations (its lookup table doesn't come with the app), so verdicts don't include ${info.timelessRemoved === 1 ? 'its' : 'their'} passive changes`);
     if (!(pobVerdict.dpsOf(st, dk) > 0)) mismatch.push(`your main skill in Path of Building${info.mainSkill ? ` (${info.mainSkill})` : ''} deals no damage, so damage changes can't be judged – pick your damage skill as the main skill on the Character page (or in PoB, or tick "Include in Full DPS" on your damage skills there and import again)`);
     return {
       ok: true, className: info.className, ascendancy: info.ascendancy, level: info.level, mainSkill: info.mainSkill,

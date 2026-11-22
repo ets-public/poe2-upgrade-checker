@@ -109,7 +109,26 @@
     const capLine = p.resCapped && p.resCapped.length ? `<div class="res-cap">✓ Caps your ${R.esc(p.resCapped.join(' and ').toLowerCase())} resistance</div>` : '';
     const other = (p.breaks || []).filter((b) => !/res (drops off|goes further under)|^(Minion damage|Damage) drops/.test(b));
     const risk = other.length ? `<div class="risks">${window.ICON.warn} ${other.map(R.esc).join(' · ')}</div>` : '';
-    return `${lossBanner}${capLine}${head ? `<div class="pob">${head}</div>` : ''}${risk}${parts.length ? `<div class="charch">${opts.compact ? parts.slice(0, 5).join('') : parts.join('')}</div>` : ''}`;
+    return `${lossBanner}${capLine}${head ? `<div class="pob">${head}</div>` : ''}${risk}${parts.length ? `<div class="charch">${opts.compact ? parts.slice(0, 5).join('') : parts.join('')}</div>` : ''}${window.pobLinesBlock(p, opts)}`;
+  };
+
+  // Path of Building's own comparison, as its item tooltip lists it ("+1,234.5 Hit DPS (+3.2%)"):
+  // every stat of its side bar that changes, yours and your minions'. Folded away under the summary;
+  // open when the popup shows full detail.
+  let pobLinesSeq = 0;
+  window.pobLinesBlock = function (p, opts) {
+    const lines = (p && Array.isArray(p.lines) ? p.lines : []).filter((l) => l && l.text);
+    if (!lines.length) return '';
+    const id = `pob${++pobLinesSeq}`;
+    const row = (l) => `<div class="pl ${l.good ? 'pos' : 'neg'}">${R.esc(l.text)}</div>`;
+    const minion = lines.filter((l) => l.minion); const own = lines.filter((l) => !l.minion);
+    const where = p.socket && p.socket.label ? ` in ${R.esc(p.socket.label)}` : p.slot ? ` in ${R.esc(p.slot)}` : '';
+    const body = `<div class="dim pl-head">Equipping this item${where} will give you (Path of Building's own list):</div>`
+      + (minion.length ? `<div class="pl-group">Minion</div>${minion.map(row).join('')}${own.length ? '<div class="pl-group">You</div>' : ''}` : '')
+      + own.map(row).join('');
+    const open = opts && opts.compact === false;
+    return `<div class="pob-more"><button class="link gear-why" data-why="${id}" title="Every stat Path of Building's own item comparison lists for this swap">All ${lines.length} changes in Path of Building</button></div>
+      <div class="gear-detail pob-lines${open ? '' : ' hidden'}" data-whybox="${id}">${body}</div>`;
   };
 
   // Gear score block: "78 A · for your build · yours 56 (+22)" + why? details
@@ -137,7 +156,7 @@
         <li><span class="vchip up">UPGRADE</span> clearly better · <span class="vchip up">SMALL UPGRADE</span> a little better · <span class="vchip same">SIDEGRADE</span> about the same · <span class="vchip down">DOWNGRADE</span> worse ·
           <span class="vchip risky">UPGRADE, BUT…</span> better, but it costs reservation, links or a resistance below the cap ·
           <span class="vchip down">LOSES RESISTANCE</span> a resistance drops off the cap · <span class="vchip down">LOSES DAMAGE</span> your damage drops. Both go to the bottom of the results.</li>
-        <li>Rings are compared with your weakest ring, jewels in each of your sockets, flasks in your flask slots. Cluster and timeless jewels aren't judged yet.</li>
+        <li>Rings are compared with your weakest ring, jewels in each of your sockets, flasks in your flask slots. Cluster and timeless jewels aren't judged yet (the ones in your build are counted).</li>
         ${opts.pobOn ? '' : '<li><b>No build loaded:</b> paste your Path of Building Community export on My gear, or items get no verdict.</li>'}
       </ul></div>`;
     }

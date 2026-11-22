@@ -48,7 +48,7 @@ A `games/poe1.js` and `games/poe2.js` profile holding everything that differs:
 - `src` is 771 MB, but 552 MB of that is tree images.
 - The Lua and data outside the images is about 185 MB, of which 144 MB is tree data for about 40 tree versions. Keep only the current versions: 3.29's tree is 3.5 MB.
 - Expect about 40–60 MB extra installed.
-- Timeless jewel data is another 170 MB. Make it an optional download.
+- Timeless jewel data is another 170 MB. *Since 0.5.9:* the Legion jewels' and Heroic Tragedy's tables (33 MB of zips) come with the app, read through zlib (`zlib1.dll` from PoB2's runtime on Windows); the Abyss tables (140 MB) don't, and those jewels are still taken out of the build.
 
 **`server.lua` changes,** all tested in a working copy at `/tmp/claude-0/-home-claude/67b9a9f0-cda6-5cb0-89b9-d741af785931/scratchpad/poe1-pob/server.lua`:
 

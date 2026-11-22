@@ -126,8 +126,7 @@ end
 -- Path of Building is running now. From here on it only reads builds and items you give it (a pobb.in
 -- link, a .build file from a guide): take away what it never needs for that, so a build file can't do
 -- more than describe a build, whatever ends up in it. No running programs, no loading native code, no
--- deleting or renaming files, and writing only inside Path of Building's own folder (it keeps a cache
--- of unpacked timeless jewel data there).
+-- deleting or renaming files, and writing only inside Path of Building's own folder.
 do
   local function blocked(name) return function() error(name .. " is turned off in the app's Path of Building", 2) end end
   os.execute, io.popen, os.remove, os.rename, os.tmpname = blocked("os.execute"), blocked("io.popen"), blocked("os.remove"), blocked("os.rename"), blocked("os.tmpname")
@@ -141,6 +140,8 @@ do
     if mode:find("[wa+]") then
       local p = tostring(path)
       if p:find("^[/\\]") or p:find("^%a:") or p:find("%.%.") then return nil, p .. ": writing outside Path of Building's folder is turned off" end
+      -- timeless jewel tables are unpacked in memory each time: no unpacked copies (hundreds of MB) on disk
+      if p:find("TimelessJewelData", 1, true) then return nil, p .. ": not kept on disk" end
     end
     return rawOpen(path, mode)
   end
@@ -178,6 +179,33 @@ local function pick(o)
     r[el .. "ResistMax"] = (res and missing) and (res + missing) or nil
   end
   return r
+end
+
+-- Path of Building's own comparison, line for line: what its item tooltip lists under "Equipping this
+-- item in … will give you:" (every changed stat of its side bar, yours and your minions'), made by
+-- its own function with a stand-in tooltip that only collects the lines. Each line comes back as
+-- { text = "+1,234.5 Hit DPS (+3.2%)", good = true|false, minion = true|nil }.
+local function compareLines(base, out)
+  if not (base and out and build and build.AddStatComparesToTooltip) then return nil end
+  local MARK = "\1"
+  local pos = colorCodes and colorCodes.POSITIVE or "^x33FF77"
+  local list, minion = {}, false
+  local tip = setmetatable({}, { __index = function() return function() end end })
+  tip.AddLine = function(_, _, text)
+    text = tostring(text or "")
+    -- the header line(s): ours, plus PoB's "Minion:" / "Player:" when the main skill is a minion's
+    if text:find(MARK, 1, true) or text == "^7Player:" then
+      minion = text:find("Minion:", 1, true) ~= nil
+      return
+    end
+    if #list >= 80 then return end
+    local good = text:sub(1, #pos) == pos
+    local plain = text:gsub("%^x%x%x%x%x%x%x", ""):gsub("%^%d", "")
+    list[#list + 1] = { text = plain, good = good, minion = minion or nil }
+  end
+  local ok = pcall(build.AddStatComparesToTooltip, build, tip, base, out, MARK)
+  if not ok then return nil end
+  return list
 end
 
 -- PoB releases build items with new("Item", text); its dev branch with new("Item"):Item(text)
@@ -223,6 +251,54 @@ local function gearNames()
     if it then g[name] = it.title or it.name end
   end
   return g
+end
+
+-- Your main skill, kept through a gear change. Path of Building knows the main skill only by its
+-- place in the skill list, and it takes a skill an item grants (a sceptre's aura, a weapon's own
+-- skill, the default attack) off that list and adds it again at the end whenever that item is put
+-- on anew. So after any real gear change the same number can point at another skill: the build was
+-- then judged on, say, an aura, with no damage at all. skillState() notes which skill is the main
+-- one and each granted skill's settings; restoreSkills() points Path of Building back at it and puts
+-- the settings back on the skills it added again.
+local function groupKey(g)
+  local gem = g.gemList and g.gemList[1]
+  return tostring(g.slot or "") .. "|" .. tostring(gem and (gem.skillId or gem.nameSpec) or "")
+end
+local function skillState()
+  local list = build.skillsTab.socketGroupList or {}
+  local st = { main = list[build.mainSocketGroup], seen = {}, byKey = {} }
+  for _, g in ipairs(list) do
+    st.seen[g] = true
+    if g.source or g.ucDefault then
+      st.byKey[groupKey(g)] = { enabled = g.enabled, full = g.includeInFullDPS, skill = g.mainActiveSkill, skillCalcs = g.mainActiveSkillCalcs }
+    end
+  end
+  if st.main and (st.main.source or st.main.ucDefault) then st.mainKey = groupKey(st.main) end
+  return st
+end
+local function restoreSkills(st)
+  if not st then return false end
+  local list = build.skillsTab.socketGroupList or {}
+  local changed, want = false, nil
+  for i, g in ipairs(list) do
+    if g == st.main then want = i end
+    if not st.seen[g] and (g.source or g.ucDefault) then
+      local old = st.byKey[groupKey(g)]
+      if old then
+        if old.enabled ~= nil and g.enabled ~= old.enabled then g.enabled = old.enabled; changed = true end
+        if (g.includeInFullDPS or false) ~= (old.full or false) then g.includeInFullDPS = old.full; changed = true end
+        if old.skill and g.mainActiveSkill ~= old.skill then g.mainActiveSkill = old.skill; changed = true end
+        if old.skillCalcs and g.mainActiveSkillCalcs ~= old.skillCalcs then g.mainActiveSkillCalcs = old.skillCalcs end
+      end
+    end
+  end
+  -- the main skill itself was added again (its item was put on anew): the same skill in the same slot
+  if not want and st.mainKey then
+    for i, g in ipairs(list) do if (g.source or g.ucDefault) and groupKey(g) == st.mainKey then want = i; break end end
+  end
+  if want and want ~= build.mainSocketGroup then build.mainSocketGroup = want; changed = true end
+  if changed then build.buildFlag = true; runCallback("OnFrame") end
+  return changed
 end
 
 -- put items you copied in game into PoB's build, so it calculates with what you really wear
@@ -593,7 +669,7 @@ local function evalItems(items)
         for _, s in ipairs(jewelSockets()) do
           if build.itemsTab:IsItemValidForSlot(item, s.slot) then
             local new_ = calcFunc({ repSlotName = s.slot, repItem = item })
-            multi[#multi + 1] = { slot = s.slot, label = s.label, replacing = s.jewel, replacingCluster = s.cluster, abyssal = s.abyssal, after = pick(new_) }
+            multi[#multi + 1] = { slot = s.slot, label = s.label, replacing = s.jewel, replacingCluster = s.cluster, abyssal = s.abyssal, after = pick(new_), lines = compareLines(base, new_) }
           end
         end
         if #multi == 0 then return { ok = false, error = "You have no allocated jewel socket this jewel fits" } end
@@ -619,7 +695,7 @@ local function evalItems(items)
               multi[#multi + 1] = { slot = s.slotName, label = s.slotName, replacing = cur and (cur.title or cur.name) or nil,
                 replacingBase = cur and cur.baseName or nil, replacingType = cur and cur.base and cur.base.type or nil,
                 replacingSub = cur and cur.base and cur.base.subType or nil, active = was and true or false,
-                before = pick(b), after = pick(a), replacingFlask = nf(cur) }
+                before = pick(b), after = pick(a), replacingFlask = nf(cur), lines = compareLines(b, a) }
             end
           end
         end
@@ -645,7 +721,7 @@ local function evalItems(items)
       local okc, new_ = pcall(calcFunc, { repSlotName = pslot, repItem = item })
       if off then off.selItemId = offId end
       if not okc then error(new_) end
-      return { ok = true, slot = slot, before = pick(base), after = pick(new_) }
+      return { ok = true, slot = slot, before = pick(base), after = pick(new_), lines = compareLines(base, new_) }
     end)
     res[i] = ok and r or { ok = false, error = tostring(r) }
   end
@@ -655,11 +731,11 @@ end
 -- Two items at once ("a ring and boots that cap your resistances together"): each first item is
 -- put on for real, every second item is tried with it, then your gear goes back as it was.
 --   pairs: { { a = {slot, text}, bs = { {slot, text}, ... } }, ... } -> { { before, results = { after|error } } }
-local function evalPairs(pairs)
+local function evalPairs(list) -- (not "pairs": that would hide Lua's own pairs() in here)
   local _, base0 = build.calcsTab:GetMiscCalculator()
   local before = pick(base0)
   local out = {}
-  for i, p in ipairs(pairs or {}) do
+  for i, p in ipairs(list or {}) do
     local res = { results = {} }
     local ok, err = pcall(function()
       local slotA = build.itemsTab.slots[pobSlot(p.a.slot)]
@@ -669,9 +745,11 @@ local function evalPairs(pairs)
       -- (PopulateSlots), so all of them go back afterwards, not just this one
       local saved = {}
       for name, s in pairs(build.itemsTab.slots) do if not s.nodeId then saved[name] = s.selItemId or 0 end end
+      local st = skillState()
       build.itemsTab:AddItem(itemA, true)
       slotA:SetSelItemId(itemA.id)
       build.itemsTab:PopulateSlots(); build.buildFlag = true; runCallback("OnFrame")
+      pcall(restoreSkills, st)
       local okc, e2 = pcall(function()
         local calcFunc = build.calcsTab:GetMiscCalculator()
         for k, b in ipairs(p.bs or {}) do
@@ -687,6 +765,7 @@ local function evalPairs(pairs)
       for name, id in pairs(saved) do local s = build.itemsTab.slots[name]; if s and s.selItemId ~= id then s:SetSelItemId(id) end end
       if build.itemsTab.DeleteItem then pcall(build.itemsTab.DeleteItem, build.itemsTab, itemA) end
       build.itemsTab:PopulateSlots(); build.buildFlag = true; runCallback("OnFrame")
+      pcall(restoreSkills, st)
       if not okc then error(e2) end
     end)
     if not ok then res.error = tostring(err) end
@@ -806,11 +885,33 @@ end
 -- the checks the app asks for now and then live in server-checks.lua, next to this file (paths
 -- relative to the working directory, like this script's own: Lua opens files with ANSI paths)
 local checksFile = ((debug.getinfo(1, "S").source or ""):match("^@(.*[/\\])") or "") .. "server-checks.lua"
-local checks = assert(loadfile(checksFile))({ GAME = GAME, num = num, pick = pick, makeItem = makeItem, pobSlot = pobSlot })
+local checks = assert(loadfile(checksFile))({ GAME = GAME, num = num, pick = pick, makeItem = makeItem, pobSlot = pobSlot, skillState = skillState, restoreSkills = restoreSkills })
 local gemCheck, anointCheck, bossCheck, affixNames, skillDps = checks.gemCheck, checks.anointCheck, checks.bossCheck, checks.affixNames, checks.skillDps
 local runeCheck, runeApply, betterBases, genQuery, bestUniques = checks.runeCheck, checks.runeApply, checks.betterBases, checks.genQuery, checks.bestUniques
 local craftOptions = checks.craftOptions
 
+
+-- is a timeless jewel's lookup table here? Which jewel it is shows in its one mod line (its name can
+-- be anything in a build: "Lethal Pride [13348; Wind Dancer]"). The table is a .zip (in parts for the
+-- big one) in Data/TimelessJewelData.
+local TIMELESS = {
+  { "Bathed in the blood of", "GloriousVanity" }, { "Commanded leadership over", "LethalPride" },
+  { "Denoted service of", "BrutalRestraint" }, { "Carved to glorify", "MilitantFaith" },
+  { "Commissioned", "ElegantHubris" }, { "Remembrancing", "HeroicTragedy" },
+}
+local function timelessData(body)
+  if not realInflate then return false end -- no zlib here: the tables can't be unpacked
+  for _, t in ipairs(TIMELESS) do
+    if tostring(body):find(t[1], 1, true) then
+      for _, ext in ipairs({ ".zip", ".zip.part0" }) do
+        local f = io.open("Data/TimelessJewelData/" .. t[2] .. ext, "rb")
+        if f then f:close(); return true end
+      end
+      return false
+    end
+  end
+  return false
+end
 
 local HEAVY = { setmain = true, load = true, equip = true, pairs = true, runeapply = true, skilldps = true, query = true, anoints = true, bosscheck = true, uniques = true }
 
@@ -845,11 +946,11 @@ while true do
           if ver(v) > ver(latestTreeVersion) then newer = true end
           return 'treeVersion="' .. latestTreeVersion .. '"'
         end)
-        -- timeless jewels need lookup tables that don't come with the app (hundreds of MB):
-        -- take them out of their sockets so the rest of the build still loads
+        -- timeless jewels need lookup tables (Data/TimelessJewelData). The Legion ones come with the
+        -- app; one whose table isn't here is taken out of its socket so the rest of the build loads
         local ids = {}
         for id, body in xml:gmatch('<Item%s[^>]-id="(%d+)"[^>]*>(.-)</Item>') do
-          if body:match("\nTimeless Jewel%s*\n") or body:match("\nTimeless Jewel%s*$") then ids[id] = true end
+          if (body:match("\nTimeless Jewel%s*\n") or body:match("\nTimeless Jewel%s*$")) and not timelessData(body) then ids[id] = true end
         end
         if next(ids) then
           xml = xml:gsub("<Socket [^>]*>", function(tag)
@@ -869,14 +970,19 @@ while true do
         return { ok = false, error = "Path of Building couldn't load this build: " .. msg }
       end
       if not (build and build.spec and build.calcsTab and build.calcsTab.mainOutput) then return { ok = false, error = "Path of Building couldn't load this build." } end
-      pcall(addDefaultAttack)
+      do local st = skillState(); pcall(addDefaultAttack); pcall(restoreSkills, st) end
+      -- one full pass with everything in place: a build with no skills (or a hand-made one) can be
+      -- left on PoB's first, level 1 pass, and every comparison would then start from that
+      pcall(function() build.calcsTab:BuildOutput() end)
       local r = summary()
       if converted then r.treeConverted = { from = converted, to = latestTreeVersion, newer = newer or nil } end
       if timeless then r.timelessRemoved = timeless end
       return r
     elseif req.cmd == "equip" then
+      local st = skillState()
       local done = equip(req.items)
       pcall(addDefaultAttack) -- a new weapon has its own default attack
+      pcall(restoreSkills, st) -- and the main skill is still the one it was
       local r = summary(); r.equipped = done
       return r
     elseif req.cmd == "query" then
