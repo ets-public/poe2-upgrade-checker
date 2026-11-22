@@ -194,10 +194,20 @@ function parsePob(xml) {
   return { items: converted, resists: Object.keys(res).length ? res : null, character, missingBase };
 }
 
+// A linked build is read again (its file changed, or its pobb.in link was read again). Does the item
+// you saved from the game in `slot` stay? Yes when the build's own item in that slot is the same as
+// in the last import: it wasn't changed in Path of Building, so your copy is the newer one. When the
+// build's item there changed (or there was no earlier import), the build's item is taken.
+//   cur: your saved item; before / now: { slot: item text } of the last import and of this one
+function keepCopy(cur, before, now, slot) {
+  if (!cur || cur.fromPob || cur.fromGuide || !before || !now) return false;
+  return !!before[slot] && before[slot] === now[slot];
+}
+
 // pobb.in links -> the raw code URL
 function pobbinRawUrl(input) {
   const m = String(input || '').trim().match(/^https?:\/\/(?:www\.)?pobb\.in\/(?:u\/[^/]+\/)?([A-Za-z0-9_-]+)\/?$/);
   return m ? `https://pobb.in/${m[1]}/raw` : null;
 }
 
-module.exports = { decodeCode, parsePob, convertItem, pobbinRawUrl, SLOT_MAP };
+module.exports = { decodeCode, parsePob, convertItem, keepCopy, pobbinRawUrl, SLOT_MAP };

@@ -5,7 +5,7 @@
 // pobhost.exe on Windows; on Linux, LuaJIT and the lua-utf8 module built from pinned sources
 // (needs git, gcc and make) into vendor/pob/runtime/linux.
 // Only the parts the calculations need are downloaded (Lua + data, no images): about 50 MB for
-// PoE2; for PoE1 also only the newest passive trees and no timeless jewel data, about 60 MB.
+// PoE2; for PoE1 the passive trees from 3.27 on and the Legion timeless jewels' tables, about 130 MB.
 // Run by test-build.bat, build-exe.bat and the release build. Safe to run again: it skips
 // the download when the right version is already there.
 //
@@ -23,16 +23,19 @@ const TARGETS = [
     name: 'Path of Building (PoE2)', repo: 'https://github.com/PathOfBuildingCommunity/PathOfBuilding-PoE2.git', tag: 'v0.23.1', commit: '7d6f530cbdab20389ff8bc6ba97a37ac27f74e41',
     dest: path.join(ROOT, 'vendor', 'pob'),
     paths: ['/src/**/*.lua', '/src/**/*.json', '!/src/Export/',
-      '/runtime/lua/', '/runtime/lua51.dll', '/runtime/lua-utf8.dll', '/runtime/vcruntime140.dll', '/LICENSE.md', '/manifest.xml'],
+      '/runtime/lua/', '/runtime/lua51.dll', '/runtime/lua-utf8.dll', '/runtime/zlib1.dll', '/runtime/vcruntime140.dll', '/LICENSE.md', '/manifest.xml'],
   },
   {
-    // PoE1. Runs in the same host and LuaJIT as PoE2's (vendor/pob/runtime). Older passive trees
-    // are left out (a build made on one is moved to the newest tree when it loads), and so is the
-    // 170 MB of timeless jewel data (zips): those jewels aren't judged.
+    // PoE1. Runs in the same host and LuaJIT as PoE2's (vendor/pob/runtime). Passive trees older than
+    // 3.27 are left out (a build made on one is moved to the newest tree when it loads). The Legion
+    // timeless jewels' lookup tables come along (33 MB of zips: without them a build with one of those
+    // jewels calculates without it); the Abyss ones (140 MB more) don't, and are taken out of the build.
     name: 'Path of Building Community (PoE1)', repo: 'https://github.com/PathOfBuildingCommunity/PathOfBuilding.git', tag: 'v2.68.1', commit: 'a41fec6c20f822a658ae5df1273e8c69d5969bac',
     dest: path.join(ROOT, 'vendor', 'pob1'),
     paths: ['/src/**/*.lua', '/src/**/*.json', '/src/**/*.jsonc', '!/src/Export/**', '!/src/TreeData/**', '/src/TreeData/*.lua',
-      '/src/TreeData/3_30/*.lua', '/src/TreeData/3_29/*.lua', '/src/TreeData/3_19/Assets.lua', '/src/TreeData/legion/*', '!/src/TreeData/legion/*.png',
+      '/src/TreeData/3_30*/*.lua', '/src/TreeData/3_29*/*.lua', '/src/TreeData/3_28*/*.lua', '/src/TreeData/3_27*/*.lua', '/src/TreeData/3_19/Assets.lua', '/src/TreeData/legion/*', '!/src/TreeData/legion/*.png',
+      '/src/Data/TimelessJewelData/BrutalRestraint.zip', '/src/Data/TimelessJewelData/ElegantHubris.zip', '/src/Data/TimelessJewelData/GloriousVanity.zip.part*',
+      '/src/Data/TimelessJewelData/HeroicTragedy.zip', '/src/Data/TimelessJewelData/LethalPride.zip', '/src/Data/TimelessJewelData/MilitantFaith.zip',
       '/runtime/lua/', '/LICENSE.md', '/manifest.xml'],
   },
 ];
@@ -49,7 +52,10 @@ function fetchPob(t) {
   const STAMP = path.join(t.dest, '.pob-version');
   const DEST = t.dest; const POB_TAG = t.tag; const POB_REPO = t.repo;
   const rel = path.relative(ROOT, DEST).replace(/\\/g, '/');
-  if (!process.argv.includes('--force') && fs.existsSync(STAMP) && fs.readFileSync(STAMP, 'utf8').trim() === POB_TAG) {
+  // the stamp names the version and which of its files were fetched, so a copy fetched before the
+  // file list grew (timeless jewel tables, more passive trees) is fetched again
+  const WANT = `${POB_TAG} ${require('crypto').createHash('sha1').update(t.paths.join('\n')).digest('hex').slice(0, 10)}`;
+  if (!process.argv.includes('--force') && fs.existsSync(STAMP) && fs.readFileSync(STAMP, 'utf8').trim() === WANT) {
     console.log(`${t.name} ${POB_TAG} is already in ${rel}.`);
     return;
   }
@@ -73,7 +79,7 @@ function fetchPob(t) {
     process.exit(1);
   }
   fs.rmSync(path.join(DEST, '.git'), { recursive: true, force: true });
-  fs.writeFileSync(STAMP, POB_TAG + '\n');
+  fs.writeFileSync(STAMP, WANT + '\n');
 }
 
 // pobhost.exe: compiled with the C# compiler that comes with Windows (.NET Framework 4)

@@ -130,6 +130,7 @@ module.exports = function (C) {
             const j = pobVerdict.judge(m.before || r.before, m.after, pobWeights());
             if (!j) continue;
             j.slot = 'Flask'; j.socket = { kind: 'flask', slot: m.slot, label: m.label, replacing: m.replacing || null, active: m.active };
+            if (m.lines) j.lines = m.lines;
             const note = flaskNote(r, m);
             if (note) j.flaskNote = note;
             // a life / mana flask in place of the same kind: its recovery isn't in Path of Building's
@@ -157,12 +158,13 @@ module.exports = function (C) {
           if (!usable.length) { errs[idx[k][0]] = errs[idx[k][0]] || 'Your only jewel sockets this fits hold cluster jewels, which the app can\'t judge a swap for yet.'; return; }
           for (const m of usable) {
             const j = pobVerdict.judge(r.before, m.after, pobWeights());
-            if (j) { j.slot = idx[k][1]; j.socket = { slot: m.slot, label: m.label, replacing: m.replacing || null }; if (lim && own.length) j.limitNote = `Limited to ${lim}: compared in place of the one in your tree`; per[idx[k][0]].push(j); }
+            if (j) { j.slot = idx[k][1]; j.socket = { slot: m.slot, label: m.label, replacing: m.replacing || null }; if (m.lines) j.lines = m.lines; if (lim && own.length) j.limitNote = `Limited to ${lim}: compared in place of the one in your tree`; per[idx[k][0]].push(j); }
           }
           return;
         }
         const j = pobVerdict.judge(r.before, r.after, pobWeights());
-        if (j) { j.slot = idx[k][1]; gearBreaks(j, list[idx[k][0]].item, req[k].slot); per[idx[k][0]].push(j); }
+        // Path of Building's own list of what changes (its item tooltip's lines), shown under the verdict
+        if (j) { j.slot = idx[k][1]; if (r.lines) j.lines = r.lines; gearBreaks(j, list[idx[k][0]].item, req[k].slot); per[idx[k][0]].push(j); }
       });
     }
     const out = per.map((arr) => pobVerdict.best(arr));
@@ -234,7 +236,7 @@ module.exports = function (C) {
   function poe1Unjudged(item, slot) {
     if (!item) return null;
     if (isClusterJewel(item)) return "Cluster jewels aren't judged yet: they add passives, which the app's Path of Building check doesn't redo.";
-    if (isTimelessJewel(item)) return "Timeless jewels aren't judged yet: their passive changes need data that doesn't come with the app.";
+    if (isTimelessJewel(item)) return "Timeless jewels aren't judged yet: they rewrite the passives around their socket, which Path of Building only works out once the jewel is in your build. The one in your build is counted.";
 
     if (!pobCanJudge(item, slot)) return null;
     if (!pobOn()) return pobEngine().available() ? 'Not judged: PoE1 items are judged by Path of Building only. Paste your Path of Building Community build on My gear.' : "Not judged: Path of Building for PoE1 isn't installed with this copy of the app.";

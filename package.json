@@ -74,6 +74,8 @@
           "src/**/*.lua",
           "src/**/*.json",
           "src/**/*.jsonc",
+          "src/Data/TimelessJewelData/*.zip",
+          "src/Data/TimelessJewelData/*.zip.part*",
           "!src/Export/**",
           "runtime/lua/**",
           "LICENSE.md",
