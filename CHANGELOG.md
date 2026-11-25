@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.9 - 2026-11-25
 A check of every step between your item and Path of Building's answer, against Path of Building itself on 26 real builds from pobb.in (both games). The calculation was already Path of Building's own; these are the places where the app fed it something else than Path of Building would have.
 - **Your main skill no longer changes behind your back.** Path of Building remembers the main skill as a place in its skill list. Gear that grants a skill (a unique's own skill, *Grants Level 20 ...*) adds and removes entries in that list, so after you saved such an item from the game, or the app tried two items together, the damage could quietly be measured on a different skill. The app now keeps hold of the skill itself, with its *Include in Full DPS* tick.
 - **PoE1: timeless jewels in your build are counted.** They used to be taken out of the build because their lookup tables didn't come with the app, so every verdict was against a character without them (for some builds that is most of the damage or the whole defence). The tables for Glorious Vanity, Lethal Pride, Brutal Restraint, Militant Faith, Elegant Hubris and Heroic Tragedy now come with the app (about 33 MB).
@@ -9,6 +9,7 @@ A check of every step between your item and Path of Building's answer, against P
 - **"Two items together" works.** *Where to spend* checks whether two items that each break a resistance fix each other. That check failed every time and was skipped without a word.
 - **A bare build (no skills set up)** could be compared from Path of Building's first pass at level 1, so any item looked like a huge upgrade. It now starts from your real character.
 - **Updating a linked build keeps what you've saved since.** When the app reads your Path of Building build again and a slot's item there hasn't changed, an item you saved from the game for that slot in the meantime stays (it's the newer one). A slot you changed in Path of Building takes the build's item, as before.
+- **Website: the Linux page answers the question people search for.** Its title and search snippet now say up front that Path of Exile 2 runs on Linux (Proton, Steam Deck) and that Path of Building works without Wine, with a new question, *Can I use Path of Building on Linux without Wine?*.
 
 ## 0.5.8 - 2026-11-20
 - **The built-in Ctrl+C helper is used now.** 0.5.7 shipped `poekeys.exe` but looked for it in the wrong folder, so it still started PowerShell as before (everything worked, just the old way).
